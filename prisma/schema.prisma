@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enums
+enum Role {
+  ADMIN
+  CANDIDATE
+}
+
+enum Availability {
+  ACTIVELY_LOOKING
+  OPEN_TO_OFFERS
+  NOT_LOOKING
+  HIRED
+}
+
+enum Difficulty {
+  INTERN
+  JUNIOR
+  MID
+}
+
+enum SubmissionStatus {
+  ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  PASSED
+  REJECTED
+}
+
+// Models
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  password     String
+  name         String?
+  role         Role         @default(CANDIDATE)
+  availability Availability @default(ACTIVELY_LOOKING)
+  bio          String?
+  skills       String[]
+  githubUrl    String?
+  linkedinUrl  String?
+  resumeUrl    String?
+  phone        String?
+  location     String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  submissions Submission[]
+
+  @@index([role])
+  @@index([availability])
+  @@index([createdAt])
+}
+
+model Assessment {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String
+  difficulty  Difficulty
+  repoUrl     String
+  timeLimit   Int        @default(7) // days
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  submissions Submission[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([difficulty])
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  status       SubmissionStatus @default(ASSIGNED)
+  forkUrl      String?
+  startedAt    DateTime?
+  submittedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentId String
+  assessment   Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  review       Review?
+
+  @@unique([userId, assessmentId])
+  @@index([status])
+  @@index([userId])
+  @@index([assessmentId])
+  @@index([createdAt])
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  codeQuality     Float
+  architecture    Float
+  typeSafety      Float
+  errorHandling   Float
+  testing         Float
+  gitPractices    Float
+  documentation   Float
+  bestPractices   Float
+  averageScore    Float
+  passed          Boolean
+  summary         String
+  strengths       String[]
+  improvements    String[]
+  createdAt       DateTime @default(now())
+
+  submissionId    String   @unique
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([passed])
+  @@index([averageScore])
+  @@index([createdAt])
+}
