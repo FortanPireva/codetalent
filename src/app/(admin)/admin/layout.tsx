@@ -18,6 +18,7 @@ import {
   Users,
   FileCode,
   UserCheck,
+  UserPlus,
   LogOut,
   Menu,
   X,
@@ -27,6 +28,7 @@ import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Verification", href: "/admin/verification", icon: UserPlus },
   { name: "Pipeline", href: "/admin/candidates", icon: Users },
   { name: "Assessments", href: "/admin/assessments", icon: FileCode },
   { name: "Talent Pool", href: "/admin/talent-pool", icon: UserCheck },

@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus } from "@prisma/client";
+import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus, CandidateStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -21,7 +21,7 @@ async function main() {
   });
   console.log(`✅ Admin user created: ${admin.email}`);
 
-  // Create sample candidate
+  // Create sample candidate (approved)
   const candidatePassword = await bcrypt.hash("candidate123", 12);
   const candidate = await prisma.user.upsert({
     where: { email: "candidate@example.com" },
@@ -31,6 +31,7 @@ async function main() {
       password: candidatePassword,
       name: "John Doe",
       role: Role.CANDIDATE,
+      candidateStatus: CandidateStatus.APPROVED,
       availability: Availability.ACTIVELY_LOOKING,
       bio: "Full-stack developer passionate about React and Node.js",
       skills: ["TypeScript", "React", "Node.js", "PostgreSQL"],
@@ -40,6 +41,28 @@ async function main() {
     },
   });
   console.log(`✅ Candidate user created: ${candidate.email}`);
+
+  // Create sample pending candidate for testing
+  const pendingPassword = await bcrypt.hash("pending123", 12);
+  const pendingCandidate = await prisma.user.upsert({
+    where: { email: "pending@example.com" },
+    update: {},
+    create: {
+      email: "pending@example.com",
+      password: pendingPassword,
+      name: "Jane Smith",
+      role: Role.CANDIDATE,
+      candidateStatus: CandidateStatus.PENDING_REVIEW,
+      availability: Availability.OPEN_TO_OFFERS,
+      bio: "Backend developer with experience in Python and Go",
+      skills: ["Python", "Go", "Docker", "Kubernetes"],
+      githubUrl: "https://github.com/janesmith",
+      linkedinUrl: "https://linkedin.com/in/janesmith",
+      location: "London, UK",
+      phone: "+44 7700 900000",
+    },
+  });
+  console.log(`✅ Pending candidate created: ${pendingCandidate.email}`);
 
   // Create sample assessments
   const assessments = [

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, adminProcedure } from "@/server/api/trpc";
-import { Availability, SubmissionStatus } from "@prisma/client";
+import { Availability, SubmissionStatus, CandidateStatus } from "@prisma/client";
 
 export const talentPoolRouter = createTRPCRouter({
   // Admin: List filtered candidates (talent pool)
@@ -18,6 +18,7 @@ export const talentPoolRouter = createTRPCRouter({
       const candidates = await ctx.db.user.findMany({
         where: {
           role: "CANDIDATE",
+          candidateStatus: "APPROVED",
           availability: input.availability,
           ...(input.search
             ? {
@@ -134,6 +135,7 @@ export const talentPoolRouter = createTRPCRouter({
       openToOffers,
       passedAssessments,
       pendingReviews,
+      pendingVerification,
     ] = await Promise.all([
       ctx.db.user.count({ where: { role: "CANDIDATE" } }),
       ctx.db.user.count({
@@ -144,6 +146,9 @@ export const talentPoolRouter = createTRPCRouter({
       }),
       ctx.db.submission.count({ where: { status: SubmissionStatus.PASSED } }),
       ctx.db.submission.count({ where: { status: SubmissionStatus.SUBMITTED } }),
+      ctx.db.user.count({
+        where: { role: "CANDIDATE", candidateStatus: CandidateStatus.PENDING_REVIEW },
+      }),
     ]);
 
     return {
@@ -152,6 +157,7 @@ export const talentPoolRouter = createTRPCRouter({
       openToOffers,
       passedAssessments,
       pendingReviews,
+      pendingVerification,
     };
   }),
 
@@ -201,5 +207,132 @@ export const talentPoolRouter = createTRPCRouter({
         createdAt: candidate.createdAt,
         submissions: candidate.submissions,
       };
+    }),
+
+  // Admin: List candidates pending verification
+  listPendingVerification: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.user.findMany({
+        where: {
+          role: "CANDIDATE",
+          candidateStatus: "PENDING_REVIEW",
+          ...(input.search
+            ? {
+                OR: [
+                  { name: { contains: input.search, mode: "insensitive" } },
+                  { email: { contains: input.search, mode: "insensitive" } },
+                ],
+              }
+            : {}),
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          location: true,
+          skills: true,
+          githubUrl: true,
+          linkedinUrl: true,
+          phone: true,
+          bio: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "asc" },
+      });
+    }),
+
+  // Admin: Get pending candidate detail
+  getPendingCandidate: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const candidate = await ctx.db.user.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!candidate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Candidate not found",
+        });
+      }
+
+      if (candidate.role !== "CANDIDATE") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is not a candidate",
+        });
+      }
+
+      return {
+        id: candidate.id,
+        email: candidate.email,
+        name: candidate.name,
+        bio: candidate.bio,
+        phone: candidate.phone,
+        location: candidate.location,
+        skills: candidate.skills,
+        availability: candidate.availability,
+        githubUrl: candidate.githubUrl,
+        linkedinUrl: candidate.linkedinUrl,
+        resumeUrl: candidate.resumeUrl,
+        candidateStatus: candidate.candidateStatus,
+        createdAt: candidate.createdAt,
+      };
+    }),
+
+  // Admin: Approve a candidate
+  approveCandidate: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        select: { role: true, candidateStatus: true },
+      });
+
+      if (!user || user.role !== "CANDIDATE") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Candidate not found" });
+      }
+
+      return ctx.db.user.update({
+        where: { id: input.userId },
+        data: {
+          candidateStatus: "APPROVED",
+          rejectionReason: null,
+        },
+        select: { id: true, name: true, candidateStatus: true },
+      });
+    }),
+
+  // Admin: Reject a candidate
+  rejectCandidate: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        select: { role: true, candidateStatus: true },
+      });
+
+      if (!user || user.role !== "CANDIDATE") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Candidate not found" });
+      }
+
+      return ctx.db.user.update({
+        where: { id: input.userId },
+        data: {
+          candidateStatus: "REJECTED",
+          rejectionReason: input.reason || null,
+        },
+        select: { id: true, name: true, candidateStatus: true },
+      });
     }),
 });

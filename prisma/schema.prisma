@@ -36,6 +36,13 @@ enum SubmissionStatus {
   REJECTED
 }
 
+enum CandidateStatus {
+  ONBOARDING
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -51,6 +58,8 @@ model User {
   resumeUrl    String?
   phone        String?
   location     String?
+  candidateStatus CandidateStatus @default(ONBOARDING)
+  rejectionReason String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -58,6 +67,7 @@ model User {
 
   @@index([role])
   @@index([availability])
+  @@index([candidateStatus])
   @@index([createdAt])
 }
 

@@ -18,7 +18,7 @@ import {
   difficultyColors,
   difficultyLabels,
 } from "@/lib/utils";
-import { Users, FileCode, CheckCircle, Clock, ArrowRight } from "lucide-react";
+import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const { data: stats } = api.talentPool.stats.useQuery();
@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -103,6 +103,23 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               awaiting AI review
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Pending Verification
+            </CardTitle>
+            <UserPlus className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.pendingVerification ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              new candidates to review
             </p>
           </CardContent>
         </Card>
@@ -222,6 +239,9 @@ export default function AdminDashboardPage() {
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/candidates">View Pipeline</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/admin/verification">Review Pending Candidates</Link>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/talent-pool">Browse Talent Pool</Link>

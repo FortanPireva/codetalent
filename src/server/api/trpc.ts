@@ -78,3 +78,31 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
 
 // Admin procedure - requires JWT + role === "ADMIN"
 export const adminProcedure = t.procedure.use(enforceUserIsAdmin);
+
+// Approved candidate middleware - admins always pass; candidates must be APPROVED
+const enforceApprovedCandidate = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  if (ctx.session.user.role === "ADMIN") {
+    return next({
+      ctx: { session: { ...ctx.session, user: ctx.session.user } },
+    });
+  }
+  const user = await db.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { candidateStatus: true },
+  });
+  if (!user || user.candidateStatus !== "APPROVED") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Your account must be approved to access this resource",
+    });
+  }
+  return next({
+    ctx: { session: { ...ctx.session, user: ctx.session.user } },
+  });
+});
+
+// Approved procedure - requires approved candidate or admin
+export const approvedProcedure = t.procedure.use(enforceApprovedCandidate);

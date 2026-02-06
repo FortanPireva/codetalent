@@ -29,6 +29,8 @@ const navigation = [
   { name: "Profile", href: "/profile", icon: User },
 ];
 
+const minimalPaths = ["/onboarding", "/pending", "/rejected"];
+
 export default function CandidateLayout({
   children,
 }: {
@@ -38,12 +40,33 @@ export default function CandidateLayout({
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const isMinimal = minimalPaths.some((p) => pathname.startsWith(p));
+
   const userInitials =
     session?.user?.name
       ?.split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase() ?? "U";
+
+  if (isMinimal) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b lg:px-8">
+          <span className="text-xl font-bold">Codeks HR</span>
+          <Button
+            variant="ghost"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="text-red-600"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out
+          </Button>
+        </header>
+        <main className="p-4 lg:p-8">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

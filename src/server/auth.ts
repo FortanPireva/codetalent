@@ -7,19 +7,21 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
-import { Role } from "@prisma/client";
+import { Role, CandidateStatus } from "@prisma/client";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
       role: Role;
+      candidateStatus: CandidateStatus;
     } & DefaultSession["user"];
   }
 
   interface User {
     id: string;
     role: Role;
+    candidateStatus: CandidateStatus;
   }
 }
 
@@ -27,6 +29,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    candidateStatus: CandidateStatus;
   }
 }
 
@@ -73,15 +76,26 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          candidateStatus: user.candidateStatus,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.candidateStatus = user.candidateStatus;
+      }
+      if (trigger === "update") {
+        const freshUser = await db.user.findUnique({
+          where: { id: token.id },
+          select: { candidateStatus: true },
+        });
+        if (freshUser) {
+          token.candidateStatus = freshUser.candidateStatus;
+        }
       }
       return token;
     },
@@ -89,6 +103,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.candidateStatus = token.candidateStatus;
       }
       return session;
     },

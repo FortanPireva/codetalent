@@ -5,6 +5,7 @@ import {
   publicProcedure,
   protectedProcedure,
   adminProcedure,
+  approvedProcedure,
 } from "@/server/api/trpc";
 import { Difficulty, SubmissionStatus } from "@prisma/client";
 
@@ -40,8 +41,8 @@ export const assessmentRouter = createTRPCRouter({
     });
   }),
 
-  // Protected: Get assessment by slug
-  getBySlug: protectedProcedure
+  // Approved: Get assessment by slug
+  getBySlug: approvedProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
       const assessment = await ctx.db.assessment.findUnique({
@@ -77,8 +78,8 @@ export const assessmentRouter = createTRPCRouter({
       };
     }),
 
-  // Protected: Get assessment by ID
-  getById: protectedProcedure
+  // Approved: Get assessment by ID
+  getById: approvedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const assessment = await ctx.db.assessment.findUnique({
@@ -156,8 +157,8 @@ export const assessmentRouter = createTRPCRouter({
       });
     }),
 
-  // Protected: Apply to assessment (create submission)
-  apply: protectedProcedure
+  // Approved: Apply to assessment (create submission)
+  apply: approvedProcedure
     .input(z.object({ assessmentId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const assessment = await ctx.db.assessment.findUnique({
@@ -207,8 +208,8 @@ export const assessmentRouter = createTRPCRouter({
       });
     }),
 
-  // Protected: Get user's submissions
-  mySubmissions: protectedProcedure.query(async ({ ctx }) => {
+  // Approved: Get user's submissions
+  mySubmissions: approvedProcedure.query(async ({ ctx }) => {
     return ctx.db.submission.findMany({
       where: { userId: ctx.session.user.id },
       include: {
@@ -232,8 +233,8 @@ export const assessmentRouter = createTRPCRouter({
     });
   }),
 
-  // Protected: Submit GitHub fork URL
-  submitFork: protectedProcedure
+  // Approved: Submit GitHub fork URL
+  submitFork: approvedProcedure
     .input(
       z.object({
         submissionId: z.string(),
