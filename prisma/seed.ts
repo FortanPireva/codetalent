@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus, CandidateStatus } from "@prisma/client";
+import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus, CandidateStatus, CompanySize, ClientStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -125,6 +125,87 @@ async function main() {
       },
     });
     console.log(`✅ Sample submission created for ${candidate.email}`);
+  }
+
+  // Create sample clients
+  const clients = [
+    {
+      name: "TechCorp Solutions",
+      slug: "techcorp-solutions",
+      description: "Enterprise software solutions for Fortune 500 companies, specializing in cloud infrastructure and digital transformation.",
+      industry: "Technology",
+      size: CompanySize.ENTERPRISE,
+      location: "San Francisco, CA",
+      techStack: ["React", "Node.js", "AWS", "Kubernetes", "PostgreSQL"],
+      contactName: "Sarah Johnson",
+      contactEmail: "sarah@techcorp.com",
+      website: "https://techcorp.com",
+      status: ClientStatus.ACTIVE,
+      notes: "Long-term partner, hiring 10+ engineers per quarter.",
+    },
+    {
+      name: "StartupHub AI",
+      slug: "startuphub-ai",
+      description: "AI-powered analytics platform for early-stage startups, providing growth insights and market intelligence.",
+      industry: "Artificial Intelligence",
+      size: CompanySize.STARTUP,
+      location: "Austin, TX",
+      techStack: ["Python", "TensorFlow", "React", "FastAPI"],
+      contactName: "Mike Chen",
+      contactEmail: "mike@startuphub.ai",
+      website: "https://startuphub.ai",
+      status: ClientStatus.ACTIVE,
+      notes: "Fast-growing, needs senior ML engineers.",
+    },
+    {
+      name: "FinanceFlow",
+      slug: "financeflow",
+      description: "Modern fintech platform providing payment processing and financial management tools for small businesses.",
+      industry: "Fintech",
+      size: CompanySize.SMB,
+      location: "New York, NY",
+      techStack: ["TypeScript", "Next.js", "Go", "PostgreSQL", "Redis"],
+      contactName: "Emma Davis",
+      contactEmail: "emma@financeflow.io",
+      website: "https://financeflow.io",
+      status: ClientStatus.ACTIVE,
+    },
+    {
+      name: "GreenTech Industries",
+      slug: "greentech-industries",
+      description: "Sustainable energy solutions and IoT monitoring systems for smart buildings and renewable energy infrastructure.",
+      industry: "Clean Energy",
+      size: CompanySize.SMB,
+      location: "Denver, CO",
+      techStack: ["Python", "React", "MQTT", "TimescaleDB"],
+      contactName: "James Wilson",
+      contactEmail: "james@greentech.com",
+      status: ClientStatus.LEAD,
+      notes: "Initial meeting scheduled for next week.",
+    },
+    {
+      name: "MediaWorks Digital",
+      slug: "mediaworks-digital",
+      description: "Digital media agency specializing in content management systems and streaming platform development.",
+      industry: "Media & Entertainment",
+      size: CompanySize.STARTUP,
+      location: "Los Angeles, CA",
+      techStack: ["Vue.js", "Node.js", "MongoDB", "FFmpeg"],
+      contactName: "Lisa Park",
+      contactEmail: "lisa@mediaworks.digital",
+      website: "https://mediaworks.digital",
+      status: ClientStatus.CHURNED,
+      notes: "Paused hiring due to budget cuts. May re-engage Q3.",
+    },
+  ];
+
+  for (const client of clients) {
+    const created = await prisma.client.upsert({
+      where: { slug: client.slug },
+      update: {},
+      create: client,
+    });
+    console.log(`✅ Client created: ${created.name}`);
   }
 
   console.log("🎉 Seed completed successfully!");

@@ -23,6 +23,7 @@ import {
   Menu,
   X,
   Shield,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -32,6 +33,7 @@ const navigation = [
   { name: "Pipeline", href: "/admin/candidates", icon: Users },
   { name: "Assessments", href: "/admin/assessments", icon: FileCode },
   { name: "Talent Pool", href: "/admin/talent-pool", icon: UserCheck },
+  { name: "Clients", href: "/admin/clients", icon: Building2 },
 ];
 
 export default function AdminLayout({

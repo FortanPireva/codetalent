@@ -43,6 +43,18 @@ enum CandidateStatus {
   REJECTED
 }
 
+enum CompanySize {
+  STARTUP
+  SMB
+  ENTERPRISE
+}
+
+enum ClientStatus {
+  LEAD
+  ACTIVE
+  CHURNED
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -134,5 +146,28 @@ model Review {
 
   @@index([passed])
   @@index([averageScore])
+  @@index([createdAt])
+}
+
+model Client {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  logo         String?
+  website      String?
+  description  String
+  industry     String
+  size         CompanySize
+  location     String
+  techStack    String[]
+  contactName  String
+  contactEmail String
+  status       ClientStatus @default(LEAD)
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([status])
+  @@index([industry])
   @@index([createdAt])
 }

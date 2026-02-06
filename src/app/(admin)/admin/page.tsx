@@ -18,12 +18,13 @@ import {
   difficultyColors,
   difficultyLabels,
 } from "@/lib/utils";
-import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus } from "lucide-react";
+import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus, Building2 } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const { data: stats } = api.talentPool.stats.useQuery();
   const { data: submissions } = api.assessment.listSubmissions.useQuery({});
   const { data: assessments } = api.assessment.listAll.useQuery();
+  const { data: clientStats } = api.clients.stats.useQuery();
 
   const recentSubmissions = submissions?.slice(0, 5);
   const pendingReviews = submissions?.filter((s) => s.status === "SUBMITTED");
@@ -38,7 +39,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -120,6 +121,23 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               new candidates to review
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Clients
+            </CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {clientStats?.activeClients ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {clientStats?.leads ?? 0} leads
             </p>
           </CardContent>
         </Card>
@@ -245,6 +263,9 @@ export default function AdminDashboardPage() {
           </Button>
           <Button variant="outline" asChild>
             <Link href="/admin/talent-pool">Browse Talent Pool</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/admin/clients">Manage Clients</Link>
           </Button>
         </CardContent>
       </Card>
