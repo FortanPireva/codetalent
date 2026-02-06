@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +18,28 @@ import {
   Code,
   BarChart,
 } from "lucide-react";
+import { auth } from "@/server/auth";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
+
+  if (session?.user) {
+    if (session.user.role === "ADMIN") {
+      redirect("/admin");
+    }
+
+    // Candidate routing based on onboarding status
+    switch (session.user.candidateStatus) {
+      case "APPROVED":
+        redirect("/dashboard");
+      case "PENDING_REVIEW":
+        redirect("/pending");
+      case "REJECTED":
+        redirect("/rejected");
+      default:
+        redirect("/onboarding");
+    }
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Navigation */}
