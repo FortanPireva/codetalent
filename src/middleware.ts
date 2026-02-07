@@ -56,7 +56,7 @@ export default withAuth(
       if (status === "APPROVED") {
         // Approved candidates should not see onboarding/pending/rejected pages
         if (isOnboarding || isPending || isRejected) {
-          return NextResponse.redirect(new URL("/dashboard", req.url));
+          return NextResponse.redirect(new URL("/jobs", req.url));
         }
       } else if (status === "PENDING_REVIEW") {
         if (!isPending) {
@@ -88,6 +88,7 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/assessments/:path*",
+    "/jobs/:path*",
     "/admin/:path*",
     "/onboarding/:path*",
     "/pending/:path*",

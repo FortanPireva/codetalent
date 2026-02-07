@@ -44,7 +44,7 @@ export default async function LandingPage() {
     // Candidate routing based on onboarding status
     switch (session.user.candidateStatus) {
       case "APPROVED":
-        redirect("/dashboard");
+        redirect("/jobs");
       case "PENDING_REVIEW":
         redirect("/pending");
       case "REJECTED":
