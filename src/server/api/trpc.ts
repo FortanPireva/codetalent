@@ -106,3 +106,37 @@ const enforceApprovedCandidate = t.middleware(async ({ ctx, next }) => {
 
 // Approved procedure - requires approved candidate or admin
 export const approvedProcedure = t.procedure.use(enforceApprovedCandidate);
+
+// Client middleware - admins always pass; clients must be APPROVED
+const enforceApprovedClient = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  if (ctx.session.user.role === "ADMIN") {
+    return next({
+      ctx: { session: { ...ctx.session, user: ctx.session.user } },
+    });
+  }
+  if (ctx.session.user.role !== "CLIENT") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Client access required",
+    });
+  }
+  const user = await db.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { clientStatus: true },
+  });
+  if (!user || user.clientStatus !== "APPROVED") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Your company account must be approved to access this resource",
+    });
+  }
+  return next({
+    ctx: { session: { ...ctx.session, user: ctx.session.user } },
+  });
+});
+
+// Client procedure - requires approved client or admin
+export const clientProcedure = t.procedure.use(enforceApprovedClient);

@@ -29,6 +29,11 @@ export const clientRouter = createTRPCRouter({
               }
             : {}),
         },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, clientStatus: true },
+          },
+        },
         orderBy: { createdAt: "desc" },
       });
     }),
@@ -142,4 +147,119 @@ export const clientRouter = createTRPCRouter({
 
     return { totalClients, activeClients, leads };
   }),
+
+  // Admin: Count pending client verifications
+  pendingClientCount: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db.user.count({
+      where: { role: "CLIENT", clientStatus: "PENDING_REVIEW" },
+    });
+  }),
+
+  // Admin: List pending client verifications
+  listPendingClientVerification: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.client.findMany({
+        where: {
+          user: {
+            clientStatus: "PENDING_REVIEW",
+            ...(input.search
+              ? {
+                  OR: [
+                    { name: { contains: input.search, mode: "insensitive" } },
+                    { email: { contains: input.search, mode: "insensitive" } },
+                  ],
+                }
+              : {}),
+          },
+          ...(input.search
+            ? {
+                OR: [
+                  { name: { contains: input.search, mode: "insensitive" } },
+                  { contactName: { contains: input.search, mode: "insensitive" } },
+                  { contactEmail: { contains: input.search, mode: "insensitive" } },
+                ],
+              }
+            : {}),
+        },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, phone: true, clientStatus: true, createdAt: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    }),
+
+  // Admin: Approve client
+  approveClient: adminProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        select: { role: true, clientStatus: true, client: true },
+      });
+
+      if (!user || user.role !== "CLIENT") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client user not found" });
+      }
+
+      if (user.clientStatus !== "PENDING_REVIEW") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "User is not pending review" });
+      }
+
+      const [updatedUser] = await ctx.db.$transaction([
+        ctx.db.user.update({
+          where: { id: input.userId },
+          data: { clientStatus: "APPROVED" },
+          select: { id: true, name: true, clientStatus: true },
+        }),
+        ...(user.client
+          ? [
+              ctx.db.client.update({
+                where: { id: user.client.id },
+                data: { status: "ACTIVE" },
+              }),
+            ]
+          : []),
+      ]);
+
+      return updatedUser;
+    }),
+
+  // Admin: Reject client
+  rejectClient: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        select: { role: true, clientStatus: true },
+      });
+
+      if (!user || user.role !== "CLIENT") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client user not found" });
+      }
+
+      if (user.clientStatus !== "PENDING_REVIEW") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "User is not pending review" });
+      }
+
+      return ctx.db.user.update({
+        where: { id: input.userId },
+        data: {
+          clientStatus: "REJECTED",
+          clientRejectionReason: input.reason || null,
+        },
+        select: { id: true, name: true, clientStatus: true },
+      });
+    }),
 });

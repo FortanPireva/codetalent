@@ -18,13 +18,15 @@ import {
   difficultyColors,
   difficultyLabels,
 } from "@/lib/utils";
-import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus, Building2 } from "lucide-react";
+import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus, Building2, Building, Briefcase } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const { data: stats } = api.talentPool.stats.useQuery();
   const { data: submissions } = api.assessment.listSubmissions.useQuery({});
   const { data: assessments } = api.assessment.listAll.useQuery();
   const { data: clientStats } = api.clients.stats.useQuery();
+  const { data: pendingClientCount } = api.clients.pendingClientCount.useQuery();
+  const { data: jobStats } = api.job.adminStats.useQuery();
 
   const recentSubmissions = submissions?.slice(0, 5);
   const pendingReviews = submissions?.filter((s) => s.status === "SUBMITTED");
@@ -39,7 +41,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -138,6 +140,40 @@ export default function AdminDashboardPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               {clientStats?.leads ?? 0} leads
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Pending Clients
+            </CardTitle>
+            <Building className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {pendingClientCount ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              awaiting approval
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Jobs
+            </CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {jobStats?.totalJobs ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {jobStats?.openJobs ?? 0} open
             </p>
           </CardContent>
         </Card>
@@ -265,7 +301,13 @@ export default function AdminDashboardPage() {
             <Link href="/admin/talent-pool">Browse Talent Pool</Link>
           </Button>
           <Button variant="outline" asChild>
+            <Link href="/admin/client-verification">Review Pending Clients</Link>
+          </Button>
+          <Button variant="outline" asChild>
             <Link href="/admin/clients">Manage Clients</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/admin/jobs">Manage Jobs</Link>
           </Button>
         </CardContent>
       </Card>

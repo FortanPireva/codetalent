@@ -15,32 +15,20 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
-  Users,
-  FileCode,
-  UserCheck,
-  UserPlus,
+  Briefcase,
   LogOut,
   Menu,
   X,
-  Shield,
   Building2,
-  Building,
-  Briefcase,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Verification", href: "/admin/verification", icon: UserPlus },
-  { name: "Client Verification", href: "/admin/client-verification", icon: Building },
-  { name: "Pipeline", href: "/admin/candidates", icon: Users },
-  { name: "Assessments", href: "/admin/assessments", icon: FileCode },
-  { name: "Talent Pool", href: "/admin/talent-pool", icon: UserCheck },
-  { name: "Clients", href: "/admin/clients", icon: Building2 },
-  { name: "Jobs", href: "/admin/jobs", icon: Briefcase },
+  { name: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
+  { name: "Jobs", href: "/client/jobs", icon: Briefcase },
 ];
 
-export default function AdminLayout({
+export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -49,12 +37,37 @@ export default function AdminLayout({
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Don't show sidebar on onboarding/pending/rejected pages
+  const isOnboardingFlow =
+    pathname.startsWith("/client/onboarding") ||
+    pathname.startsWith("/client/pending") ||
+    pathname.startsWith("/client/rejected");
+
   const userInitials =
     session?.user?.name
       ?.split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase() ?? "A";
+      .toUpperCase() ?? "C";
+
+  if (isOnboardingFlow) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b lg:px-8">
+          <span className="text-xl font-bold">Codeks HR</span>
+          <Button
+            variant="ghost"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="text-red-600"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out
+          </Button>
+        </header>
+        <main className="p-4 lg:p-8">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -75,11 +88,11 @@ export default function AdminLayout({
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
           <Link
-            href="/admin"
+            href="/client/dashboard"
             className="flex items-center gap-2 text-xl font-bold text-white"
           >
-            <Shield className="h-6 w-6" />
-            Admin
+            <Building2 className="h-6 w-6" />
+            Client Portal
           </Link>
           <Button
             variant="ghost"
@@ -97,7 +110,7 @@ export default function AdminLayout({
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                pathname === item.href
+                pathname === item.href || (item.href !== "/client/dashboard" && pathname.startsWith(item.href))
                   ? "bg-slate-800 text-white"
                   : "text-slate-400 hover:text-white hover:bg-slate-800"
               )}
@@ -115,11 +128,11 @@ export default function AdminLayout({
         <div className="flex flex-col flex-1 bg-slate-900">
           <div className="flex items-center h-16 px-4 border-b border-slate-800">
             <Link
-              href="/admin"
+              href="/client/dashboard"
               className="flex items-center gap-2 text-xl font-bold text-white"
             >
-              <Shield className="h-6 w-6" />
-              Admin Panel
+              <Building2 className="h-6 w-6" />
+              Client Portal
             </Link>
           </div>
           <nav className="flex-1 p-4 space-y-2">
@@ -129,7 +142,7 @@ export default function AdminLayout({
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  pathname === item.href
+                  pathname === item.href || (item.href !== "/client/dashboard" && pathname.startsWith(item.href))
                     ? "bg-slate-800 text-white"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 )}
@@ -166,7 +179,7 @@ export default function AdminLayout({
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:inline-block">
-                  {session?.user?.name ?? "Admin"}
+                  {session?.user?.name ?? "Client"}
                 </span>
               </Button>
             </DropdownMenuTrigger>

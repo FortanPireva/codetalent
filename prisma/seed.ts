@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus, CandidateStatus, CompanySize, ClientStatus } from "@prisma/client";
+import { PrismaClient, Role, Difficulty, Availability, SubmissionStatus, CandidateStatus, ClientOnboardingStatus, CompanySize, ClientStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -126,6 +126,42 @@ async function main() {
     });
     console.log(`✅ Sample submission created for ${candidate.email}`);
   }
+
+  // Create sample client user (approved)
+  const clientPassword = await bcrypt.hash("client123", 12);
+  const clientUser = await prisma.user.upsert({
+    where: { email: "client@example.com" },
+    update: {},
+    create: {
+      email: "client@example.com",
+      password: clientPassword,
+      name: "Sarah Client",
+      role: Role.CLIENT,
+      clientStatus: ClientOnboardingStatus.APPROVED,
+      phone: "+1 555 123 4567",
+    },
+  });
+  console.log(`✅ Client user created: ${clientUser.email}`);
+
+  // Create linked Client record for client user
+  await prisma.client.upsert({
+    where: { slug: "client-user-company" },
+    update: {},
+    create: {
+      name: "Client User Company",
+      slug: "client-user-company",
+      description: "A self-registered company for testing the client onboarding flow.",
+      industry: "Technology",
+      size: CompanySize.SMB,
+      location: "Berlin, Germany",
+      techStack: ["TypeScript", "React", "Node.js"],
+      contactName: "Sarah Client",
+      contactEmail: "client@example.com",
+      status: ClientStatus.ACTIVE,
+      userId: clientUser.id,
+    },
+  });
+  console.log(`✅ Linked client record created for ${clientUser.email}`);
 
   // Create sample clients
   const clients = [

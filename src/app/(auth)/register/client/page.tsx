@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
 
-export default function RegisterPage() {
+export default function ClientRegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,7 +26,7 @@ export default function RegisterPage() {
 
   const registerMutation = api.auth.register.useMutation({
     onSuccess: () => {
-      toast.success("Account created! Please sign in.");
+      toast.success("Company account created! Please sign in.");
       router.push("/login");
     },
     onError: (error) => {
@@ -47,7 +47,7 @@ export default function RegisterPage() {
       return;
     }
 
-    registerMutation.mutate({ name, email, password });
+    registerMutation.mutate({ name, email, password, role: "CLIENT" });
   };
 
   return (
@@ -55,20 +55,20 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Create an account
+            Register your company
           </CardTitle>
           <CardDescription className="text-center">
-            Register to start your technical assessments
+            Create a client account to start hiring through Codeks HR
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Contact Name</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Jane Smith"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -76,11 +76,11 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Work Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -118,7 +118,9 @@ export default function RegisterPage() {
               className="w-full"
               disabled={registerMutation.isPending}
             >
-              {registerMutation.isPending ? "Creating account..." : "Register"}
+              {registerMutation.isPending
+                ? "Creating account..."
+                : "Register as Client"}
             </Button>
             <p className="text-sm text-center text-gray-600">
               Already have an account?{" "}
@@ -130,12 +132,12 @@ export default function RegisterPage() {
               </Link>
             </p>
             <p className="text-sm text-center text-gray-600">
-              Are you a hiring company?{" "}
+              Looking for work?{" "}
               <Link
-                href="/register/client"
+                href="/register"
                 className="font-medium text-primary hover:underline"
               >
-                Register as a client
+                Register as a candidate
               </Link>
             </p>
           </CardFooter>

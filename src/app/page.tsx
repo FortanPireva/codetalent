@@ -28,6 +28,19 @@ export default async function LandingPage() {
       redirect("/admin");
     }
 
+    if (session.user.role === "CLIENT") {
+      switch (session.user.clientStatus) {
+        case "APPROVED":
+          redirect("/client/dashboard");
+        case "PENDING_REVIEW":
+          redirect("/client/pending");
+        case "REJECTED":
+          redirect("/client/rejected");
+        default:
+          redirect("/client/onboarding");
+      }
+    }
+
     // Candidate routing based on onboarding status
     switch (session.user.candidateStatus) {
       case "APPROVED":

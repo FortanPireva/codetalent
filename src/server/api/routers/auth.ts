@@ -15,6 +15,7 @@ export const authRouter = createTRPCRouter({
         email: z.string().email(),
         password: z.string().min(8, "Password must be at least 8 characters"),
         name: z.string().min(2, "Name must be at least 2 characters"),
+        role: z.enum(["CANDIDATE", "CLIENT"]).default("CANDIDATE"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -36,7 +37,7 @@ export const authRouter = createTRPCRouter({
           email: input.email,
           password: hashedPassword,
           name: input.name,
-          role: "CANDIDATE",
+          role: input.role,
         },
         select: {
           id: true,

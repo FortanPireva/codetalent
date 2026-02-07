@@ -7,7 +7,7 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
-import { Role, CandidateStatus } from "@prisma/client";
+import { Role, CandidateStatus, ClientOnboardingStatus } from "@prisma/client";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -15,6 +15,7 @@ declare module "next-auth" {
       id: string;
       role: Role;
       candidateStatus: CandidateStatus;
+      clientStatus: ClientOnboardingStatus;
     } & DefaultSession["user"];
   }
 
@@ -22,6 +23,7 @@ declare module "next-auth" {
     id: string;
     role: Role;
     candidateStatus: CandidateStatus;
+    clientStatus: ClientOnboardingStatus;
   }
 }
 
@@ -30,6 +32,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: Role;
     candidateStatus: CandidateStatus;
+    clientStatus: ClientOnboardingStatus;
   }
 }
 
@@ -77,6 +80,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           candidateStatus: user.candidateStatus,
+          clientStatus: user.clientStatus,
         };
       },
     }),
@@ -87,14 +91,16 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.candidateStatus = user.candidateStatus;
+        token.clientStatus = user.clientStatus;
       }
       if (trigger === "update") {
         const freshUser = await db.user.findUnique({
           where: { id: token.id },
-          select: { candidateStatus: true },
+          select: { candidateStatus: true, clientStatus: true },
         });
         if (freshUser) {
           token.candidateStatus = freshUser.candidateStatus;
+          token.clientStatus = freshUser.clientStatus;
         }
       }
       return token;
@@ -104,6 +110,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.role = token.role;
         session.user.candidateStatus = token.candidateStatus;
+        session.user.clientStatus = token.clientStatus;
       }
       return session;
     },

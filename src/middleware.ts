@@ -13,6 +13,39 @@ export default withAuth(
       }
     }
 
+    // Block clients from accessing candidate/admin routes
+    if (token?.role === "CLIENT") {
+      if (!pathname.startsWith("/client")) {
+        return NextResponse.redirect(new URL("/client/dashboard", req.url));
+      }
+
+      const clientStatus = token.clientStatus;
+      const isClientOnboarding = pathname.startsWith("/client/onboarding");
+      const isClientPending = pathname.startsWith("/client/pending");
+      const isClientRejected = pathname.startsWith("/client/rejected");
+
+      if (clientStatus === "APPROVED") {
+        if (isClientOnboarding || isClientPending || isClientRejected) {
+          return NextResponse.redirect(new URL("/client/dashboard", req.url));
+        }
+      } else if (clientStatus === "PENDING_REVIEW") {
+        if (!isClientPending) {
+          return NextResponse.redirect(new URL("/client/pending", req.url));
+        }
+      } else if (clientStatus === "REJECTED") {
+        if (!isClientRejected) {
+          return NextResponse.redirect(new URL("/client/rejected", req.url));
+        }
+      } else {
+        // ONBOARDING or missing/unknown status
+        if (!isClientOnboarding) {
+          return NextResponse.redirect(new URL("/client/onboarding", req.url));
+        }
+      }
+
+      return NextResponse.next();
+    }
+
     // Candidate status-based routing — only APPROVED candidates can access the dashboard
     if (token?.role === "CANDIDATE") {
       const status = token.candidateStatus;
@@ -59,5 +92,6 @@ export const config = {
     "/onboarding/:path*",
     "/pending/:path*",
     "/rejected/:path*",
+    "/client/:path*",
   ],
 };

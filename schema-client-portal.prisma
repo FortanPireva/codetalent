@@ -1,0 +1,687 @@
+// ============================================================================
+// CODEKS HR - EXTENDED SCHEMA FOR CLIENT PORTAL
+// ============================================================================
+// This extends the existing schema with:
+// - Client (Company) management
+// - Developer-focused Job postings
+// - Application pipeline with Kanban stages
+// - In-app messaging system
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  ADMIN
+  CANDIDATE
+  CLIENT
+}
+
+enum Availability {
+  AVAILABLE
+  ENGAGED
+  UNAVAILABLE
+}
+
+enum Difficulty {
+  INTERN
+  JUNIOR
+  MID
+}
+
+enum SubmissionStatus {
+  ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  REVIEWED
+  REJECTED
+  PASSED
+}
+
+// --- NEW ENUMS FOR CLIENT PORTAL ---
+
+enum ClientStatus {
+  PENDING    // Awaiting admin approval
+  ACTIVE     // Approved and active
+  SUSPENDED  // Temporarily disabled
+  CHURNED    // No longer using platform
+}
+
+enum CompanySize {
+  STARTUP     // 1-10
+  SMALL       // 11-50
+  MEDIUM      // 51-200
+  LARGE       // 201-1000
+  ENTERPRISE  // 1000+
+}
+
+enum JobStatus {
+  DRAFT       // Not yet published
+  OPEN        // Accepting applications
+  PAUSED      // Temporarily not accepting
+  FILLED      // Position(s) filled
+  CLOSED      // Permanently closed
+  EXPIRED     // Past deadline
+}
+
+enum ExperienceLevel {
+  INTERN      // 0 years
+  JUNIOR      // 0-2 years
+  MID         // 2-5 years
+  SENIOR      // 5-8 years
+  STAFF       // 8+ years
+  PRINCIPAL   // 10+ years
+  LEAD        // Team lead
+  MANAGER     // Engineering manager
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+enum WorkArrangement {
+  ONSITE
+  HYBRID
+  REMOTE_LOCAL    // Remote but same timezone/country
+  REMOTE_GLOBAL   // Fully remote anywhere
+}
+
+enum JobUrgency {
+  LOW        // Nice to have, no rush
+  MEDIUM     // Standard hiring timeline
+  HIGH       // Need within 30 days
+  CRITICAL   // Immediate need
+}
+
+enum ApplicationStatus {
+  NEW              // Just applied
+  SCREENING        // Initial review
+  SHORTLISTED      // Passed initial screen
+  INTERVIEWING     // In interview process
+  TECHNICAL        // Technical assessment stage
+  OFFER            // Offer extended
+  HIRED            // Accepted offer
+  REJECTED         // Not moving forward
+  WITHDRAWN        // Candidate withdrew
+  ON_HOLD          // Paused for now
+}
+
+enum ApplicationSource {
+  PLATFORM         // Applied through Codeks HR
+  MATCHED          // AI/Admin matched
+  REFERRED         // Referral
+  SOURCED          // Client found candidate
+  IMPORTED         // Imported from ATS
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM           // Auto-generated notifications
+  FILE             // File attachment
+  INTERVIEW_REQ    // Interview scheduling request
+}
+
+// ============================================================================
+// EXISTING MODELS (UPDATED)
+// ============================================================================
+
+model User {
+  id              String       @id @default(cuid())
+  email           String       @unique
+  name            String
+  password        String
+  role            Role         @default(CANDIDATE)
+  
+  // Profile fields (candidates)
+  githubUsername  String?
+  phone           String?
+  location        String?
+  timezone        String?      // e.g., "Europe/Berlin"
+  bio             String?
+  skills          String[]     @default([])
+  resumeUrl       String?
+  linkedinUrl     String?
+  portfolioUrl    String?
+  availability    Availability @default(AVAILABLE)
+  avatarUrl       String?
+  
+  // Developer-specific profile
+  yearsOfExperience  Int?
+  preferredRoles     String[]    @default([])  // ["Frontend", "Backend", "Full-Stack"]
+  preferredTypes     EmploymentType[] @default([])
+  preferredArrangement WorkArrangement[] @default([])
+  salaryExpectation  Int?        // Annual in EUR
+  noticePeriod       Int?        // Days
+  languages          String[]    @default([])  // Spoken languages
+  
+  // Visibility settings
+  profileVisible     Boolean     @default(true)  // Show in candidate search
+  openToOffers       Boolean     @default(true)  // Receive job matches
+  
+  // Client association (if role is CLIENT)
+  clientId        String?
+  client          Client?      @relation(fields: [clientId], references: [id])
+
+  // Relations
+  submissions     Submission[]
+  reviews         Review[]     @relation("ReviewedBy")
+  applications    Application[]
+  sentMessages    Message[]    @relation("SentMessages")
+  receivedMessages Message[]   @relation("ReceivedMessages")
+  conversationParticipants ConversationParticipant[]
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([role])
+  @@index([availability])
+  @@index([skills])
+  @@index([clientId])
+}
+
+model Assessment {
+  id                 String     @id @default(cuid())
+  title              String
+  slug               String     @unique
+  description        String
+  instructions       String     @default("")
+  githubTemplateRepo String
+  requirements       Json       @default("[]")
+  timeLimit          Int?
+  difficulty         Difficulty @default(JUNIOR)
+  category           String     @default("Full-Stack")
+  tags               String[]   @default([])
+  isActive           Boolean    @default(true)
+
+  submissions        Submission[]
+
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+
+model Submission {
+  id             String           @id @default(cuid())
+  candidateId    String
+  assessmentId   String
+  forkedRepoUrl  String?
+  status         SubmissionStatus @default(ASSIGNED)
+  notes          String?
+  submittedAt    DateTime?
+  deadline       DateTime?
+
+  candidate      User             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessment     Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  review         Review?
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([candidateId, assessmentId])
+  @@index([status])
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  submissionId   String   @unique
+  reviewerId     String?
+  scores         Json
+  summary        String
+  strengths      String[] @default([])
+  improvements   String[] @default([])
+  overallScore   Float
+  pass           Boolean
+  rawResponse    String   @db.Text
+
+  submission     Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewer       User?      @relation("ReviewedBy", fields: [reviewerId], references: [id])
+
+  createdAt      DateTime   @default(now())
+}
+
+// ============================================================================
+// CLIENT & COMPANY
+// ============================================================================
+
+model Client {
+  id              String       @id @default(cuid())
+  
+  // Company info
+  name            String
+  slug            String       @unique
+  logo            String?
+  website         String?
+  description     String?      @db.Text
+  industry        String?      // "FinTech", "HealthTech", "E-commerce", etc.
+  size            CompanySize  @default(STARTUP)
+  foundedYear     Int?
+  
+  // Location
+  headquarters    String?      // "Berlin, Germany"
+  locations       String[]     @default([])  // Multiple office locations
+  
+  // Tech identity
+  techStack       String[]     @default([])  // ["TypeScript", "React", "AWS"]
+  engineeringBlog String?
+  githubOrg       String?
+  
+  // Culture & benefits (for job listings)
+  culture         String?      @db.Text
+  benefits        String[]     @default([])
+  perks           String[]     @default([])
+  
+  // Admin fields
+  status          ClientStatus @default(PENDING)
+  notes           String?      @db.Text  // Internal admin notes
+  
+  // Billing (future)
+  billingEmail    String?
+  
+  // Relations
+  members         User[]       // Users with role=CLIENT linked to this company
+  jobs            Job[]
+  conversations   Conversation[]
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([status])
+  @@index([industry])
+}
+
+// ============================================================================
+// JOB MODEL - DEVELOPER FOCUSED
+// ============================================================================
+
+model Job {
+  id              String       @id @default(cuid())
+  clientId        String
+  
+  // Basic info
+  title           String       // "Senior Full-Stack Engineer"
+  slug            String       @unique
+  status          JobStatus    @default(DRAFT)
+  
+  // Description (rich content)
+  summary         String       // Short tagline (1-2 sentences)
+  description     String       @db.Text  // Full job description (markdown)
+  responsibilities String?     @db.Text  // What they'll do
+  requirements    String?      @db.Text  // Must-have qualifications
+  niceToHave      String?      @db.Text  // Preferred qualifications
+  
+  // === DEVELOPER-SPECIFIC FIELDS ===
+  
+  // Role classification
+  roleType        String       // "Frontend", "Backend", "Full-Stack", "DevOps", "Mobile", "AI/ML", "Data"
+  experienceLevel ExperienceLevel
+  yearsMin        Int?         // Minimum years of experience
+  yearsMax        Int?         // Maximum (null = no cap)
+  
+  // Technical requirements
+  requiredSkills  String[]     @default([])  // Must have
+  preferredSkills String[]     @default([])  // Nice to have
+  techStack       String[]     @default([])  // Specific technologies used
+  
+  // Frameworks & tools (searchable)
+  frameworks      String[]     @default([])  // ["React", "Next.js", "NestJS"]
+  databases       String[]     @default([])  // ["PostgreSQL", "MongoDB", "Redis"]
+  cloud           String[]     @default([])  // ["AWS", "GCP", "Azure"]
+  tools           String[]     @default([])  // ["Docker", "Kubernetes", "Terraform"]
+  
+  // Domain expertise
+  domain          String?      // "FinTech", "HealthTech", "E-commerce"
+  teamSize        Int?         // Size of the engineering team
+  reportsTo       String?      // "VP of Engineering", "CTO"
+  
+  // Employment details
+  employmentType  EmploymentType @default(FULL_TIME)
+  workArrangement WorkArrangement @default(REMOTE_GLOBAL)
+  
+  // Location
+  location        String?      // Required if not fully remote
+  timezone        String?      // Required timezone overlap: "CET +/- 3 hours"
+  relocation      Boolean      @default(false)  // Relocation assistance offered
+  visaSponsorship Boolean      @default(false)  // Can sponsor work visa
+  
+  // Compensation
+  showSalary      Boolean      @default(true)
+  salaryMin       Int?         // Annual in specified currency
+  salaryMax       Int?
+  salaryCurrency  String       @default("EUR")
+  salaryPeriod    String       @default("year")  // "year", "month", "hour"
+  equity          Boolean      @default(false)   // Equity offered
+  equityRange     String?      // "0.1% - 0.5%"
+  bonus           String?      // "10-20% annual bonus"
+  
+  // Benefits specific to this role
+  benefits        String[]     @default([])
+  
+  // Interview process transparency
+  interviewStages String[]     @default([])  // ["Intro call", "Technical", "System Design", "Culture Fit"]
+  interviewLength String?      // "2-3 weeks typical"
+  
+  // Hiring details
+  urgency         JobUrgency   @default(MEDIUM)
+  headcount       Int          @default(1)   // Number of positions
+  filledCount     Int          @default(0)   // Positions filled
+  
+  // Dates
+  startsAt        DateTime?    // Desired start date
+  closesAt        DateTime?    // Application deadline
+  publishedAt     DateTime?    // When job went live
+  
+  // Metrics (auto-updated)
+  viewCount       Int          @default(0)
+  applicationCount Int         @default(0)
+  
+  // SEO & discoverability
+  tags            String[]     @default([])
+  featured        Boolean      @default(false)  // Promoted listing
+  
+  // Relations
+  client          Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  applications    Application[]
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([status])
+  @@index([clientId])
+  @@index([roleType])
+  @@index([experienceLevel])
+  @@index([workArrangement])
+  @@index([requiredSkills])
+  @@index([publishedAt])
+}
+
+// ============================================================================
+// APPLICATION (KANBAN PIPELINE)
+// ============================================================================
+
+model Application {
+  id              String            @id @default(cuid())
+  
+  // Core relations
+  candidateId     String
+  jobId           String
+  
+  // Pipeline status (Kanban column)
+  status          ApplicationStatus @default(NEW)
+  
+  // Source tracking
+  source          ApplicationSource @default(PLATFORM)
+  referredBy      String?           // User ID if referred
+  
+  // Match data (if AI/Admin matched)
+  matchScore      Float?            // 0-100 match quality score
+  matchReason     String?           @db.Text  // AI-generated explanation
+  
+  // Candidate's application
+  coverLetter     String?           @db.Text
+  resumeUrl       String?           // If different from profile
+  expectedSalary  Int?
+  availableFrom   DateTime?
+  answers         Json?             // Answers to screening questions
+  
+  // Client feedback
+  clientRating    Int?              // 1-5 stars
+  clientNotes     String?           @db.Text  // Internal notes from client
+  
+  // Interview tracking
+  currentStage    String?           // Current interview stage name
+  interviewCount  Int               @default(0)
+  lastInterviewAt DateTime?
+  nextInterviewAt DateTime?
+  
+  // Offer details (if status = OFFER or HIRED)
+  offerSalary     Int?
+  offerEquity     String?
+  offerDeadline   DateTime?
+  offerNotes      String?           @db.Text
+  
+  // Outcome
+  rejectionReason String?
+  rejectedAt      DateTime?
+  rejectedBy      String?           // "client" or "candidate"
+  hiredAt         DateTime?
+  startDate       DateTime?
+  
+  // Activity tracking
+  lastActivityAt  DateTime          @default(now())
+  
+  // Relations
+  candidate       User              @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job             Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  activities      ApplicationActivity[]
+  interviews      Interview[]
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([candidateId, jobId])
+  @@index([status])
+  @@index([jobId])
+  @@index([candidateId])
+  @@index([lastActivityAt])
+}
+
+// Activity log for application (for timeline view)
+model ApplicationActivity {
+  id              String    @id @default(cuid())
+  applicationId   String
+  
+  action          String    // "status_changed", "note_added", "interview_scheduled", etc.
+  fromStatus      String?   // Previous status (if status change)
+  toStatus        String?   // New status (if status change)
+  note            String?   @db.Text
+  performedBy     String?   // User ID who performed action
+  performedByRole String?   // "admin", "client", "candidate", "system"
+  metadata        Json?     // Additional context
+  
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+
+  @@index([applicationId])
+  @@index([createdAt])
+}
+
+// Interview tracking
+model Interview {
+  id              String    @id @default(cuid())
+  applicationId   String
+  
+  stage           String    // "Technical Screen", "System Design", etc.
+  type            String    // "phone", "video", "onsite", "take-home"
+  
+  scheduledAt     DateTime?
+  duration        Int?      // Minutes
+  location        String?   // "Google Meet", "Zoom", or physical address
+  meetingLink     String?
+  
+  interviewers    String[]  @default([])  // Names or user IDs
+  
+  // Outcome
+  status          String    @default("scheduled")  // "scheduled", "completed", "cancelled", "no-show"
+  completedAt     DateTime?
+  feedback        String?   @db.Text
+  rating          Int?      // 1-5
+  recommendation  String?   // "strong_hire", "hire", "no_hire", "strong_no_hire"
+  
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([applicationId])
+  @@index([scheduledAt])
+}
+
+// ============================================================================
+// MESSAGING SYSTEM
+// ============================================================================
+
+model Conversation {
+  id              String    @id @default(cuid())
+  
+  // Context: what is this conversation about?
+  type            String    // "application", "general", "support"
+  applicationId   String?   // If related to a specific application
+  jobId           String?   // If related to a job
+  clientId        String?   // Client involved (for client-side queries)
+  
+  // Metadata
+  subject         String?   // Optional subject line
+  status          String    @default("active")  // "active", "archived", "closed"
+  
+  // Relations
+  participants    ConversationParticipant[]
+  messages        Message[]
+  client          Client?   @relation(fields: [clientId], references: [id])
+  
+  // Timestamps
+  lastMessageAt   DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([applicationId])
+  @@index([jobId])
+  @@index([clientId])
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id              String    @id @default(cuid())
+  conversationId  String
+  userId          String
+  
+  // Participant settings
+  role            String    // "candidate", "client", "admin"
+  
+  // Read tracking
+  lastReadAt      DateTime?
+  unreadCount     Int       @default(0)
+  
+  // Notifications
+  muted           Boolean   @default(false)
+  
+  // Relations
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id              String      @id @default(cuid())
+  conversationId  String
+  senderId        String
+  
+  // Content
+  type            MessageType @default(TEXT)
+  content         String      @db.Text
+  
+  // File attachment (if type = FILE)
+  fileName        String?
+  fileUrl         String?
+  fileSize        Int?        // Bytes
+  fileMimeType    String?
+  
+  // System message metadata (if type = SYSTEM)
+  systemAction    String?     // "status_changed", "interview_scheduled", etc.
+  systemMetadata  Json?
+  
+  // Read tracking (per-recipient)
+  readBy          String[]    @default([])  // User IDs who have read
+  
+  // Edit/delete
+  editedAt        DateTime?
+  deletedAt       DateTime?   // Soft delete
+  
+  // Relations
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          User         @relation("SentMessages", fields: [senderId], references: [id])
+  recipients      User[]       @relation("ReceivedMessages")
+  
+  createdAt       DateTime    @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// SAVED SEARCHES & ALERTS (FOR CLIENTS)
+// ============================================================================
+
+model SavedSearch {
+  id              String    @id @default(cuid())
+  userId          String    // Client user who saved this
+  
+  name            String    // "Senior React Engineers"
+  
+  // Search criteria (stored as JSON for flexibility)
+  filters         Json      // { skills: ["React"], experience: "SENIOR", ... }
+  
+  // Alert settings
+  alertEnabled    Boolean   @default(false)
+  alertFrequency  String?   // "daily", "weekly", "instant"
+  lastAlertAt     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id              String    @id @default(cuid())
+  userId          String
+  
+  type            String    // "new_application", "message", "status_change", etc.
+  title           String
+  body            String?
+  
+  // Link to relevant entity
+  entityType      String?   // "application", "job", "message"
+  entityId        String?
+  
+  // Action URL
+  actionUrl       String?
+  
+  // Status
+  read            Boolean   @default(false)
+  readAt          DateTime?
+  
+  // Delivery
+  emailSent       Boolean   @default(false)
+  emailSentAt     DateTime?
+  
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}

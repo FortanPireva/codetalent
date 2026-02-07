@@ -12,6 +12,7 @@ datasource db {
 enum Role {
   ADMIN
   CANDIDATE
+  CLIENT
 }
 
 enum Availability {
@@ -43,6 +44,13 @@ enum CandidateStatus {
   REJECTED
 }
 
+enum ClientOnboardingStatus {
+  ONBOARDING
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
 enum CompanySize {
   STARTUP
   SMB
@@ -53,6 +61,48 @@ enum ClientStatus {
   LEAD
   ACTIVE
   CHURNED
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  PAUSED
+  FILLED
+  CLOSED
+  EXPIRED
+}
+
+enum ExperienceLevel {
+  INTERN
+  JUNIOR
+  MID
+  SENIOR
+  STAFF
+  PRINCIPAL
+  LEAD
+  MANAGER
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+}
+
+enum WorkArrangement {
+  ONSITE
+  HYBRID
+  REMOTE_LOCAL
+  REMOTE_GLOBAL
+}
+
+enum JobUrgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 // Models
@@ -72,14 +122,18 @@ model User {
   location     String?
   candidateStatus CandidateStatus @default(ONBOARDING)
   rejectionReason String?
+  clientStatus          ClientOnboardingStatus @default(ONBOARDING)
+  clientRejectionReason String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
   submissions Submission[]
+  client      Client?
 
   @@index([role])
   @@index([availability])
   @@index([candidateStatus])
+  @@index([clientStatus])
   @@index([createdAt])
 }
 
@@ -164,10 +218,95 @@ model Client {
   contactEmail String
   status       ClientStatus @default(LEAD)
   notes        String?
+  userId       String?      @unique
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
+  jobs         Job[]
+
   @@index([status])
   @@index([industry])
+  @@index([createdAt])
+}
+
+model Job {
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  status          JobStatus       @default(DRAFT)
+  summary         String?
+  description     String?         @db.Text
+  responsibilities String?        @db.Text
+  requirements    String?         @db.Text
+  niceToHave      String?         @db.Text
+
+  // Role
+  roleType        String?
+  experienceLevel ExperienceLevel?
+  yearsMin        Int?
+  yearsMax        Int?
+
+  // Tech
+  requiredSkills  String[]
+  preferredSkills String[]
+  techStack       String[]
+  frameworks      String[]
+  databases       String[]
+  cloud           String[]
+  tools           String[]
+
+  // Employment
+  employmentType  EmploymentType?
+  workArrangement WorkArrangement?
+  location        String?
+  timezone        String?
+  relocation      Boolean         @default(false)
+  visaSponsorship Boolean         @default(false)
+
+  // Compensation
+  showSalary      Boolean         @default(true)
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String          @default("USD")
+  salaryPeriod    String          @default("YEARLY")
+  equity          Boolean         @default(false)
+  equityRange     String?
+  bonus           String?
+  benefits        String[]
+
+  // Interview
+  interviewStages String[]
+  interviewLength String?
+
+  // Hiring
+  urgency         JobUrgency      @default(MEDIUM)
+  headcount       Int             @default(1)
+  filledCount     Int             @default(0)
+  startsAt        DateTime?
+  closesAt        DateTime?
+  publishedAt     DateTime?
+
+  // Metrics
+  viewCount       Int             @default(0)
+  applicationCount Int            @default(0)
+
+  // SEO
+  tags            String[]
+  featured        Boolean         @default(false)
+
+  // Relations
+  clientId        String
+  client          Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status])
+  @@index([clientId])
+  @@index([slug])
+  @@index([experienceLevel])
+  @@index([employmentType])
+  @@index([workArrangement])
   @@index([createdAt])
 }
