@@ -24,6 +24,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   jobStatusLabels,
   jobStatusColors,
   experienceLevelLabels,
@@ -32,6 +54,10 @@ import {
   jobUrgencyLabels,
   salaryPeriodOptions,
   formatDate,
+  applicationStatusLabels,
+  applicationStatusColors,
+  availabilityLabels,
+  availabilityColors,
 } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -48,9 +74,12 @@ import {
   Clock,
   DollarSign,
   CheckCircle,
+  Github,
+  Linkedin,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { JobStatus } from "@prisma/client";
+import type { JobStatus, ApplicationStatus } from "@prisma/client";
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -76,6 +105,18 @@ export default function JobDetailPage() {
       void utils.job.list.invalidate();
       void utils.job.getStats.invalidate();
       router.push("/client/jobs");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const { data: applications, isLoading: applicationsLoading } =
+    api.application.listForJob.useQuery({ jobId: id });
+
+  const updateAppStatus = api.application.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Application status updated");
+      void utils.application.listForJob.invalidate({ jobId: id });
+      void utils.job.getById.invalidate({ id });
     },
     onError: (e) => toast.error(e.message),
   });
@@ -672,6 +713,187 @@ export default function JobDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Applicants */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Applicants
+            {applications && (
+              <Badge variant="secondary">{applications.length}</Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {applicationsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-14 bg-gray-100 rounded animate-pulse"
+                />
+              ))}
+            </div>
+          ) : !applications || applications.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No applications yet
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Candidate</TableHead>
+                    <TableHead>Skills</TableHead>
+                    <TableHead>Availability</TableHead>
+                    <TableHead>Cover Letter</TableHead>
+                    <TableHead>Applied</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Links</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {applications.map((app) => (
+                    <TableRow key={app.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {app.user.name ?? "Unknown"}
+                          </p>
+                          {app.user.location && (
+                            <p className="text-xs text-muted-foreground">
+                              {app.user.location}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1 max-w-48">
+                          {app.user.skills?.slice(0, 3).map((skill) => (
+                            <Badge
+                              key={skill}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {skill}
+                            </Badge>
+                          ))}
+                          {(app.user.skills?.length ?? 0) > 3 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{(app.user.skills?.length ?? 0) - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            availabilityColors[app.user.availability]
+                          }
+                        >
+                          {availabilityLabels[app.user.availability]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {app.coverLetter ? (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="max-w-32 truncate text-left"
+                              >
+                                <FileText className="h-3 w-3 mr-1 shrink-0" />
+                                <span className="truncate">
+                                  {app.coverLetter.slice(0, 40)}...
+                                </span>
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-lg">
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Cover Letter — {app.user.name}
+                                </DialogTitle>
+                              </DialogHeader>
+                              <p className="whitespace-pre-wrap text-sm">
+                                {app.coverLetter}
+                              </p>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">
+                            —
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {formatDate(app.appliedAt)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={applicationStatusColors[app.status]}>
+                          {applicationStatusLabels[app.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          {app.user.githubUrl && (
+                            <Button variant="ghost" size="sm" asChild>
+                              <a
+                                href={app.user.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Github className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                          {app.user.linkedinUrl && (
+                            <Button variant="ghost" size="sm" asChild>
+                              <a
+                                href={app.user.linkedinUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Linkedin className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={app.status}
+                          onValueChange={(v) =>
+                            updateAppStatus.mutate({
+                              applicationId: app.id,
+                              status: v as ApplicationStatus,
+                            })
+                          }
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(applicationStatusLabels).map(
+                              ([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

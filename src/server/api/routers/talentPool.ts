@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, adminProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, adminProcedure, clientProcedure } from "@/server/api/trpc";
 import { Availability, SubmissionStatus, CandidateStatus } from "@prisma/client";
 
 export const talentPoolRouter = createTRPCRouter({
@@ -334,5 +334,78 @@ export const talentPoolRouter = createTRPCRouter({
         },
         select: { id: true, name: true, candidateStatus: true },
       });
+    }),
+
+  // ── Client procedures ──────────────────────────────────────────────
+
+  clientList: clientProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        skills: z.array(z.string()).optional(),
+        passedOnly: z.boolean().default(false),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const candidates = await ctx.db.user.findMany({
+        where: {
+          role: "CANDIDATE",
+          candidateStatus: "APPROVED",
+          availability: { in: [Availability.ACTIVELY_LOOKING, Availability.OPEN_TO_OFFERS] },
+          ...(input.search
+            ? {
+                OR: [
+                  { name: { contains: input.search, mode: "insensitive" } },
+                  { location: { contains: input.search, mode: "insensitive" } },
+                ],
+              }
+            : {}),
+          ...(input.skills && input.skills.length > 0
+            ? { skills: { hasSome: input.skills } }
+            : {}),
+          ...(input.passedOnly
+            ? {
+                submissions: {
+                  some: {
+                    status: SubmissionStatus.PASSED,
+                  },
+                },
+              }
+            : {}),
+        },
+        include: {
+          submissions: {
+            include: {
+              review: {
+                select: {
+                  averageScore: true,
+                  passed: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return candidates.map((candidate) => ({
+        id: candidate.id,
+        name: candidate.name,
+        skills: candidate.skills,
+        location: candidate.location,
+        availability: candidate.availability,
+        githubUrl: candidate.githubUrl,
+        linkedinUrl: candidate.linkedinUrl,
+        createdAt: candidate.createdAt,
+        submissionCount: candidate.submissions.length,
+        passedCount: candidate.submissions.filter((s) => s.review?.passed).length,
+        averageScore:
+          candidate.submissions.filter((s) => s.review).length > 0
+            ? candidate.submissions
+                .filter((s) => s.review)
+                .reduce((sum, s) => sum + (s.review?.averageScore ?? 0), 0) /
+              candidate.submissions.filter((s) => s.review).length
+            : null,
+      }));
     }),
 });

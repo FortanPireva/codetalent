@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
   Briefcase,
+  Users,
   LogOut,
   Menu,
   X,
@@ -26,6 +27,7 @@ import { useState } from "react";
 const navigation = [
   { name: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
   { name: "Jobs", href: "/client/jobs", icon: Briefcase },
+  { name: "Talent", href: "/client/talent", icon: Users },
 ];
 
 export default function ClientLayout({

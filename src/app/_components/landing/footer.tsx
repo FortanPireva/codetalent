@@ -19,8 +19,8 @@ const developerLinks = [
 const platformLinks = [
   { label: "Sign In", href: "/login" },
   { label: "Register", href: "/register" },
-  { label: "For Companies", href: "#for-companies" },
-  { label: "For Developers", href: "#for-developers" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms-of-service" },
 ];
 
 export function Footer() {

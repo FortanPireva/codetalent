@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, approvedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, approvedProcedure, clientProcedure } from "@/server/api/trpc";
+import { ApplicationStatus } from "@prisma/client";
+import { db } from "@/server/db";
 
 export const applicationRouter = createTRPCRouter({
   apply: approvedProcedure
@@ -127,6 +129,97 @@ export const applicationRouter = createTRPCRouter({
         });
 
         return { success: true };
+      });
+    }),
+
+  // ── Client procedures ──────────────────────────────────────────────
+
+  listForJob: clientProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const client = await db.client.findFirst({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!client) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client profile not found" });
+      }
+
+      const job = await ctx.db.job.findUnique({
+        where: { id: input.jobId },
+        select: { id: true, clientId: true },
+      });
+      if (!job || job.clientId !== client.id) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      }
+
+      return ctx.db.jobApplication.findMany({
+        where: { jobId: input.jobId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              skills: true,
+              location: true,
+              availability: true,
+              githubUrl: true,
+              linkedinUrl: true,
+            },
+          },
+        },
+        orderBy: { appliedAt: "desc" },
+      });
+    }),
+
+  updateStatus: clientProcedure
+    .input(
+      z.object({
+        applicationId: z.string(),
+        status: z.nativeEnum(ApplicationStatus),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = await db.client.findFirst({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!client) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client profile not found" });
+      }
+
+      const application = await ctx.db.jobApplication.findUnique({
+        where: { id: input.applicationId },
+        include: {
+          job: { select: { id: true, clientId: true } },
+        },
+      });
+      if (!application || application.job.clientId !== client.id) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
+      }
+
+      const previousStatus = application.status;
+
+      return ctx.db.$transaction(async (tx) => {
+        const updated = await tx.jobApplication.update({
+          where: { id: input.applicationId },
+          data: { status: input.status },
+        });
+
+        // Manage filledCount when transitioning to/from HIRED
+        if (input.status === "HIRED" && previousStatus !== "HIRED") {
+          await tx.job.update({
+            where: { id: application.job.id },
+            data: { filledCount: { increment: 1 } },
+          });
+        } else if (previousStatus === "HIRED" && input.status !== "HIRED") {
+          await tx.job.update({
+            where: { id: application.job.id },
+            data: { filledCount: { decrement: 1 } },
+          });
+        }
+
+        return updated;
       });
     }),
 });

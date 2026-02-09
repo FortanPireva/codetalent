@@ -14,9 +14,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Codeks HR - Hiring Automation Platform",
+  title: {
+    default: "Codeks HR — AI-Powered Developer Marketplace",
+    template: "%s | Codeks HR",
+  },
   description:
-    "Internal hiring automation platform with GitHub-based technical assessments and AI-powered code review",
+    "The B2B developer marketplace where companies find pre-vetted engineers through AI-powered code assessments, and developers land quality remote roles.",
+  metadataBase: new URL(
+    process.env.NEXTAUTH_URL ?? "https://codeks.hr"
+  ),
+  openGraph: {
+    type: "website",
+    siteName: "Codeks HR",
+    title: "Codeks HR — AI-Powered Developer Marketplace",
+    description:
+      "Find exceptional remote engineers through AI-powered code assessments. Real GitHub challenges, not resumes.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Codeks HR — AI-Powered Developer Marketplace",
+    description:
+      "Find exceptional remote engineers through AI-powered code assessments. Real GitHub challenges, not resumes.",
+  },
 };
 
 export default function RootLayout({
