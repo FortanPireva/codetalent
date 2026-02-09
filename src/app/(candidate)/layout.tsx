@@ -21,11 +21,13 @@ import {
   Menu,
   X,
   Briefcase,
+  ClipboardList,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
   { name: "Jobs", href: "/jobs", icon: Briefcase },
+  { name: "My Applications", href: "/applications", icon: ClipboardList },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Assessments", href: "/dashboard", icon: FileCode },
   { name: "Profile", href: "/profile", icon: User },

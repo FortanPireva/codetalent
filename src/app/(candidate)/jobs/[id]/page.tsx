@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/trpc/react";
@@ -12,6 +13,17 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   experienceLevelLabels,
   employmentTypeLabels,
@@ -19,6 +31,8 @@ import {
   jobUrgencyLabels,
   formatDate,
   companySizeLabels,
+  applicationStatusLabels,
+  applicationStatusColors,
 } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -32,16 +46,39 @@ import {
   Plane,
   CheckCircle,
   Briefcase,
+  Send,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CandidateJobDetailPage() {
   const params = useParams();
   const jobId = params.id as string;
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+
+  const utils = api.useUtils();
 
   const { data: job, isLoading } = api.job.candidateGetById.useQuery(
     { id: jobId },
     { enabled: !!jobId }
   );
+
+  const { data: applicationData } = api.application.hasApplied.useQuery(
+    { jobId },
+    { enabled: !!jobId }
+  );
+
+  const applyMutation = api.application.apply.useMutation({
+    onSuccess: () => {
+      toast.success("Application submitted successfully!");
+      setDialogOpen(false);
+      setCoverLetter("");
+      void utils.application.hasApplied.invalidate({ jobId });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -508,6 +545,82 @@ export default function CandidateJobDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Apply */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Apply for this Position</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {applicationData ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Badge className={applicationStatusColors[applicationData.status]}>
+                      {applicationStatusLabels[applicationData.status]}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Applied {formatDate(applicationData.appliedAt)}
+                  </p>
+                  <Button variant="outline" size="sm" asChild className="w-full">
+                    <Link href="/applications">View My Applications</Link>
+                  </Button>
+                </div>
+              ) : (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full gap-2">
+                      <Send className="h-4 w-4" />
+                      Apply Now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Apply for {job.title}</DialogTitle>
+                      <DialogDescription>
+                        at {job.client.name}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="coverLetter">Cover Letter (optional)</Label>
+                        <Textarea
+                          id="coverLetter"
+                          placeholder="Tell the employer why you're a great fit for this role..."
+                          value={coverLetter}
+                          onChange={(e) => setCoverLetter(e.target.value)}
+                          maxLength={2000}
+                          rows={6}
+                        />
+                        <p className="text-xs text-muted-foreground text-right">
+                          {coverLetter.length}/2000
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          applyMutation.mutate({
+                            jobId,
+                            coverLetter: coverLetter || undefined,
+                          })
+                        }
+                        disabled={applyMutation.isPending}
+                      >
+                        {applyMutation.isPending ? "Submitting..." : "Submit Application"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Posted date */}
           <Card>

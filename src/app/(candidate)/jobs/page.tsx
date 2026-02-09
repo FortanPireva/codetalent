@@ -25,6 +25,8 @@ import {
   employmentTypeLabels,
   workArrangementLabels,
   formatDate,
+  applicationStatusLabels,
+  applicationStatusColors,
 } from "@/lib/utils";
 import { ExperienceLevel, EmploymentType, WorkArrangement } from "@prisma/client";
 import {
@@ -35,6 +37,7 @@ import {
   Briefcase,
   ArrowRight,
   DollarSign,
+  CheckCircle,
 } from "lucide-react";
 
 export default function CandidateJobsPage() {
@@ -42,6 +45,9 @@ export default function CandidateJobsPage() {
   const [experienceFilter, setExperienceFilter] = useState<ExperienceLevel | "ALL">("ALL");
   const [arrangementFilter, setArrangementFilter] = useState<WorkArrangement | "ALL">("ALL");
   const [employmentFilter, setEmploymentFilter] = useState<EmploymentType | "ALL">("ALL");
+
+  const { data: applications } = api.application.myApplications.useQuery();
+  const appliedJobIds = new Set(applications?.map((a) => a.jobId));
 
   const { data: jobs, isLoading } = api.job.candidateList.useQuery({
     search: search || undefined,
@@ -169,6 +175,12 @@ export default function CandidateJobsPage() {
                       >
                         {job.title}
                       </Link>
+                      {appliedJobIds.has(job.id) && (
+                        <Badge className="bg-green-100 text-green-800 shrink-0">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Applied
+                        </Badge>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">

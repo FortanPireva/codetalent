@@ -89,6 +89,7 @@ export const config = {
     "/profile/:path*",
     "/assessments/:path*",
     "/jobs/:path*",
+    "/applications/:path*",
     "/admin/:path*",
     "/onboarding/:path*",
     "/pending/:path*",

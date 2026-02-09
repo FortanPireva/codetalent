@@ -105,6 +105,14 @@ enum JobUrgency {
   CRITICAL
 }
 
+enum ApplicationStatus {
+  APPLIED
+  INVITED
+  INTERVIEW
+  HIRED
+  REJECTED
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -127,8 +135,9 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  submissions Submission[]
-  client      Client?
+  submissions     Submission[]
+  client          Client?
+  jobApplications JobApplication[]
 
   @@index([role])
   @@index([availability])
@@ -298,6 +307,7 @@ model Job {
   // Relations
   clientId        String
   client          Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  applications    JobApplication[]
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -309,4 +319,23 @@ model Job {
   @@index([employmentType])
   @@index([workArrangement])
   @@index([createdAt])
+}
+
+model JobApplication {
+  id          String            @id @default(cuid())
+  status      ApplicationStatus @default(APPLIED)
+  coverLetter String?           @db.Text
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@index([status])
+  @@index([appliedAt])
 }
