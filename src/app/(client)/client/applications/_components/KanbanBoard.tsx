@@ -1,12 +1,10 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { applicationStatusColors, applicationStatusLabels } from "@/lib/utils";
-import { ApplicationCard } from "./ApplicationCard";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
+import { applicationStatusLabels } from "@/lib/utils";
+import { JobRow } from "./JobRow";
+import { Briefcase } from "lucide-react";
+import Link from "next/link";
 import type { ApplicationStatus } from "@prisma/client";
 
 const columns: ApplicationStatus[] = [
@@ -17,148 +15,86 @@ const columns: ApplicationStatus[] = [
   "REJECTED",
 ];
 
-const columnBorderColors: Record<ApplicationStatus, string> = {
-  APPLIED: "border-t-blue-400",
-  INVITED: "border-t-purple-400",
-  INTERVIEW: "border-t-yellow-400",
-  HIRED: "border-t-green-400",
-  REJECTED: "border-t-red-400",
-};
-
-interface KanbanBoardProps {
-  jobId: string;
-}
-
-export function KanbanBoard({ jobId }: KanbanBoardProps) {
-  const utils = api.useUtils();
-
-  const { data: applications, isLoading } = api.application.listForJob.useQuery(
-    { jobId }
-  );
-
-  const updateStatus = api.application.updateStatus.useMutation({
-    onMutate: async ({ applicationId, status }) => {
-      // Cancel outgoing refetches
-      await utils.application.listForJob.cancel({ jobId });
-
-      // Snapshot previous data
-      const previous = utils.application.listForJob.getData({ jobId });
-
-      // Optimistically update
-      utils.application.listForJob.setData({ jobId }, (old) => {
-        if (!old) return old;
-        return old.map((app) =>
-          app.id === applicationId ? { ...app, status } : app
-        );
-      });
-
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      // Revert on error
-      if (context?.previous) {
-        utils.application.listForJob.setData({ jobId }, context.previous);
-      }
-      toast.error("Failed to update application status");
-    },
-    onSettled: () => {
-      void utils.application.listForJob.invalidate({ jobId });
-      void utils.application.clientOverview.invalidate();
-    },
-    onSuccess: () => {
-      toast.success("Status updated");
-    },
-  });
-
-  const handleStatusChange = (
-    applicationId: string,
-    status: ApplicationStatus
-  ) => {
-    updateStatus.mutate({ applicationId, status });
-  };
+export function KanbanBoard() {
+  const { data: overview, isLoading } =
+    api.application.clientOverview.useQuery();
 
   if (isLoading) {
     return (
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {columns.map((status) => (
-          <div key={status} className="min-w-[280px] flex-1">
-            <Card className={`border-t-4 ${columnBorderColors[status]}`}>
-              <CardContent className="pt-4 space-y-3">
-                <div className="h-6 w-24 bg-gray-100 animate-pulse rounded" />
-                <div className="h-32 bg-gray-100 animate-pulse rounded" />
-              </CardContent>
-            </Card>
-          </div>
-        ))}
+      <div className="space-y-6">
+        {/* Column headers skeleton */}
+        <div className="grid grid-cols-5 gap-4">
+          {columns.map((status) => (
+            <div key={status} className="h-5 w-20 bg-muted animate-pulse rounded" />
+          ))}
+        </div>
+        {/* Row skeletons */}
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-12 bg-muted animate-pulse rounded-lg"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
-  // Group by status
-  const grouped: Record<ApplicationStatus, typeof applications> = {
-    APPLIED: [],
-    INVITED: [],
-    INTERVIEW: [],
-    HIRED: [],
-    REJECTED: [],
-  };
+  const jobs = overview?.jobs ?? [];
 
-  for (const app of applications ?? []) {
-    grouped[app.status]?.push(app);
+  if (jobs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Briefcase className="h-10 w-10 text-muted-foreground/40" />
+        <p className="text-sm text-muted-foreground">
+          No jobs with applications yet
+        </p>
+        <Link
+          href="/client/jobs"
+          className="text-sm font-medium text-foreground underline underline-offset-4 hover:text-foreground/80 transition-all duration-200"
+        >
+          Go to Jobs
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
-      {columns.map((status) => {
-        const items = grouped[status] ?? [];
-        return (
-          <div key={status} className="min-w-[280px] flex-1">
-            <Card className={`border-t-4 ${columnBorderColors[status]}`}>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-sm">
-                    {applicationStatusLabels[status]}
-                  </h3>
-                  <Badge
-                    variant="secondary"
-                    className={applicationStatusColors[status]}
-                  >
-                    {items.length}
-                  </Badge>
-                </div>
-                <div className="space-y-3 min-h-[100px]">
-                  <AnimatePresence mode="popLayout">
-                    {items.map((app) => (
-                      <motion.div
-                        key={app.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ApplicationCard
-                          application={app}
-                          onStatusChange={handleStatusChange}
-                          isPending={
-                            updateStatus.isPending &&
-                            updateStatus.variables?.applicationId === app.id
-                          }
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                  {items.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-8">
-                      No candidates
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-      })}
+    <div className="space-y-4">
+      {/* Column headers */}
+      <div className="grid grid-cols-5 gap-4 px-1">
+        {columns.map((status) => {
+          const count = overview?.statusCounts[status] ?? 0;
+          return (
+            <div
+              key={status}
+              className="flex items-center justify-between pb-3 border-b-2 border-foreground/10"
+            >
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {applicationStatusLabels[status]}
+              </span>
+              <span className="text-xs font-bold tabular-nums text-foreground">
+                {count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Job rows */}
+      <div className="grid grid-cols-5 gap-y-3">
+        {jobs.map((job) => (
+          <JobRow
+            key={job.id}
+            jobId={job.id}
+            jobTitle={job.title}
+            jobStatus={job.status}
+            applicationCount={job.applicationCount}
+            statusBreakdown={job.statusBreakdown}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -2,48 +2,34 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  applicationStatusLabels,
-  availabilityColors,
-  availabilityLabels,
-  formatDate,
-} from "@/lib/utils";
-import {
-  Github,
-  Linkedin,
-  FileText,
-  MapPin,
-  ArrowRight,
-  XCircle,
-} from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { MapPin, ArrowRight, X } from "lucide-react";
 import type { ApplicationStatus, Availability } from "@prisma/client";
 
-interface ApplicationUser {
+const availabilityLabel: Record<Availability, string> = {
+  ACTIVELY_LOOKING: "Active",
+  OPEN_TO_OFFERS: "Open",
+  NOT_LOOKING: "Passive",
+  HIRED: "Hired",
+};
+
+export interface ApplicationUser {
   id: string;
   name: string | null;
+  email: string;
+  phone: string | null;
+  bio: string | null;
   skills: string[];
   location: string | null;
   availability: Availability;
   githubUrl: string | null;
   linkedinUrl: string | null;
+  resumeUrl: string | null;
+  profilePicture: string | null;
+  createdAt: Date;
 }
 
-interface ApplicationData {
+export interface ApplicationData {
   id: string;
   status: ApplicationStatus;
   coverLetter: string | null;
@@ -53,19 +39,19 @@ interface ApplicationData {
 
 const quickActions: Record<
   ApplicationStatus,
-  { label: string; target: ApplicationStatus; icon: React.ElementType; variant?: "default" | "destructive" }[]
+  { label: string; target: ApplicationStatus; variant: "advance" | "reject" }[]
 > = {
   APPLIED: [
-    { label: "Invite", target: "INVITED", icon: ArrowRight },
-    { label: "Reject", target: "REJECTED", icon: XCircle, variant: "destructive" },
+    { label: "Invite", target: "INVITED", variant: "advance" },
+    { label: "Reject", target: "REJECTED", variant: "reject" },
   ],
   INVITED: [
-    { label: "Interview", target: "INTERVIEW", icon: ArrowRight },
-    { label: "Reject", target: "REJECTED", icon: XCircle, variant: "destructive" },
+    { label: "Interview", target: "INTERVIEW", variant: "advance" },
+    { label: "Reject", target: "REJECTED", variant: "reject" },
   ],
   INTERVIEW: [
-    { label: "Hire", target: "HIRED", icon: ArrowRight },
-    { label: "Reject", target: "REJECTED", icon: XCircle, variant: "destructive" },
+    { label: "Hire", target: "HIRED", variant: "advance" },
+    { label: "Reject", target: "REJECTED", variant: "reject" },
   ],
   HIRED: [],
   REJECTED: [],
@@ -73,24 +59,39 @@ const quickActions: Record<
 
 interface ApplicationCardProps {
   application: ApplicationData;
+  onClick: () => void;
   onStatusChange: (applicationId: string, status: ApplicationStatus) => void;
+  isSelected?: boolean;
   isPending?: boolean;
 }
 
 export function ApplicationCard({
   application,
+  onClick,
   onStatusChange,
+  isSelected,
   isPending,
 }: ApplicationCardProps) {
   const app = application;
   const actions = quickActions[app.status];
 
   return (
-    <Card className={`transition-opacity ${isPending ? "opacity-60" : ""}`}>
-      <CardContent className="pt-4 pb-3 px-4 space-y-3">
+    <div
+      className={`rounded-lg border bg-background p-3 space-y-2 transition-all duration-200 ${
+        isPending ? "opacity-50 pointer-events-none" : ""
+      } ${
+        isSelected
+          ? "border-foreground/40 shadow-xs"
+          : "border-border/60 hover:border-foreground/20"
+      }`}
+    >
+      {/* Clickable area — opens drawer */}
+      <button onClick={onClick} className="w-full text-left space-y-2">
         {/* Name + location */}
         <div>
-          <p className="font-medium text-sm">{app.user.name ?? "Unknown"}</p>
+          <p className="text-sm font-bold tracking-tight">
+            {app.user.name ?? "Unknown"}
+          </p>
           {app.user.location && (
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
               <MapPin className="h-3 w-3" />
@@ -103,12 +104,19 @@ export function ApplicationCard({
         {app.user.skills.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {app.user.skills.slice(0, 3).map((skill) => (
-              <Badge key={skill} variant="secondary" className="text-xs">
+              <Badge
+                key={skill}
+                variant="outline"
+                className="text-xs font-medium border-foreground/15 text-foreground rounded-md"
+              >
                 {skill}
               </Badge>
             ))}
             {app.user.skills.length > 3 && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="outline"
+                className="text-xs font-medium border-foreground/15 text-muted-foreground rounded-md"
+              >
                 +{app.user.skills.length - 3}
               </Badge>
             )}
@@ -117,92 +125,44 @@ export function ApplicationCard({
 
         {/* Availability + date */}
         <div className="flex items-center justify-between text-xs">
-          <Badge className={`text-xs ${availabilityColors[app.user.availability]}`}>
-            {availabilityLabels[app.user.availability]}
+          <Badge className="bg-muted text-muted-foreground font-medium text-xs rounded-md border-0">
+            {availabilityLabel[app.user.availability]}
           </Badge>
           <span className="text-muted-foreground">
             {formatDate(app.appliedAt)}
           </span>
         </div>
+      </button>
 
-        {/* Links row */}
-        <div className="flex items-center gap-1">
-          {app.coverLetter && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-7 px-2">
-                  <FileText className="h-3.5 w-3.5" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Cover Letter — {app.user.name}</DialogTitle>
-                </DialogHeader>
-                <p className="whitespace-pre-wrap text-sm">{app.coverLetter}</p>
-              </DialogContent>
-            </Dialog>
-          )}
-          {app.user.githubUrl && (
-            <Button variant="ghost" size="sm" className="h-7 px-2" asChild>
-              <a
-                href={app.user.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github className="h-3.5 w-3.5" />
-              </a>
+      {/* Action buttons */}
+      {actions.length > 0 && (
+        <div className="flex items-center gap-1.5 pt-2 border-t border-border/60">
+          {actions.map((action) => (
+            <Button
+              key={action.target}
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={(e) => {
+                e.stopPropagation();
+                onStatusChange(app.id, action.target);
+              }}
+              className={`h-7 text-xs font-medium flex-1 transition-all duration-200 ${
+                action.variant === "advance"
+                  ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
+                  : "border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+              }`}
+            >
+              {action.variant === "advance" ? (
+                <ArrowRight className="h-3 w-3 mr-1" />
+              ) : (
+                <X className="h-3 w-3 mr-1" />
+              )}
+              {action.label}
             </Button>
-          )}
-          {app.user.linkedinUrl && (
-            <Button variant="ghost" size="sm" className="h-7 px-2" asChild>
-              <a
-                href={app.user.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Linkedin className="h-3.5 w-3.5" />
-              </a>
-            </Button>
-          )}
+          ))}
         </div>
-
-        {/* Quick actions */}
-        {actions.length > 0 && (
-          <div className="flex items-center gap-2 pt-1 border-t">
-            {actions.map((action) => (
-              <Button
-                key={action.target}
-                variant={action.variant === "destructive" ? "destructive" : "outline"}
-                size="sm"
-                className="h-7 text-xs flex-1"
-                disabled={isPending}
-                onClick={() => onStatusChange(app.id, action.target)}
-              >
-                <action.icon className="h-3 w-3 mr-1" />
-                {action.label}
-              </Button>
-            ))}
-          </div>
-        )}
-
-        {/* Fallback select for arbitrary changes */}
-        <Select
-          value={app.status}
-          onValueChange={(v) => onStatusChange(app.id, v as ApplicationStatus)}
-          disabled={isPending}
-        >
-          <SelectTrigger className="h-7 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(applicationStatusLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }
