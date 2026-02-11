@@ -281,6 +281,7 @@ export const talentPoolRouter = createTRPCRouter({
         githubUrl: candidate.githubUrl,
         linkedinUrl: candidate.linkedinUrl,
         resumeUrl: candidate.resumeUrl,
+        profilePicture: candidate.profilePicture,
         candidateStatus: candidate.candidateStatus,
         createdAt: candidate.createdAt,
       };

@@ -136,13 +136,26 @@ export default function VerificationDetailPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">
-                    {candidate.name ?? "Unknown"}
-                  </CardTitle>
-                  <p className="text-muted-foreground mt-1">
-                    {candidate.email}
-                  </p>
+                <div className="flex items-center gap-4">
+                  {candidate.profilePicture ? (
+                    <img
+                      src={candidate.profilePicture}
+                      alt={candidate.name ?? "Candidate"}
+                      className="h-16 w-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-xl font-semibold text-muted-foreground">
+                      {(candidate.name ?? "?").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <CardTitle className="text-2xl">
+                      {candidate.name ?? "Unknown"}
+                    </CardTitle>
+                    <p className="text-muted-foreground mt-1">
+                      {candidate.email}
+                    </p>
+                  </div>
                 </div>
                 <Badge className={candidateStatusColors[candidate.candidateStatus]}>
                   {candidateStatusLabels[candidate.candidateStatus]}

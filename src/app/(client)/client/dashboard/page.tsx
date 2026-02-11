@@ -18,11 +18,16 @@ import {
   FileEdit,
   Plus,
   ArrowRight,
+  Globe,
+  MapPin,
+  Users,
+  Settings,
 } from "lucide-react";
 import {
   jobStatusLabels,
   jobStatusColors,
   formatDate,
+  companySizeLabels,
 } from "@/lib/utils";
 
 export default function ClientDashboardPage() {
@@ -43,16 +48,48 @@ export default function ClientDashboardPage() {
       {/* Company info */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {status?.client?.logo ? (
+                <img
+                  src={status.client.logo}
+                  alt={status.client.name}
+                  className="w-16 h-16 rounded-lg object-contain border bg-white"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Building2 className="h-8 w-8 text-primary" />
+                </div>
+              )}
+              <div>
+                <CardTitle className="text-xl">
+                  {status?.client?.name ?? "Your Company"}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-2 mt-1">
+                  <span>{status?.client?.industry}</span>
+                  <span>&middot;</span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {status?.client?.location}
+                  </span>
+                  {status?.client?.size && (
+                    <>
+                      <span>&middot;</span>
+                      <span className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {companySizeLabels[status.client.size]}
+                      </span>
+                    </>
+                  )}
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle>{status?.client?.name ?? "Your Company"}</CardTitle>
-              <CardDescription>
-                {status?.client?.industry} &middot; {status?.client?.location}
-              </CardDescription>
-            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/client/settings">
+                <Settings className="h-4 w-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -61,6 +98,29 @@ export default function ClientDashboardPage() {
               {status.client.description}
             </p>
           )}
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {status?.client?.website && (
+              <a
+                href={status.client.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-blue-600 hover:underline"
+              >
+                <Globe className="h-3.5 w-3.5" />
+                {status.client.website}
+              </a>
+            )}
+            {status?.client?.contactName && (
+              <span className="text-muted-foreground">
+                Contact: {status.client.contactName}
+              </span>
+            )}
+            {status?.client?.contactEmail && (
+              <span className="text-muted-foreground">
+                {status.client.contactEmail}
+              </span>
+            )}
+          </div>
           {status?.client?.techStack && status.client.techStack.length > 0 && (
             <div>
               <p className="text-sm font-medium mb-2">Tech Stack</p>
@@ -71,19 +131,6 @@ export default function ClientDashboardPage() {
                   </Badge>
                 ))}
               </div>
-            </div>
-          )}
-          {status?.client?.website && (
-            <div>
-              <p className="text-sm font-medium">Website</p>
-              <a
-                href={status.client.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline"
-              >
-                {status.client.website}
-              </a>
             </div>
           )}
         </CardContent>

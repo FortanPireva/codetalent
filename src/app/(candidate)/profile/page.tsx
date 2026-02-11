@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,7 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Availability } from "@prisma/client";
 import { availabilityLabels } from "@/lib/utils";
-import { X } from "lucide-react";
+import { X, Camera, Loader2 } from "lucide-react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -45,6 +45,8 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
   const { data: profile, isLoading, refetch } = api.auth.getProfile.useQuery();
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateMutation = api.auth.updateProfile.useMutation({
     onSuccess: () => {
@@ -115,6 +117,36 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "avatar");
+
+      const res = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "Upload failed");
+      }
+
+      const { url } = await res.json();
+      updateMutation.mutate({ profilePicture: url });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload image");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -141,6 +173,63 @@ export default function ProfilePage() {
           Manage your personal information and preferences
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Picture</CardTitle>
+          <CardDescription>
+            Upload a photo so others can recognize you
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center gap-6">
+          <div className="relative">
+            {profile?.profilePicture ? (
+              <img
+                src={profile.profilePicture}
+                alt={profile.name ?? "Profile"}
+                className="h-24 w-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center text-2xl font-semibold text-muted-foreground">
+                {(profile?.name ?? "?").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50"
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+          <div className="space-y-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? "Uploading..." : "Change Photo"}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              JPEG, PNG, or WebP. Max 2MB.
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleAvatarUpload}
+            className="hidden"
+          />
+        </CardContent>
+      </Card>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card>

@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth";
 import { getSupabase } from "@/lib/supabase";
 import Anthropic from "@anthropic-ai/sdk";
-import { PDFParse } from "pdf-parse";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -61,20 +60,8 @@ export async function POST(req: NextRequest) {
       data: { publicUrl },
     } = supabase.storage.from("resumes").getPublicUrl(fileName);
 
-    // Extract text from PDF
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const textResult = await parser.getText();
-    const text = textResult.text?.trim();
-    await parser.destroy();
-
-    if (!text) {
-      return NextResponse.json({
-        resumeUrl: publicUrl,
-        parsedProfile: {},
-      });
-    }
-
-    // Use Claude to extract structured data
+    // Send PDF directly to Claude for extraction (Claude natively reads PDFs)
+    const base64Pdf = buffer.toString("base64");
     const anthropic = new Anthropic();
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -82,7 +69,18 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Extract structured profile information from this resume text. Return a JSON object with the following fields (use null for missing fields):
+          content: [
+            {
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: base64Pdf,
+              },
+            },
+            {
+              type: "text",
+              text: `Extract structured profile information from this resume PDF. Return a JSON object with the following fields (use null for missing fields):
 - name: full name (string)
 - bio: a brief professional summary, max 500 chars (string)
 - phone: phone number (string)
@@ -91,10 +89,9 @@ export async function POST(req: NextRequest) {
 - githubUrl: GitHub profile URL if mentioned (string)
 - linkedinUrl: LinkedIn profile URL if mentioned (string)
 
-Return ONLY the JSON object, no markdown, no explanation.
-
-Resume text:
-${text.slice(0, 8000)}`,
+Return ONLY the JSON object, no markdown, no explanation.`,
+            },
+          ],
         },
       ],
     });

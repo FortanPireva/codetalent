@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, clientProcedure } from "@/server/api/trpc";
 import { CompanySize } from "@prisma/client";
 
 export const clientOnboardingRouter = createTRPCRouter({
@@ -109,5 +109,56 @@ export const clientOnboardingRouter = createTRPCRouter({
       });
 
       return result;
+    }),
+
+  updateProfile: clientProcedure
+    .input(
+      z.object({
+        companyName: z.string().min(2, "Company name is required"),
+        website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+        industry: z.string().min(2, "Industry is required"),
+        size: z.nativeEnum(CompanySize),
+        location: z.string().min(2, "Location is required"),
+        description: z.string().min(10, "Description must be at least 10 characters").max(1000),
+        techStack: z.array(z.string()).default([]),
+        logo: z.string().url().optional().or(z.literal("")),
+        contactName: z.string().min(2, "Contact name is required"),
+        phone: z.string().min(1, "Phone is required"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = await ctx.db.client.findUnique({
+        where: { userId: ctx.session.user.id },
+      });
+
+      if (!client) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Company profile not found" });
+      }
+
+      const [updatedClient] = await ctx.db.$transaction([
+        ctx.db.client.update({
+          where: { id: client.id },
+          data: {
+            name: input.companyName,
+            website: input.website || null,
+            industry: input.industry,
+            size: input.size,
+            location: input.location,
+            description: input.description,
+            techStack: input.techStack,
+            logo: input.logo || null,
+            contactName: input.contactName,
+          },
+        }),
+        ctx.db.user.update({
+          where: { id: ctx.session.user.id },
+          data: {
+            name: input.contactName,
+            phone: input.phone,
+          },
+        }),
+      ]);
+
+      return updatedClient;
     }),
 });

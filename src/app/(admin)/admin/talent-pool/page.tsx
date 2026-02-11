@@ -36,7 +36,7 @@ import {
   getScoreColor,
 } from "@/lib/utils";
 import { Availability } from "@prisma/client";
-import { Search, Github, Linkedin, ExternalLink } from "lucide-react";
+import { Search, Github, Linkedin, ExternalLink, Eye } from "lucide-react";
 
 export default function TalentPoolPage() {
   const [search, setSearch] = useState("");
@@ -164,18 +164,34 @@ export default function TalentPoolPage() {
                   {candidates?.map((candidate) => (
                     <TableRow key={candidate.id}>
                       <TableCell>
-                        <div>
-                          <p className="font-medium">
-                            {candidate.name ?? "Unknown"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {candidate.email}
-                          </p>
-                          {candidate.location && (
-                            <p className="text-xs text-muted-foreground">
-                              {candidate.location}
-                            </p>
+                        <div className="flex items-center gap-3">
+                          {candidate.profilePicture ? (
+                            <img
+                              src={candidate.profilePicture}
+                              alt={candidate.name ?? "Candidate"}
+                              className="h-9 w-9 rounded-full object-cover shrink-0"
+                            />
+                          ) : (
+                            <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
+                              {(candidate.name ?? "?").charAt(0).toUpperCase()}
+                            </div>
                           )}
+                          <div>
+                            <Link
+                              href={`/admin/verification/${candidate.id}`}
+                              className="font-medium hover:underline"
+                            >
+                              {candidate.name ?? "Unknown"}
+                            </Link>
+                            <p className="text-sm text-muted-foreground">
+                              {candidate.email}
+                            </p>
+                            {candidate.location && (
+                              <p className="text-xs text-muted-foreground">
+                                {candidate.location}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -246,7 +262,7 @@ export default function TalentPoolPage() {
                       </TableCell>
                       <TableCell>{formatDate(candidate.createdAt)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1">
                           {candidate.githubUrl && (
                             <Button variant="ghost" size="sm" asChild>
                               <a
@@ -269,6 +285,11 @@ export default function TalentPoolPage() {
                               </a>
                             </Button>
                           )}
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/verification/${candidate.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

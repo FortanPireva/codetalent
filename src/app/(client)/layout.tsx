@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   Building2,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,6 +29,7 @@ const navigation = [
   { name: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
   { name: "Jobs", href: "/client/jobs", icon: Briefcase },
   { name: "Talent", href: "/client/talent", icon: Users },
+  { name: "Settings", href: "/client/settings", icon: Settings },
 ];
 
 export default function ClientLayout({
