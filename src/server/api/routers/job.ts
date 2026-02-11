@@ -551,7 +551,7 @@ export const jobRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const job = await ctx.db.job.findUnique({
         where: { id: input.id, status: "OPEN" },
-        include: { client: { select: { name: true, slug: true, logo: true, location: true, industry: true, size: true, description: true } } },
+        include: { client: { select: { name: true, slug: true, logo: true, location: true, industry: true, size: true, description: true, website: true, techStack: true } } },
       });
 
       if (!job) {

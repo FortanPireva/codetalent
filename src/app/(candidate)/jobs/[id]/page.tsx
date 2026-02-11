@@ -131,7 +131,15 @@ export default function CandidateJobDetailPage() {
             <CardContent className="pt-6">
               <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
               <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                <Building2 className="h-4 w-4" />
+                {job.client.logo ? (
+                  <img
+                    src={job.client.logo}
+                    alt={job.client.name}
+                    className="h-5 w-5 rounded object-contain shrink-0"
+                  />
+                ) : (
+                  <Building2 className="h-4 w-4" />
+                )}
                 <span className="font-medium">{job.client.name}</span>
                 {job.location && (
                   <>
@@ -412,22 +420,50 @@ export default function CandidateJobDetailPage() {
               <CardTitle>About the Company</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="font-medium">{job.client.name}</p>
-              {job.client.industry && (
-                <p className="text-sm text-muted-foreground">
-                  {job.client.industry}
-                </p>
-              )}
-              {job.client.size && (
-                <Badge variant="outline">
-                  {companySizeLabels[job.client.size]}
-                </Badge>
-              )}
+              <div className="flex items-center gap-3">
+                {job.client.logo ? (
+                  <img
+                    src={job.client.logo}
+                    alt={job.client.name}
+                    className="h-10 w-10 rounded-lg object-contain border bg-white shrink-0"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{job.client.name}</p>
+                  {job.client.industry && (
+                    <p className="text-xs text-muted-foreground">
+                      {job.client.industry}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {job.client.size && (
+                  <Badge variant="outline">
+                    {companySizeLabels[job.client.size]}
+                  </Badge>
+                )}
+              </div>
               {job.client.location && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
                   {job.client.location}
                 </div>
+              )}
+              {job.client.website && (
+                <a
+                  href={job.client.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                >
+                  <Globe className="h-4 w-4" />
+                  {job.client.website}
+                </a>
               )}
               {job.client.description && (
                 <>
@@ -435,6 +471,23 @@ export default function CandidateJobDetailPage() {
                   <p className="text-sm text-muted-foreground">
                     {job.client.description}
                   </p>
+                </>
+              )}
+              {job.client.techStack && job.client.techStack.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Company Tech Stack
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {job.client.techStack.map((tech) => (
+                        <Badge key={tech} variant="secondary" className="text-xs">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 </>
               )}
             </CardContent>

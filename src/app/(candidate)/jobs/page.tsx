@@ -184,7 +184,15 @@ export default function CandidateJobsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                      <Building2 className="h-4 w-4 shrink-0" />
+                      {job.client.logo ? (
+                        <img
+                          src={job.client.logo}
+                          alt={job.client.name}
+                          className="h-5 w-5 rounded object-contain shrink-0"
+                        />
+                      ) : (
+                        <Building2 className="h-4 w-4 shrink-0" />
+                      )}
                       <span>{job.client.name}</span>
                       {job.location && (
                         <>
