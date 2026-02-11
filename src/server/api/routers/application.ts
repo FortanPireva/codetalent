@@ -134,6 +134,70 @@ export const applicationRouter = createTRPCRouter({
 
   // ── Client procedures ──────────────────────────────────────────────
 
+  clientOverview: clientProcedure.query(async ({ ctx }) => {
+    const client = await db.client.findFirst({
+      where: { userId: ctx.session.user.id },
+      select: { id: true },
+    });
+    if (!client) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Client profile not found" });
+    }
+
+    // Get all jobs for this client that have applications
+    const clientJobs = await ctx.db.job.findMany({
+      where: { clientId: client.id },
+      select: { id: true, title: true, status: true, applicationCount: true },
+    });
+    const jobIds = clientJobs.map((j) => j.id);
+
+    if (jobIds.length === 0) {
+      return {
+        statusCounts: {} as Record<string, number>,
+        totalApplications: 0,
+        jobs: [],
+      };
+    }
+
+    // Global counts by status
+    const globalCounts = await ctx.db.jobApplication.groupBy({
+      by: ["status"],
+      where: { jobId: { in: jobIds } },
+      _count: { id: true },
+    });
+
+    const statusCounts: Record<string, number> = {};
+    let totalApplications = 0;
+    for (const g of globalCounts) {
+      statusCounts[g.status] = g._count.id;
+      totalApplications += g._count.id;
+    }
+
+    // Per-job breakdown by status
+    const perJobCounts = await ctx.db.jobApplication.groupBy({
+      by: ["jobId", "status"],
+      where: { jobId: { in: jobIds } },
+      _count: { id: true },
+    });
+
+    const jobMap = new Map<string, Record<string, number>>();
+    for (const g of perJobCounts) {
+      if (!jobMap.has(g.jobId)) jobMap.set(g.jobId, {});
+      jobMap.get(g.jobId)![g.status] = g._count.id;
+    }
+
+    const jobs = clientJobs
+      .filter((j) => j.applicationCount > 0 || jobMap.has(j.id))
+      .map((j) => ({
+        id: j.id,
+        title: j.title,
+        status: j.status,
+        applicationCount: j.applicationCount,
+        statusBreakdown: jobMap.get(j.id) ?? {},
+      }));
+
+    return { statusCounts, totalApplications, jobs };
+  }),
+
   inviteForInterview: clientProcedure
     .input(
       z.object({
