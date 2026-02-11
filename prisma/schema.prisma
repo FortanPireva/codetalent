@@ -126,6 +126,7 @@ model User {
   githubUrl    String?
   linkedinUrl  String?
   resumeUrl    String?
+  profilePicture String?
   phone        String?
   location     String?
   candidateStatus CandidateStatus @default(ONBOARDING)

@@ -35,6 +35,7 @@ export const clientOnboardingRouter = createTRPCRouter({
         location: z.string().min(2, "Location is required"),
         description: z.string().min(10, "Description must be at least 10 characters"),
         techStack: z.array(z.string()).default([]),
+        logo: z.string().url().optional().or(z.literal("")),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -97,6 +98,7 @@ export const clientOnboardingRouter = createTRPCRouter({
             location: input.location,
             description: input.description,
             techStack: input.techStack,
+            logo: input.logo || null,
             contactName: input.name,
             contactEmail: user.email,
             userId: ctx.session.user.id,

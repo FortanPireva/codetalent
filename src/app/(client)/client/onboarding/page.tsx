@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,8 @@ import {
   ArrowRight,
   ArrowLeft,
   X,
+  ImagePlus,
+  Loader2,
 } from "lucide-react";
 
 const clientOnboardingSchema = z.object({
@@ -52,6 +54,7 @@ const clientOnboardingSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(1000),
   techStack: z.array(z.string()),
+  logo: z.string().url().optional().or(z.literal("")),
 });
 
 type ClientOnboardingFormData = z.infer<typeof clientOnboardingSchema>;
@@ -91,6 +94,9 @@ export default function ClientOnboardingPage() {
   const { update } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [techInput, setTechInput] = useState("");
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const submitMutation = api.clientOnboarding.submit.useMutation({
     onSuccess: async () => {
@@ -122,6 +128,7 @@ export default function ClientOnboardingPage() {
       location: "",
       description: "",
       techStack: [],
+      logo: "",
     },
   });
 
@@ -142,6 +149,43 @@ export default function ClientOnboardingPage() {
       techStack.filter((t) => t !== tech),
       { shouldValidate: true }
     );
+  };
+
+  const handleLogoUpload = async (file: File) => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Only JPEG, PNG, and WebP images are accepted");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be less than 2MB");
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "logo");
+
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Upload failed");
+      }
+
+      const { url } = await response.json();
+      setValue("logo", url);
+      setLogoPreview(url);
+      toast.success("Company logo uploaded!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to upload logo");
+    } finally {
+      setIsUploadingLogo(false);
+    }
   };
 
   const handleNext = async () => {
@@ -244,6 +288,52 @@ export default function ClientOnboardingPage() {
             {/* Step 1: Company Info */}
             {currentStep === 1 && (
               <div className="space-y-4">
+                {/* Logo upload */}
+                <div>
+                  <Label>Company Logo</Label>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleLogoUpload(file);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={isUploadingLogo}
+                    className="mt-1 w-full"
+                  >
+                    {logoPreview ? (
+                      <div className="border-2 border-dashed rounded-lg p-4 flex items-center gap-4 hover:border-primary transition-colors">
+                        <img
+                          src={logoPreview}
+                          alt="Company logo"
+                          className="h-16 w-16 object-contain rounded"
+                        />
+                        <div className="text-left">
+                          <p className="text-sm font-medium">Logo uploaded</p>
+                          <p className="text-xs text-muted-foreground">Click to change</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center gap-2 hover:border-primary transition-colors">
+                        {isUploadingLogo ? (
+                          <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+                        ) : (
+                          <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          {isUploadingLogo ? "Uploading..." : "Upload company logo (JPEG, PNG, or WebP, max 2MB)"}
+                        </p>
+                      </div>
+                    )}
+                  </button>
+                </div>
+
                 <div>
                   <Label htmlFor="companyName">Company Name *</Label>
                   <Input
@@ -389,6 +479,16 @@ export default function ClientOnboardingPage() {
             {/* Step 3: Review & Submit */}
             {currentStep === 3 && (
               <div className="space-y-6">
+                {logoPreview && (
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={logoPreview}
+                      alt="Company logo"
+                      className="h-14 w-14 object-contain rounded"
+                    />
+                    <p className="font-semibold text-lg">{formValues.companyName}</p>
+                  </div>
+                )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">

@@ -68,6 +68,7 @@ export const talentPoolRouter = createTRPCRouter({
         id: candidate.id,
         name: candidate.name,
         email: candidate.email,
+        profilePicture: candidate.profilePicture,
         availability: candidate.availability,
         skills: candidate.skills,
         location: candidate.location,
@@ -338,6 +339,48 @@ export const talentPoolRouter = createTRPCRouter({
 
   // ── Client procedures ──────────────────────────────────────────────
 
+  clientGetCandidate: clientProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const candidate = await ctx.db.user.findUnique({
+        where: { id: input.id, role: "CANDIDATE", candidateStatus: "APPROVED" },
+        include: {
+          submissions: {
+            include: {
+              assessment: {
+                select: { title: true, difficulty: true },
+              },
+              review: {
+                select: { averageScore: true, passed: true },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+
+      if (!candidate) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Candidate not found",
+        });
+      }
+
+      return {
+        id: candidate.id,
+        name: candidate.name,
+        profilePicture: candidate.profilePicture,
+        bio: candidate.bio,
+        skills: candidate.skills,
+        location: candidate.location,
+        availability: candidate.availability,
+        githubUrl: candidate.githubUrl,
+        linkedinUrl: candidate.linkedinUrl,
+        resumeUrl: candidate.resumeUrl,
+        submissions: candidate.submissions,
+      };
+    }),
+
   clientList: clientProcedure
     .input(
       z.object({
@@ -391,6 +434,8 @@ export const talentPoolRouter = createTRPCRouter({
       return candidates.map((candidate) => ({
         id: candidate.id,
         name: candidate.name,
+        profilePicture: candidate.profilePicture,
+        bio: candidate.bio,
         skills: candidate.skills,
         location: candidate.location,
         availability: candidate.availability,

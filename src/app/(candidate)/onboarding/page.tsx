@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Availability } from "@prisma/client";
 import { availabilityLabels } from "@/lib/utils";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Upload,
   User,
@@ -40,6 +41,7 @@ import {
   X,
   FileText,
   Loader2,
+  Camera,
 } from "lucide-react";
 
 const onboardingSchema = z.object({
@@ -50,6 +52,7 @@ const onboardingSchema = z.object({
   githubUrl: z.string().url("Must be a valid URL"),
   linkedinUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   resumeUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  profilePicture: z.string().url().optional().or(z.literal("")),
   skills: z.array(z.string()).min(1, "At least one skill is required"),
   availability: z.nativeEnum(Availability),
 });
@@ -80,7 +83,10 @@ export default function OnboardingPage() {
   const [skillInput, setSkillInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const submitMutation = api.onboarding.submit.useMutation({
     onSuccess: async () => {
@@ -110,6 +116,7 @@ export default function OnboardingPage() {
       githubUrl: "",
       linkedinUrl: "",
       resumeUrl: "",
+      profilePicture: "",
       skills: [],
       availability: Availability.ACTIVELY_LOOKING,
     },
@@ -181,6 +188,43 @@ export default function OnboardingPage() {
       toast.error(error instanceof Error ? error.message : "Failed to upload resume");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Only JPEG, PNG, and WebP images are accepted");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be less than 2MB");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "avatar");
+
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Upload failed");
+      }
+
+      const { url } = await response.json();
+      setValue("profilePicture", url);
+      setAvatarPreview(url);
+      toast.success("Profile picture uploaded!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to upload image");
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -309,6 +353,47 @@ export default function OnboardingPage() {
             {/* Step 1: Personal Info */}
             {currentStep === 1 && (
               <div className="space-y-4">
+                {/* Avatar upload */}
+                <div className="flex flex-col items-center gap-3">
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleAvatarUpload(file);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="relative group"
+                    disabled={isUploadingAvatar}
+                  >
+                    <Avatar className="h-24 w-24">
+                      {avatarPreview ? (
+                        <AvatarImage src={avatarPreview} alt="Profile picture" />
+                      ) : null}
+                      <AvatarFallback className="text-2xl">
+                        {formValues.name
+                          ? formValues.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                          : <User className="h-8 w-8" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {isUploadingAvatar ? (
+                        <Loader2 className="h-6 w-6 text-white animate-spin" />
+                      ) : (
+                        <Camera className="h-6 w-6 text-white" />
+                      )}
+                    </div>
+                  </button>
+                  <p className="text-sm text-muted-foreground">
+                    {avatarPreview ? "Click to change photo" : "Click to add a profile photo"}
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="name">Full Name *</Label>
                   <Input id="name" {...register("name")} placeholder="John Doe" />
@@ -456,6 +541,24 @@ export default function OnboardingPage() {
             {/* Step 4: Review & Submit */}
             {currentStep === 4 && (
               <div className="space-y-6">
+                {/* Avatar + Name header */}
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-16 w-16">
+                    {avatarPreview ? (
+                      <AvatarImage src={avatarPreview} alt="Profile picture" />
+                    ) : null}
+                    <AvatarFallback className="text-lg">
+                      {formValues.name
+                        ? formValues.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                        : "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-semibold">{formValues.name}</p>
+                    <p className="text-sm text-muted-foreground">{formValues.location}</p>
+                  </div>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Name</p>

@@ -134,6 +134,65 @@ export const applicationRouter = createTRPCRouter({
 
   // ── Client procedures ──────────────────────────────────────────────
 
+  inviteForInterview: clientProcedure
+    .input(
+      z.object({
+        candidateId: z.string(),
+        jobId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = await db.client.findFirst({
+        where: { userId: ctx.session.user.id },
+        select: { id: true },
+      });
+      if (!client) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client profile not found" });
+      }
+
+      return ctx.db.$transaction(async (tx) => {
+        const job = await tx.job.findUnique({
+          where: { id: input.jobId },
+          select: { id: true, clientId: true, status: true },
+        });
+
+        if (!job || job.clientId !== client.id) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+        }
+        if (job.status !== "OPEN") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "This job is no longer accepting applications",
+          });
+        }
+
+        const existing = await tx.jobApplication.findUnique({
+          where: { userId_jobId: { userId: input.candidateId, jobId: input.jobId } },
+        });
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "This candidate already has an application for this job",
+          });
+        }
+
+        const application = await tx.jobApplication.create({
+          data: {
+            userId: input.candidateId,
+            jobId: input.jobId,
+            status: "INTERVIEW",
+          },
+        });
+
+        await tx.job.update({
+          where: { id: input.jobId },
+          data: { applicationCount: { increment: 1 } },
+        });
+
+        return application;
+      });
+    }),
+
   listForJob: clientProcedure
     .input(z.object({ jobId: z.string() }))
     .query(async ({ ctx, input }) => {

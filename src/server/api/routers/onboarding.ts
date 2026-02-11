@@ -17,6 +17,7 @@ export const onboardingRouter = createTRPCRouter({
         githubUrl: true,
         linkedinUrl: true,
         resumeUrl: true,
+        profilePicture: true,
         skills: true,
         availability: true,
       },
@@ -39,6 +40,7 @@ export const onboardingRouter = createTRPCRouter({
         githubUrl: z.string().url("Must be a valid URL"),
         linkedinUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
         resumeUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+        profilePicture: z.string().url().optional().or(z.literal("")),
         skills: z.array(z.string()).min(1, "At least one skill is required"),
         availability: z.nativeEnum(Availability),
       })
@@ -70,6 +72,7 @@ export const onboardingRouter = createTRPCRouter({
           githubUrl: input.githubUrl,
           linkedinUrl: input.linkedinUrl || null,
           resumeUrl: input.resumeUrl || null,
+          profilePicture: input.profilePicture || null,
           skills: input.skills,
           availability: input.availability,
           candidateStatus: "PENDING_REVIEW",
