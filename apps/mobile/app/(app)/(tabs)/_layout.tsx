@@ -1,23 +1,26 @@
 import { Tabs } from "expo-router";
-import { Text, useColorScheme } from "react-native";
+import { Text } from "react-native";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
+  const bgColor = isDark ? "#141414" : "#FFFFFF";
+  const surfaceColor = isDark ? "#1E1E1E" : "#F5F5F5";
 
   return (
     <Tabs
+      sceneContainerStyle={{ backgroundColor: surfaceColor }}
       screenOptions={{
         tabBarActiveTintColor: isDark ? "#FAFAFA" : "#141414",
         tabBarInactiveTintColor: isDark ? "#707070" : "#999999",
         headerShown: true,
-        headerStyle: { backgroundColor: isDark ? "#141414" : "#FFFFFF" },
+        headerStyle: { backgroundColor: bgColor },
         headerTintColor: isDark ? "#FAFAFA" : "#141414",
         headerTitleStyle: { fontFamily: "Satoshi-Bold" },
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: isDark ? "#2A2A2A" : "#EEEEEE",
-          backgroundColor: isDark ? "#141414" : "#FFFFFF",
+          backgroundColor: bgColor,
         },
         tabBarLabelStyle: { fontFamily: "Satoshi-Medium" },
       }}
@@ -26,6 +29,7 @@ export default function TabLayout() {
         name="jobs"
         options={{
           title: "Jobs",
+          headerShown: false,
           tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>💼</Text>,
         }}
       />
@@ -44,10 +48,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="settings"
         options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text>,
+          title: "Settings",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>⚙️</Text>,
         }}
       />
     </Tabs>

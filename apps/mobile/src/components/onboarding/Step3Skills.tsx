@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { StepContainer } from "./StepContainer";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import type { OnboardingFormData } from "@/lib/onboarding";
 
 interface Step3SkillsProps {
@@ -12,6 +13,7 @@ interface Step3SkillsProps {
 
 export function Step3Skills({ data, onUpdate, onNext, onBack }: Step3SkillsProps) {
   const [input, setInput] = useState("");
+  const c = useThemeColors();
 
   function addSkill() {
     const skill = input.trim();
@@ -37,19 +39,21 @@ export function Step3Skills({ data, onUpdate, onNext, onBack }: Step3SkillsProps
     >
       <View className="mb-4 flex-row gap-2">
         <TextInput
-          className="flex-1 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
+          className="flex-1 rounded-xl px-4 py-4 font-sans text-base"
+          style={{ backgroundColor: c.inputBg, borderColor: c.border, borderWidth: 1, color: c.fg }}
           placeholder="e.g. React, TypeScript"
-          placeholderTextColor="#999"
+          placeholderTextColor={c.placeholder}
           value={input}
           onChangeText={setInput}
           onSubmitEditing={addSkill}
           returnKeyType="done"
         />
         <Pressable
-          className="items-center justify-center rounded-xl bg-primary px-5"
+          className="items-center justify-center rounded-xl px-5"
+          style={{ backgroundColor: c.primary }}
           onPress={addSkill}
         >
-          <Text className="font-bold text-base text-primary-foreground">+</Text>
+          <Text className="font-bold text-base" style={{ color: c.primaryFg }}>+</Text>
         </Pressable>
       </View>
 
@@ -57,17 +61,18 @@ export function Step3Skills({ data, onUpdate, onNext, onBack }: Step3SkillsProps
         {data.skills.map((skill) => (
           <Pressable
             key={skill}
-            className="flex-row items-center gap-1.5 rounded-lg bg-surface px-3 py-2"
+            className="flex-row items-center gap-1.5 rounded-lg px-3 py-2"
+            style={{ backgroundColor: c.surface }}
             onPress={() => removeSkill(skill)}
           >
-            <Text className="font-medium text-sm text-foreground">{skill}</Text>
-            <Text className="font-sans text-xs text-muted-foreground">✕</Text>
+            <Text className="font-medium text-sm" style={{ color: c.fg }}>{skill}</Text>
+            <Text className="font-sans text-xs" style={{ color: c.mutedFg }}>✕</Text>
           </Pressable>
         ))}
       </View>
 
       {data.skills.length === 0 && (
-        <Text className="mt-4 text-center font-sans text-sm text-muted-foreground">
+        <Text className="mt-4 text-center font-sans text-sm" style={{ color: c.mutedFg }}>
           Add at least one skill to continue
         </Text>
       )}

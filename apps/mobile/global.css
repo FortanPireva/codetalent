@@ -2,58 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: #FFFFFF;
-    --foreground: #141414;
-    --card: #FFFFFF;
-    --card-foreground: #141414;
-    --primary: #141414;
-    --primary-foreground: #FFFFFF;
-    --secondary: #F5F5F5;
-    --secondary-foreground: #141414;
-    --muted: #F5F5F5;
-    --muted-foreground: #666666;
-    --accent: #F5F5F5;
-    --accent-foreground: #141414;
-    --destructive: #ef4444;
-    --destructive-foreground: #FFFFFF;
-    --border: #DDDDDD;
-    --border-light: #EEEEEE;
-    --input: #DDDDDD;
-    --input-bg: #F9F9F9;
-    --ring: #141414;
-    --surface: #F5F5F5;
-    --tag: #F0F0F0;
-    --skill-tag: #E0E7FF;
-    --skill-tag-text: #4338CA;
-    --placeholder: #999999;
-  }
+:root {
+  --background: #FFFFFF;
+  --foreground: #141414;
+  --card: #FFFFFF;
+  --card-foreground: #141414;
+  --primary: #141414;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #141414;
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+  --accent: #F5F5F5;
+  --accent-foreground: #141414;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #DDDDDD;
+  --border-light: #EEEEEE;
+  --input: #DDDDDD;
+  --input-bg: #F9F9F9;
+  --ring: #141414;
+  --surface: #F5F5F5;
+  --tag: #F0F0F0;
+  --skill-tag: #E0E7FF;
+  --skill-tag-text: #4338CA;
+  --placeholder: #999999;
+}
 
-  .dark {
-    --background: #141414;
-    --foreground: #FAFAFA;
-    --card: #1E1E1E;
-    --card-foreground: #FAFAFA;
-    --primary: #FAFAFA;
-    --primary-foreground: #141414;
-    --secondary: #1E1E1E;
-    --secondary-foreground: #FAFAFA;
-    --muted: #1E1E1E;
-    --muted-foreground: #A0A0A0;
-    --accent: #1E1E1E;
-    --accent-foreground: #FAFAFA;
-    --destructive: #ef4444;
-    --destructive-foreground: #FFFFFF;
-    --border: #333333;
-    --border-light: #2A2A2A;
-    --input: #333333;
-    --input-bg: #1E1E1E;
-    --ring: #FAFAFA;
-    --surface: #1E1E1E;
-    --tag: #2A2A2A;
-    --skill-tag: #2D2B5E;
-    --skill-tag-text: #A5B4FC;
-    --placeholder: #707070;
-  }
+.dark {
+  --background: #141414;
+  --foreground: #FAFAFA;
+  --card: #1E1E1E;
+  --card-foreground: #FAFAFA;
+  --primary: #FAFAFA;
+  --primary-foreground: #141414;
+  --secondary: #1E1E1E;
+  --secondary-foreground: #FAFAFA;
+  --muted: #1E1E1E;
+  --muted-foreground: #A0A0A0;
+  --accent: #1E1E1E;
+  --accent-foreground: #FAFAFA;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #333333;
+  --border-light: #2A2A2A;
+  --input: #333333;
+  --input-bg: #1E1E1E;
+  --ring: #FAFAFA;
+  --surface: #1E1E1E;
+  --tag: #2A2A2A;
+  --skill-tag: #2D2B5E;
+  --skill-tag-text: #A5B4FC;
+  --placeholder: #707070;
 }

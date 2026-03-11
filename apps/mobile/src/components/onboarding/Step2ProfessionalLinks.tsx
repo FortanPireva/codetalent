@@ -1,5 +1,6 @@
 import { Text, TextInput } from "react-native";
 import { StepContainer } from "./StepContainer";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import type { OnboardingFormData } from "@/lib/onboarding";
 
 interface Step2ProfessionalLinksProps {
@@ -15,6 +16,8 @@ export function Step2ProfessionalLinks({
   onNext,
   onBack,
 }: Step2ProfessionalLinksProps) {
+  const c = useThemeColors();
+
   return (
     <StepContainer
       title="Professional Links"
@@ -22,11 +25,12 @@ export function Step2ProfessionalLinks({
       onNext={onNext}
       onBack={onBack}
     >
-      <Text className="mb-1.5 font-medium text-sm text-foreground">GitHub URL *</Text>
+      <Text className="mb-1.5 font-medium text-sm" style={{ color: c.fg }}>GitHub URL *</Text>
       <TextInput
-        className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
+        className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
+        style={{ backgroundColor: c.inputBg, borderColor: c.border, borderWidth: 1, color: c.fg }}
         placeholder="https://github.com/username"
-        placeholderTextColor="#999"
+        placeholderTextColor={c.placeholder}
         value={data.githubUrl}
         onChangeText={(text) => onUpdate({ githubUrl: text })}
         autoCapitalize="none"
@@ -34,11 +38,12 @@ export function Step2ProfessionalLinks({
         keyboardType="url"
       />
 
-      <Text className="mb-1.5 font-medium text-sm text-foreground">LinkedIn URL</Text>
+      <Text className="mb-1.5 font-medium text-sm" style={{ color: c.fg }}>LinkedIn URL</Text>
       <TextInput
-        className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
+        className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
+        style={{ backgroundColor: c.inputBg, borderColor: c.border, borderWidth: 1, color: c.fg }}
         placeholder="https://linkedin.com/in/username"
-        placeholderTextColor="#999"
+        placeholderTextColor={c.placeholder}
         value={data.linkedinUrl}
         onChangeText={(text) => onUpdate({ linkedinUrl: text })}
         autoCapitalize="none"

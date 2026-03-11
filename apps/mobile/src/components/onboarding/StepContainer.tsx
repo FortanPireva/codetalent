@@ -8,6 +8,7 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
+import { useThemeColors } from "@/hooks/useThemeColors";
 
 interface StepContainerProps {
   title: string;
@@ -32,6 +33,8 @@ export function StepContainer({
   isLast,
   loading,
 }: StepContainerProps) {
+  const c = useThemeColors();
+
   return (
     <KeyboardAvoidingView
       className="flex-1"
@@ -42,31 +45,36 @@ export function StepContainer({
         contentContainerClassName="px-6 pb-8"
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="mb-1 font-bold text-2xl text-foreground">{title}</Text>
-        <Text className="mb-6 font-sans text-base text-muted-foreground">
+        <Text className="mb-1 font-bold text-2xl" style={{ color: c.fg }}>{title}</Text>
+        <Text className="mb-6 font-sans text-base" style={{ color: c.mutedFg }}>
           {description}
         </Text>
         {children}
       </ScrollView>
 
-      <View className="flex-row gap-3 border-t border-border-light px-6 pb-8 pt-4">
+      <View
+        className="flex-row gap-3 px-6 pb-8 pt-4"
+        style={{ borderTopWidth: 1, borderTopColor: c.borderLight }}
+      >
         {!isFirst && onBack && (
           <Pressable
-            className="flex-1 items-center rounded-xl border border-border py-4"
+            className="flex-1 items-center rounded-xl py-4"
+            style={{ borderWidth: 1, borderColor: c.border }}
             onPress={onBack}
           >
-            <Text className="font-medium text-base text-foreground">Back</Text>
+            <Text className="font-medium text-base" style={{ color: c.fg }}>Back</Text>
           </Pressable>
         )}
         <Pressable
-          className={`flex-1 items-center rounded-xl bg-primary py-4 ${loading ? "opacity-60" : ""}`}
+          className={`flex-1 items-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
+          style={{ backgroundColor: c.primary }}
           onPress={onNext}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="white" size="small" />
+            <ActivityIndicator color={c.primaryFg} size="small" />
           ) : (
-            <Text className="font-medium text-base text-primary-foreground">
+            <Text className="font-medium text-base" style={{ color: c.primaryFg }}>
               {nextLabel ?? (isLast ? "Submit" : "Continue")}
             </Text>
           )}

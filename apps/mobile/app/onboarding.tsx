@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
-import { View, Alert } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import {
   type OnboardingFormData,
   initialFormData,
@@ -25,6 +26,7 @@ const REVIEW_STEP = 6;
 
 export default function OnboardingScreen() {
   const { logout } = useAuth();
+  const c = useThemeColors();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -120,11 +122,20 @@ export default function OnboardingScreen() {
       : visibleSteps.indexOf(currentStep);
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <StepIndicator
-        currentStep={currentVisibleIndex}
-        totalSteps={totalVisibleSteps}
-      />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <View className="flex-row items-center justify-between px-4">
+        <View className="flex-1">
+          <StepIndicator
+            currentStep={currentVisibleIndex}
+            totalSteps={totalVisibleSteps}
+          />
+        </View>
+        <Pressable onPress={logout} hitSlop={8}>
+          <Text className="font-medium text-sm" style={{ color: c.destructive }}>
+            Sign Out
+          </Text>
+        </Pressable>
+      </View>
 
       {currentStep === 0 && (
         <Step0Resume data={formData} onUpdate={updateFormData} onNext={goNext} />

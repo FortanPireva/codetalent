@@ -3,6 +3,7 @@ import { View, Text, Pressable, ActivityIndicator, Alert } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as SecureStore from "expo-secure-store";
 import { StepContainer } from "./StepContainer";
+import { useThemeColors } from "@/hooks/useThemeColors";
 import type { OnboardingFormData } from "@/lib/onboarding";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
@@ -16,6 +17,7 @@ interface Step0ResumeProps {
 export function Step0Resume({ data, onUpdate, onNext }: Step0ResumeProps) {
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState("");
+  const c = useThemeColors();
 
   async function handlePickDocument() {
     try {
@@ -91,24 +93,25 @@ export function Step0Resume({ data, onUpdate, onNext }: Step0ResumeProps) {
     >
       <View className="items-center py-8">
         <Pressable
-          className={`w-full items-center rounded-xl border-2 border-dashed border-border px-6 py-12 ${uploading ? "opacity-60" : ""}`}
+          className={`w-full items-center rounded-xl px-6 py-12 ${uploading ? "opacity-60" : ""}`}
+          style={{ borderWidth: 2, borderStyle: "dashed", borderColor: c.border }}
           onPress={handlePickDocument}
           disabled={uploading}
         >
           {uploading ? (
             <>
-              <ActivityIndicator size="large" className="mb-3" />
-              <Text className="font-medium text-base text-muted-foreground">
+              <ActivityIndicator size="large" className="mb-3" color={c.primary} />
+              <Text className="font-medium text-base" style={{ color: c.mutedFg }}>
                 Uploading & parsing...
               </Text>
             </>
           ) : (
             <>
               <Text className="mb-2 text-4xl">📄</Text>
-              <Text className="mb-1 font-bold text-base text-foreground">
+              <Text className="mb-1 font-bold text-base" style={{ color: c.fg }}>
                 Tap to select PDF
               </Text>
-              <Text className="font-sans text-sm text-muted-foreground">
+              <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
                 Max 5MB
               </Text>
             </>
@@ -116,9 +119,12 @@ export function Step0Resume({ data, onUpdate, onNext }: Step0ResumeProps) {
         </Pressable>
 
         {data.resumeUrl ? (
-          <View className="mt-4 flex-row items-center gap-2 rounded-lg bg-surface px-4 py-3">
+          <View
+            className="mt-4 flex-row items-center gap-2 rounded-lg px-4 py-3"
+            style={{ backgroundColor: c.surface }}
+          >
             <Text className="text-lg">✓</Text>
-            <Text className="flex-1 font-medium text-sm text-foreground" numberOfLines={1}>
+            <Text className="flex-1 font-medium text-sm" style={{ color: c.fg }} numberOfLines={1}>
               {fileName || "Resume uploaded"}
             </Text>
           </View>

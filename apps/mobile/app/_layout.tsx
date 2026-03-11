@@ -3,12 +3,12 @@ import "../global.css";
 import { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { api, createMobileTRPCClient } from "@/lib/trpc";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -20,7 +20,9 @@ export default function RootLayout() {
     <api.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RootLayoutInner />
+          <ThemeProvider>
+            <RootLayoutInner />
+          </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
     </api.Provider>
@@ -29,7 +31,8 @@ export default function RootLayout() {
 
 function RootLayoutInner() {
   const { isLoading: authLoading } = useAuth();
-  const colorScheme = useColorScheme();
+  const { colorScheme, isDark } = useTheme();
+  const bgColor = isDark ? "#141414" : "#FFFFFF";
 
   const [fontsLoaded] = useFonts({
     "Satoshi-Regular": require("../assets/fonts/Satoshi-Regular.ttf"),
@@ -51,7 +54,7 @@ function RootLayoutInner() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: bgColor } }} />
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
     </>
   );
