@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { api } from "@/trpc/react";
@@ -26,6 +26,14 @@ import {
 import { toast } from "sonner";
 
 export default function BillingPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+      <BillingContent />
+    </Suspense>
+  );
+}
+
+function BillingContent() {
   const { update } = useSession();
   const searchParams = useSearchParams();
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("MONTHLY");
