@@ -1,0 +1,34 @@
+{
+  "name": "@codetalent/mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "dev": "expo start"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^4.43.0",
+    "@trpc/client": "^10",
+    "@trpc/react-query": "^10",
+    "expo": "~55.0.6",
+    "expo-constants": "~55.0.7",
+    "expo-linking": "~55.0.7",
+    "expo-router": "~55.0.5",
+    "expo-secure-store": "~55.0.8",
+    "expo-status-bar": "~55.0.4",
+    "react": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.24.0",
+    "superjson": "^2.2.6"
+  },
+  "devDependencies": {
+    "@codetalent/web": "workspace:*",
+    "@types/react": "~19.2.2",
+    "typescript": "~5.9.2"
+  }
+}
