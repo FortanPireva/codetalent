@@ -1,8 +1,13 @@
+import { useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/theme";
+import type { ThemeColors } from "@/theme";
 
 export default function OnboardingScreen() {
   const { logout } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.container}>
@@ -33,13 +38,38 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24, backgroundColor: "#fff" },
-  icon: { fontSize: 48, marginBottom: 16 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 8, textAlign: "center" },
-  description: { fontSize: 16, color: "#666", textAlign: "center", marginBottom: 24, lineHeight: 22 },
-  button: { backgroundColor: "#000", borderRadius: 12, paddingHorizontal: 32, paddingVertical: 14 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  logoutButton: { marginTop: 16 },
-  logoutText: { color: "#999", fontSize: 14 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+      backgroundColor: colors.background,
+    },
+    icon: { fontSize: 48, marginBottom: 16 },
+    title: {
+      fontSize: 24,
+      fontFamily: "Satoshi-Bold",
+      marginBottom: 8,
+      textAlign: "center",
+      color: colors.text,
+    },
+    description: {
+      fontSize: 16,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginBottom: 24,
+      lineHeight: 22,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      paddingHorizontal: 32,
+      paddingVertical: 14,
+    },
+    buttonText: { color: colors.primaryText, fontSize: 16, fontFamily: "Satoshi-Medium" },
+    logoutButton: { marginTop: 16 },
+    logoutText: { color: colors.textTertiary, fontSize: 14, fontFamily: "Satoshi-Regular" },
+  });

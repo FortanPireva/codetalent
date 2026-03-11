@@ -1,4 +1,5 @@
 import { z } from "zod";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { encode } from "next-auth/jwt";
 import { TRPCError } from "@trpc/server";
@@ -8,6 +9,7 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { Availability } from "@codetalent/db";
+import { sendPasswordResetEmail } from "@/server/email";
 
 export const authRouter = createTRPCRouter({
   // Mobile login - returns JWT for Bearer auth
@@ -115,10 +117,109 @@ export const authRouter = createTRPCRouter({
           email: true,
           name: true,
           role: true,
+          candidateStatus: true,
+          clientStatus: true,
         },
       });
 
-      return user;
+      const token = await encode({
+        token: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          candidateStatus: user.candidateStatus,
+          clientStatus: user.clientStatus,
+          hasActiveSubscription: false,
+        },
+        secret: process.env.NEXTAUTH_SECRET!,
+        maxAge: 30 * 24 * 60 * 60,
+      });
+
+      return {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          candidateStatus: user.candidateStatus,
+          clientStatus: user.clientStatus,
+          hasActiveSubscription: false,
+        },
+      };
+    }),
+
+  requestPasswordReset: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { email: input.email },
+      });
+
+      // Always return success to prevent user enumeration
+      if (!user) {
+        return { message: "If an account exists, a reset email has been sent." };
+      }
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
+
+      await ctx.db.user.update({
+        where: { id: user.id },
+        data: {
+          passwordResetToken: hashedToken,
+          passwordResetExpiry: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        },
+      });
+
+      await sendPasswordResetEmail(user.email, rawToken);
+
+      return { message: "If an account exists, a reset email has been sent." };
+    }),
+
+  resetPassword: publicProcedure
+    .input(
+      z.object({
+        token: z.string(),
+        password: z.string().min(8, "Password must be at least 8 characters"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(input.token)
+        .digest("hex");
+
+      const user = await ctx.db.user.findFirst({
+        where: {
+          passwordResetToken: hashedToken,
+          passwordResetExpiry: { gt: new Date() },
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid or expired reset link",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(input.password, 12);
+
+      await ctx.db.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          passwordResetToken: null,
+          passwordResetExpiry: null,
+        },
+      });
+
+      return { message: "Password reset successfully" };
     }),
 
   getProfile: protectedProcedure.query(async ({ ctx }) => {

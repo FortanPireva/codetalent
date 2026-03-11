@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,32 +18,46 @@ import { toast } from "sonner";
 import { api } from "@/trpc/react";
 
 export default function ClientRegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const registerMutation = api.auth.register.useMutation({
-    onSuccess: () => {
-      toast.success("Company account created! Please sign in.");
-      router.push("/login");
+    onSuccess: async () => {
+      toast.success("Company account created!");
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (result?.error) {
+        window.location.href = "/login";
+      } else {
+        window.location.href = "/";
+      }
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (err) => {
+      if (err.data?.code === "CONFLICT") {
+        setError("An account with this email already exists");
+      } else {
+        setError(err.message);
+      }
     },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -70,7 +84,10 @@ export default function ClientRegisterPage() {
                 type="text"
                 placeholder="Jane Smith"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError("");
+                }}
                 required
                 disabled={registerMutation.isPending}
               />
@@ -82,7 +99,10 @@ export default function ClientRegisterPage() {
                 type="email"
                 placeholder="you@company.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
                 required
                 disabled={registerMutation.isPending}
               />
@@ -94,7 +114,10 @@ export default function ClientRegisterPage() {
                 type="password"
                 placeholder="At least 8 characters"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 required
                 disabled={registerMutation.isPending}
               />
@@ -106,11 +129,15 @@ export default function ClientRegisterPage() {
                 type="password"
                 placeholder="Confirm your password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setError("");
+                }}
                 required
                 disabled={registerMutation.isPending}
               />
             </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button

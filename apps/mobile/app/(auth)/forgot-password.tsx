@@ -10,51 +10,58 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { api } from "@/lib/trpc";
-import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/theme";
 import type { ThemeColors } from "@/theme";
 
-export default function RegisterScreen() {
-  const [name, setName] = useState("");
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const registerMutation = api.auth.register.useMutation();
-  const { loginWithToken } = useAuth();
+  const resetMutation = api.auth.requestPasswordReset.useMutation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  async function handleRegister() {
-    if (!name || !email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+  async function handleSubmit() {
+    if (!email) {
+      setError("Please enter your email");
       return;
     }
     setLoading(true);
     setError("");
     try {
-      const result = await registerMutation.mutateAsync({
-        name,
-        email,
-        password,
-        role: "CANDIDATE",
-      });
-      await loginWithToken(result.token, result.user);
+      await resetMutation.mutateAsync({ email });
+      setSent(true);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Registration failed";
-      if (message.includes("CONFLICT") || message.includes("already exists")) {
-        setError("An account with this email already exists");
-      } else {
-        setError(message);
-      }
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.inner}>
+          <Text style={styles.title}>Check your email</Text>
+          <Text style={styles.subtitle}>
+            If an account exists for {email}, we sent a password reset link.
+            Open the link in your browser to reset your password.
+          </Text>
+
+          <Link href="/(auth)/login" asChild>
+            <TouchableOpacity style={styles.linkButton}>
+              <Text style={styles.linkText}>Back to Sign In</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+      </KeyboardAvoidingView>
+    );
   }
 
   return (
@@ -63,20 +70,11 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Join Talentflow as a candidate</Text>
+        <Text style={styles.title}>Forgot Password</Text>
+        <Text style={styles.subtitle}>
+          Enter your email and we&apos;ll send you a reset link
+        </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          placeholderTextColor={colors.placeholder}
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-            setError("");
-          }}
-          autoComplete="name"
-        />
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -90,18 +88,6 @@ export default function RegisterScreen() {
           keyboardType="email-address"
           autoComplete="email"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password (min 8 characters)"
-          placeholderTextColor={colors.placeholder}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setError("");
-          }}
-          secureTextEntry
-          autoComplete="new-password"
-        />
 
         {error ? (
           <Text style={styles.errorText}>{error}</Text>
@@ -109,19 +95,17 @@ export default function RegisterScreen() {
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleRegister}
+          onPress={handleSubmit}
           disabled={loading}
         >
           <Text style={styles.buttonText}>
-            {loading ? "Creating account..." : "Sign Up"}
+            {loading ? "Sending..." : "Send Reset Link"}
           </Text>
         </TouchableOpacity>
 
         <Link href="/(auth)/login" asChild>
           <TouchableOpacity style={styles.linkButton}>
-            <Text style={styles.linkText}>
-              Already have an account? Sign in
-            </Text>
+            <Text style={styles.linkText}>Back to Sign In</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -158,6 +142,13 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.inputBackground,
       color: colors.text,
     },
+    errorText: {
+      color: "#dc2626",
+      fontSize: 14,
+      fontFamily: "Satoshi-Regular",
+      textAlign: "center",
+      marginBottom: 8,
+    },
     button: {
       backgroundColor: colors.primary,
       borderRadius: 12,
@@ -170,13 +161,6 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.primaryText,
       fontSize: 16,
       fontFamily: "Satoshi-Medium",
-    },
-    errorText: {
-      color: "#dc2626",
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      textAlign: "center",
-      marginBottom: 8,
     },
     linkButton: { marginTop: 16, alignItems: "center" },
     linkText: {

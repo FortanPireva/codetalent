@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   View,
   Text,
@@ -9,8 +10,12 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { api } from "@/lib/trpc";
+import { useTheme } from "@/theme";
+import type { ThemeColors } from "@/theme";
 
 export default function JobsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     data,
     isLoading,
@@ -21,7 +26,7 @@ export default function JobsScreen() {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.textSecondary} />
       </View>
     );
   }
@@ -35,7 +40,11 @@ export default function JobsScreen() {
       data={jobs}
       keyExtractor={(item) => item.id}
       refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={refetch}
+          tintColor={colors.textSecondary}
+        />
       }
       ListEmptyComponent={
         <View style={styles.empty}>
@@ -75,32 +84,48 @@ export default function JobsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  list: { padding: 16 },
-  empty: { alignItems: "center", padding: 32 },
-  emptyText: { fontSize: 16, color: "#999" },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  jobTitle: { fontSize: 18, fontWeight: "600", marginBottom: 4 },
-  company: { fontSize: 14, color: "#666", marginBottom: 8 },
-  tags: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 6 },
-  tag: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  tagText: { fontSize: 12, color: "#555" },
-  location: { fontSize: 13, color: "#888", marginTop: 4 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    center: { flex: 1, justifyContent: "center", alignItems: "center" },
+    list: { padding: 16 },
+    empty: { alignItems: "center", padding: 32 },
+    emptyText: { fontSize: 16, color: colors.textTertiary, fontFamily: "Satoshi-Regular" },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    jobTitle: {
+      fontSize: 18,
+      fontFamily: "Satoshi-Bold",
+      marginBottom: 4,
+      color: colors.text,
+    },
+    company: {
+      fontSize: 14,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
+    tags: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 6 },
+    tag: {
+      backgroundColor: colors.tag,
+      borderRadius: 6,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+    },
+    tagText: { fontSize: 12, color: colors.textSecondary, fontFamily: "Satoshi-Medium" },
+    location: {
+      fontSize: 13,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textTertiary,
+      marginTop: 4,
+    },
+  });

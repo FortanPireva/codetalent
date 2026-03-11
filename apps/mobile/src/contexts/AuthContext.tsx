@@ -19,6 +19,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithToken: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => {},
+  loginWithToken: async () => {},
   logout: async () => {},
 });
 
@@ -61,6 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(result.user);
   }, [loginMutation]);
 
+  const loginWithToken = useCallback(async (token: string, userData: User) => {
+    await SecureStore.setItemAsync("auth_token", token);
+    await SecureStore.setItemAsync("auth_user", JSON.stringify(userData));
+    setUser(userData);
+  }, []);
+
   const logout = useCallback(async () => {
     await SecureStore.deleteItemAsync("auth_token");
     await SecureStore.deleteItemAsync("auth_user");
@@ -76,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         login,
+        loginWithToken,
         logout,
       }}
     >

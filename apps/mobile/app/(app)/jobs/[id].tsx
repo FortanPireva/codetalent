@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   View,
   Text,
@@ -10,9 +11,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { api } from "@/lib/trpc";
+import { useTheme } from "@/theme";
+import type { ThemeColors } from "@/theme";
 
 export default function JobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data: job, isLoading } = api.job.candidateGetById.useQuery({ id: id! });
   const utils = api.useUtils();
 
@@ -30,7 +35,7 @@ export default function JobDetailScreen() {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={colors.textSecondary} />
       </View>
     );
   }
@@ -38,7 +43,9 @@ export default function JobDetailScreen() {
   if (!job) {
     return (
       <View style={styles.center}>
-        <Text>Job not found</Text>
+        <Text style={{ color: colors.text, fontFamily: "Satoshi-Regular" }}>
+          Job not found
+        </Text>
       </View>
     );
   }
@@ -137,52 +144,78 @@ export default function JobDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  content: { padding: 16, paddingBottom: 100 },
-  backButton: { marginBottom: 16 },
-  backText: { fontSize: 16, color: "#666" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
-  company: { fontSize: 16, color: "#666", marginBottom: 12 },
-  tags: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
-  tag: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  tagText: { fontSize: 12, color: "#555" },
-  salary: { fontSize: 16, fontWeight: "600", color: "#22c55e", marginBottom: 16 },
-  section: { marginBottom: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: "600", marginBottom: 8 },
-  body: { fontSize: 14, color: "#444", lineHeight: 22 },
-  skillList: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  skillTag: {
-    backgroundColor: "#e0e7ff",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  skillText: { fontSize: 13, color: "#4338ca" },
-  bulletItem: { fontSize: 14, color: "#444", marginBottom: 4 },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    paddingBottom: 32,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  applyButton: {
-    backgroundColor: "#000",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-  },
-  disabled: { opacity: 0.6 },
-  applyText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, justifyContent: "center", alignItems: "center" },
+    content: { padding: 16, paddingBottom: 100 },
+    backButton: { marginBottom: 16 },
+    backText: { fontSize: 16, color: colors.textSecondary, fontFamily: "Satoshi-Regular" },
+    title: { fontSize: 24, fontFamily: "Satoshi-Bold", marginBottom: 4, color: colors.text },
+    company: {
+      fontSize: 16,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    tags: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+    tag: {
+      backgroundColor: colors.tag,
+      borderRadius: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+    },
+    tagText: { fontSize: 12, color: colors.textSecondary, fontFamily: "Satoshi-Medium" },
+    salary: {
+      fontSize: 16,
+      fontFamily: "Satoshi-Bold",
+      color: colors.green,
+      marginBottom: 16,
+    },
+    section: { marginBottom: 20 },
+    sectionTitle: {
+      fontSize: 18,
+      fontFamily: "Satoshi-Bold",
+      marginBottom: 8,
+      color: colors.text,
+    },
+    body: {
+      fontSize: 14,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textSecondary,
+      lineHeight: 22,
+    },
+    skillList: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+    skillTag: {
+      backgroundColor: colors.skillTag,
+      borderRadius: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+    },
+    skillText: { fontSize: 13, color: colors.skillTagText, fontFamily: "Satoshi-Medium" },
+    bulletItem: {
+      fontSize: 14,
+      fontFamily: "Satoshi-Regular",
+      color: colors.textSecondary,
+      marginBottom: 4,
+    },
+    footer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: 16,
+      paddingBottom: 32,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderTopColor: colors.borderLight,
+    },
+    applyButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: "center",
+    },
+    disabled: { opacity: 0.6 },
+    applyText: { color: colors.primaryText, fontSize: 16, fontFamily: "Satoshi-Medium" },
+  });

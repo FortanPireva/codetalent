@@ -1,23 +1,13 @@
 import { Redirect, Stack } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
-import { ActivityIndicator, View } from "react-native";
 
 export default function AppLayout() {
-  const { isAuthenticated, isLoading, user } = useAuth();
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  // Route by candidate status
   if (user?.candidateStatus === "ONBOARDING") {
     return <Redirect href="/onboarding" />;
   }

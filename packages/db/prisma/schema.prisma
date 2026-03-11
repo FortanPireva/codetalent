@@ -149,6 +149,8 @@ model User {
   location     String?
   candidateStatus CandidateStatus @default(ONBOARDING)
   rejectionReason String?
+  passwordResetToken  String?   @unique
+  passwordResetExpiry DateTime?
   clientStatus          ClientOnboardingStatus @default(ONBOARDING)
   clientRejectionReason String?
   hourlyRate    Float?
