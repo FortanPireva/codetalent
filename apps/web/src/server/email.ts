@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "noreply@codetalent.io";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "noreply@talentflow.codeks.net";
 
 export async function sendPasswordResetEmail(to: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
