@@ -1,18 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { Link } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
+import { TalentflowLogo } from "@/components/TalentflowLogo";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
@@ -22,8 +20,6 @@ export default function RegisterScreen() {
   const [error, setError] = useState("");
   const registerMutation = api.auth.register.useMutation();
   const { loginWithToken } = useAuth();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   async function handleRegister() {
     if (!name || !email || !password) {
@@ -59,17 +55,24 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-background"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Join Talentflow as a candidate</Text>
+      <View className="flex-1 justify-center px-6">
+        <View className="mb-4 items-center">
+          <TalentflowLogo size={72} />
+        </View>
+        <Text className="mb-2 text-center font-bold text-3xl text-foreground">
+          Create Account
+        </Text>
+        <Text className="mb-8 text-center font-sans text-base text-muted-foreground">
+          Join Talentflow as a candidate
+        </Text>
 
         <TextInput
-          style={styles.input}
+          className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
           placeholder="Full Name"
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor="#999"
           value={name}
           onChangeText={(text) => {
             setName(text);
@@ -78,9 +81,9 @@ export default function RegisterScreen() {
           autoComplete="name"
         />
         <TextInput
-          style={styles.input}
+          className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
           placeholder="Email"
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor="#999"
           value={email}
           onChangeText={(text) => {
             setEmail(text);
@@ -91,9 +94,9 @@ export default function RegisterScreen() {
           autoComplete="email"
         />
         <TextInput
-          style={styles.input}
+          className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
           placeholder="Password (min 8 characters)"
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor="#999"
           value={password}
           onChangeText={(text) => {
             setPassword(text);
@@ -104,84 +107,29 @@ export default function RegisterScreen() {
         />
 
         {error ? (
-          <Text style={styles.errorText}>{error}</Text>
+          <Text className="mb-2 text-center font-sans text-sm text-destructive">
+            {error}
+          </Text>
         ) : null}
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+        <Pressable
+          className={`mt-2 items-center rounded-xl bg-primary py-4 ${loading ? "opacity-60" : ""}`}
           onPress={handleRegister}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
+          <Text className="font-medium text-base text-primary-foreground">
             {loading ? "Creating account..." : "Sign Up"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <Link href="/(auth)/login" asChild>
-          <TouchableOpacity style={styles.linkButton}>
-            <Text style={styles.linkText}>
+          <Pressable className="mt-4 items-center">
+            <Text className="font-sans text-sm text-muted-foreground">
               Already have an account? Sign in
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </Link>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    inner: { flex: 1, justifyContent: "center", paddingHorizontal: 24 },
-    title: {
-      fontSize: 32,
-      fontFamily: "Satoshi-Bold",
-      textAlign: "center",
-      marginBottom: 8,
-      color: colors.text,
-    },
-    subtitle: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      textAlign: "center",
-      marginBottom: 32,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      marginBottom: 16,
-      backgroundColor: colors.inputBackground,
-      color: colors.text,
-    },
-    button: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: "center",
-      marginTop: 8,
-    },
-    buttonDisabled: { opacity: 0.6 },
-    buttonText: {
-      color: colors.primaryText,
-      fontSize: 16,
-      fontFamily: "Satoshi-Medium",
-    },
-    errorText: {
-      color: "#dc2626",
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      textAlign: "center",
-      marginBottom: 8,
-    },
-    linkButton: { marginTop: 16, alignItems: "center" },
-    linkText: {
-      color: colors.textSecondary,
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-    },
-  });

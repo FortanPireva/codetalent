@@ -1,17 +1,13 @@
-import { useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
-  StyleSheet,
+  Pressable,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { api } from "@/lib/trpc";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
 
 const statusColors: Record<string, string> = {
   ASSIGNED: "#3b82f6",
@@ -24,15 +20,13 @@ const statusColors: Record<string, string> = {
 
 export default function AssessmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data: submissions, isLoading } =
     api.assessment.mySubmissions.useQuery();
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.textSecondary} />
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -41,73 +35,80 @@ export default function AssessmentDetailScreen() {
 
   if (!submission) {
     return (
-      <View style={styles.center}>
-        <Text style={{ color: colors.text, fontFamily: "Satoshi-Regular" }}>
-          Assessment not found
-        </Text>
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-sans text-foreground">Assessment not found</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <ScrollView contentContainerClassName="p-4 pb-8">
+        <Pressable onPress={() => router.back()} className="mb-4">
+          <Text className="font-sans text-base text-muted-foreground">← Back</Text>
+        </Pressable>
 
-        <Text style={styles.title}>{submission.assessment.title}</Text>
-        <Text style={styles.difficulty}>
+        <Text className="mb-1 font-bold text-2xl text-foreground">
+          {submission.assessment.title}
+        </Text>
+        <Text className="mb-3 font-sans text-sm text-muted-foreground">
           Difficulty: {submission.assessment.difficulty}
         </Text>
 
         <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: statusColors[submission.status] ?? colors.textTertiary },
-          ]}
+          className="mb-5 self-start rounded-lg px-3 py-1.5"
+          style={{
+            backgroundColor: statusColors[submission.status] ?? "#999",
+          }}
         >
-          <Text style={styles.statusText}>{submission.status}</Text>
+          <Text className="font-bold text-xs text-white">
+            {submission.status}
+          </Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Details</Text>
-          <InfoRow label="Time Limit" value={`${submission.assessment.timeLimit} days`} colors={colors} />
+        <View className="mb-4 rounded-xl bg-surface p-4">
+          <Text className="mb-3 font-bold text-base text-foreground">Details</Text>
+          <InfoRow
+            label="Time Limit"
+            value={`${submission.assessment.timeLimit} days`}
+          />
           {submission.startedAt && (
             <InfoRow
               label="Started"
               value={new Date(submission.startedAt).toLocaleDateString()}
-              colors={colors}
             />
           )}
           {submission.submittedAt && (
             <InfoRow
               label="Submitted"
               value={new Date(submission.submittedAt).toLocaleDateString()}
-              colors={colors}
             />
           )}
         </View>
 
         {submission.review && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Review Result</Text>
-            <View style={styles.scoreHeader}>
-              <Text style={styles.averageLabel}>Average Score</Text>
+          <View className="mb-4 rounded-xl bg-surface p-4">
+            <Text className="mb-3 font-bold text-base text-foreground">
+              Review Result
+            </Text>
+            <View className="mb-2 flex-row items-center justify-between">
+              <Text className="font-bold text-base text-foreground">
+                Average Score
+              </Text>
               <Text
-                style={[
-                  styles.averageScore,
-                  { color: submission.review.passed ? colors.green : colors.red },
-                ]}
+                className="font-bold text-xl"
+                style={{
+                  color: submission.review.passed ? "#22c55e" : "#ef4444",
+                }}
               >
                 {submission.review.averageScore.toFixed(1)} / 5.0
               </Text>
             </View>
             <Text
-              style={[
-                styles.resultText,
-                { color: submission.review.passed ? colors.green : colors.red },
-              ]}
+              className="mt-2 text-center font-bold text-base"
+              style={{
+                color: submission.review.passed ? "#22c55e" : "#ef4444",
+              }}
             >
               {submission.review.passed ? "PASSED" : "NOT PASSED"}
             </Text>
@@ -115,9 +116,13 @@ export default function AssessmentDetailScreen() {
         )}
 
         {submission.forkUrl && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Fork URL</Text>
-            <Text style={styles.body}>{submission.forkUrl}</Text>
+          <View className="mb-4 rounded-xl bg-surface p-4">
+            <Text className="mb-3 font-bold text-base text-foreground">
+              Fork URL
+            </Text>
+            <Text className="font-sans text-sm text-muted-foreground leading-6">
+              {submission.forkUrl}
+            </Text>
           </View>
         )}
       </ScrollView>
@@ -125,87 +130,11 @@ export default function AssessmentDetailScreen() {
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  colors,
-}: {
-  label: string;
-  value: string;
-  colors: ThemeColors;
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.borderLight,
-      }}
-    >
-      <Text style={{ fontSize: 14, color: colors.textSecondary, fontFamily: "Satoshi-Regular" }}>
-        {label}
-      </Text>
-      <Text style={{ fontSize: 14, fontFamily: "Satoshi-Medium", color: colors.text }}>
-        {value}
-      </Text>
+    <View className="flex-row justify-between border-b border-border-light py-2">
+      <Text className="font-sans text-sm text-muted-foreground">{label}</Text>
+      <Text className="font-medium text-sm text-foreground">{value}</Text>
     </View>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    center: { flex: 1, justifyContent: "center", alignItems: "center" },
-    content: { padding: 16, paddingBottom: 32 },
-    backButton: { marginBottom: 16 },
-    backText: { fontSize: 16, color: colors.textSecondary, fontFamily: "Satoshi-Regular" },
-    title: { fontSize: 24, fontFamily: "Satoshi-Bold", marginBottom: 4, color: colors.text },
-    difficulty: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      marginBottom: 12,
-    },
-    statusBadge: {
-      alignSelf: "flex-start",
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      marginBottom: 20,
-    },
-    statusText: { color: "#fff", fontFamily: "Satoshi-Bold", fontSize: 13 },
-    section: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 16,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Bold",
-      marginBottom: 12,
-      color: colors.text,
-    },
-    body: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      lineHeight: 22,
-    },
-    scoreHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 8,
-    },
-    averageLabel: { fontSize: 16, fontFamily: "Satoshi-Bold", color: colors.text },
-    averageScore: { fontSize: 20, fontFamily: "Satoshi-Bold" },
-    resultText: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Bold",
-      textAlign: "center",
-      marginTop: 8,
-    },
-  });

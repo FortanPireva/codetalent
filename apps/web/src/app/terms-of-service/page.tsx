@@ -5,9 +5,9 @@ import { Code, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - Codeks HR",
+  title: "Terms of Service - Talentflow",
   description:
-    "Terms and conditions governing the use of the Codeks HR platform.",
+    "Terms and conditions governing the use of the Talentflow platform.",
 };
 
 export default function TermsOfServicePage() {
@@ -19,7 +19,7 @@ export default function TermsOfServicePage() {
             <Link href="/" className="flex items-center gap-2">
               <Code className="h-7 w-7 text-primary" />
               <span className="text-xl font-bold tracking-tight">
-                Codeks HR
+                Talentflow
               </span>
             </Link>
             <Button variant="ghost" size="sm" asChild>
@@ -48,7 +48,7 @@ export default function TermsOfServicePage() {
               1. Acceptance of Terms
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              By accessing or using the Codeks HR platform
+              By accessing or using the Talentflow platform
               (&quot;Platform&quot;), you agree to be bound by these Terms of
               Service (&quot;Terms&quot;). If you do not agree, you may not use
               the Platform. These Terms apply to all users, including candidates,
@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
               2. Description of Service
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              Codeks HR is a B2B developer marketplace that connects companies
+              Talentflow is a B2B developer marketplace that connects companies
               with software engineers through AI-powered technical assessments.
               The Platform provides:
             </p>
@@ -203,7 +203,7 @@ export default function TermsOfServicePage() {
             <h3 className="mt-4 text-base font-medium">7.1 Your Content</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
               You retain ownership of the code you submit for assessments. By
-              submitting code, you grant Codeks HR a limited license to process,
+              submitting code, you grant Talentflow a limited license to process,
               evaluate, store, and display your submission results to authorized
               users on the Platform (you, hiring companies, and administrators).
             </p>
@@ -213,7 +213,7 @@ export default function TermsOfServicePage() {
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
               The Platform, including its design, features, AI evaluation
               system, and content (excluding user-submitted content), is owned
-              by Codeks HR and protected by intellectual property laws. You may
+              by Talentflow and protected by intellectual property laws. You may
               not copy, modify, distribute, or reverse-engineer any part of the
               Platform.
             </p>
@@ -275,7 +275,7 @@ export default function TermsOfServicePage() {
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
               We do not guarantee that AI assessments will be error-free or
               that the Platform will result in successful hiring outcomes. To
-              the maximum extent permitted by law, Codeks HR shall not be liable
+              the maximum extent permitted by law, Talentflow shall not be liable
               for any indirect, incidental, special, or consequential damages
               arising from your use of the Platform.
             </p>
@@ -286,7 +286,7 @@ export default function TermsOfServicePage() {
               11. Relationship Between Parties
             </h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              Codeks HR is a marketplace platform. We are not an employer,
+              Talentflow is a marketplace platform. We are not an employer,
               staffing agency, or recruiter. Any employment relationship formed
               through the Platform is solely between the candidate and the
               hiring company. We are not a party to any employment agreement.
@@ -327,7 +327,7 @@ export default function TermsOfServicePage() {
 
       <footer className="border-t py-8">
         <div className="mx-auto max-w-3xl px-4 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
-          &copy; {new Date().getFullYear()} Codeks HR. All rights reserved.
+          &copy; {new Date().getFullYear()} Talentflow. All rights reserved.
         </div>
       </footer>
     </div>

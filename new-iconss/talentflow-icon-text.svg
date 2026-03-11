@@ -1,0 +1,36 @@
+<svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ── MARK ── -->
+  <!-- Outer hexagon -->
+  <path d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z"
+        fill="none" stroke="#0a0a0a" stroke-width="1.6"/>
+  <!-- Inner hexagon subtle ring -->
+  <path d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z"
+        fill="none" stroke="#0a0a0a" stroke-width="0.8" opacity="0.18"/>
+  <!-- T — horizontal bar -->
+  <line x1="22" y1="28" x2="50" y2="28" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+  <!-- T — vertical stem -->
+  <line x1="36" y1="28" x2="36" y2="51" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+  <!-- Accent dot -->
+  <circle cx="52" cy="50" r="2.5" fill="#0a0a0a" opacity="0.3"/>
+
+  <!-- ── WORDMARK ── -->
+  <text
+    x="84"
+    y="48"
+    font-family="'Syne', sans-serif"
+    font-weight="700"
+    font-size="34"
+    letter-spacing="-0.8"
+    fill="#0a0a0a">Talentflow</text>
+
+  <!-- ── TAGLINE ── -->
+  <text
+    x="86"
+    y="62"
+    font-family="'Geist Sans', 'Geist', sans-serif"
+    font-weight="300"
+    font-size="9"
+    letter-spacing="3"
+    fill="#0a0a0a"
+    opacity="0.4">HIRING INTELLIGENCE</text>
+</svg>

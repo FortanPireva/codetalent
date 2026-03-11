@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Codeks HR — AI-Powered Developer Marketplace";
+export const alt = "Talentflow — AI-Powered Developer Marketplace";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -71,7 +71,7 @@ export default async function OgImage() {
               letterSpacing: "-0.02em",
             }}
           >
-            Codeks HR
+            Talentflow
           </span>
         </div>
 

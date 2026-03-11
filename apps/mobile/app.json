@@ -8,9 +8,14 @@
     "userInterfaceStyle": "automatic",
     "scheme": "talentflow",
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#141414"
+      "image": "./assets/splash-light.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#f4f3ef",
+      "dark": {
+        "image": "./assets/splash-dark.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#141414"
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -29,7 +34,8 @@
       "expo-router",
       "expo-secure-store",
       "expo-splash-screen",
-      "expo-font"
+      "expo-font",
+      "expo-document-picker"
     ]
   }
 }

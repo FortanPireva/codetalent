@@ -1,23 +1,17 @@
-import { useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
-  StyleSheet,
+  Pressable,
   ActivityIndicator,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { api } from "@/lib/trpc";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
 
 export default function JobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data: job, isLoading } = api.job.candidateGetById.useQuery({ id: id! });
   const utils = api.useUtils();
 
@@ -34,83 +28,99 @@ export default function JobDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.textSecondary} />
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
       </View>
     );
   }
 
   if (!job) {
     return (
-      <View style={styles.center}>
-        <Text style={{ color: colors.text, fontFamily: "Satoshi-Regular" }}>
-          Job not found
-        </Text>
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-sans text-foreground">Job not found</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <ScrollView contentContainerClassName="p-4 pb-28">
+        <Pressable onPress={() => router.back()} className="mb-4">
+          <Text className="font-sans text-base text-muted-foreground">← Back</Text>
+        </Pressable>
 
-        <Text style={styles.title}>{job.title}</Text>
-        <Text style={styles.company}>{job.client.name}</Text>
+        <Text className="mb-1 font-bold text-2xl text-foreground">{job.title}</Text>
+        <Text className="mb-3 font-sans text-base text-muted-foreground">
+          {job.client.name}
+        </Text>
 
-        <View style={styles.tags}>
+        <View className="mb-3 flex-row flex-wrap gap-1.5">
           {job.experienceLevel && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>{job.experienceLevel}</Text>
+            <View className="rounded-md bg-tag px-2.5 py-1.5">
+              <Text className="font-medium text-xs text-muted-foreground">
+                {job.experienceLevel}
+              </Text>
             </View>
           )}
           {job.employmentType && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>{job.employmentType}</Text>
+            <View className="rounded-md bg-tag px-2.5 py-1.5">
+              <Text className="font-medium text-xs text-muted-foreground">
+                {job.employmentType}
+              </Text>
             </View>
           )}
           {job.workArrangement && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>{job.workArrangement}</Text>
+            <View className="rounded-md bg-tag px-2.5 py-1.5">
+              <Text className="font-medium text-xs text-muted-foreground">
+                {job.workArrangement}
+              </Text>
             </View>
           )}
           {job.location && (
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>{job.location}</Text>
+            <View className="rounded-md bg-tag px-2.5 py-1.5">
+              <Text className="font-medium text-xs text-muted-foreground">
+                {job.location}
+              </Text>
             </View>
           )}
         </View>
 
         {job.showSalary && job.salaryMin && job.salaryMax && (
-          <Text style={styles.salary}>
+          <Text className="mb-4 font-bold text-base text-status-green">
             {job.salaryCurrency} {job.salaryMin.toLocaleString()} -{" "}
             {job.salaryMax.toLocaleString()} / {job.salaryPeriod}
           </Text>
         )}
 
         {job.summary && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Summary</Text>
-            <Text style={styles.body}>{job.summary}</Text>
+          <View className="mb-5">
+            <Text className="mb-2 font-bold text-lg text-foreground">Summary</Text>
+            <Text className="font-sans text-sm text-muted-foreground leading-6">
+              {job.summary}
+            </Text>
           </View>
         )}
 
         {job.description && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.body}>{job.description}</Text>
+          <View className="mb-5">
+            <Text className="mb-2 font-bold text-lg text-foreground">Description</Text>
+            <Text className="font-sans text-sm text-muted-foreground leading-6">
+              {job.description}
+            </Text>
           </View>
         )}
 
         {job.requiredSkills.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Required Skills</Text>
-            <View style={styles.skillList}>
+          <View className="mb-5">
+            <Text className="mb-2 font-bold text-lg text-foreground">
+              Required Skills
+            </Text>
+            <View className="flex-row flex-wrap gap-1.5">
               {job.requiredSkills.map((skill) => (
-                <View key={skill} style={styles.skillTag}>
-                  <Text style={styles.skillText}>{skill}</Text>
+                <View key={skill} className="rounded-md bg-skill-tag px-2.5 py-1.5">
+                  <Text className="font-medium text-xs text-skill-tag-text">
+                    {skill}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -118,10 +128,13 @@ export default function JobDetailScreen() {
         )}
 
         {job.benefits.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Benefits</Text>
+          <View className="mb-5">
+            <Text className="mb-2 font-bold text-lg text-foreground">Benefits</Text>
             {job.benefits.map((benefit) => (
-              <Text key={benefit} style={styles.bulletItem}>
+              <Text
+                key={benefit}
+                className="mb-1 font-sans text-sm text-muted-foreground"
+              >
                 • {benefit}
               </Text>
             ))}
@@ -129,93 +142,20 @@ export default function JobDetailScreen() {
         )}
       </ScrollView>
 
-      <SafeAreaView edges={["bottom"]} style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.applyButton, applyMutation.isLoading && styles.disabled]}
+      <SafeAreaView
+        edges={["bottom"]}
+        className="absolute bottom-0 left-0 right-0 border-t border-border-light bg-background px-4 pb-8 pt-4"
+      >
+        <Pressable
+          className={`items-center rounded-xl bg-primary py-4 ${applyMutation.isLoading ? "opacity-60" : ""}`}
           onPress={() => applyMutation.mutate({ jobId: id! })}
           disabled={applyMutation.isLoading}
         >
-          <Text style={styles.applyText}>
+          <Text className="font-medium text-base text-primary-foreground">
             {applyMutation.isLoading ? "Applying..." : "Apply Now"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     </SafeAreaView>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    center: { flex: 1, justifyContent: "center", alignItems: "center" },
-    content: { padding: 16, paddingBottom: 100 },
-    backButton: { marginBottom: 16 },
-    backText: { fontSize: 16, color: colors.textSecondary, fontFamily: "Satoshi-Regular" },
-    title: { fontSize: 24, fontFamily: "Satoshi-Bold", marginBottom: 4, color: colors.text },
-    company: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      marginBottom: 12,
-    },
-    tags: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 12 },
-    tag: {
-      backgroundColor: colors.tag,
-      borderRadius: 6,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-    },
-    tagText: { fontSize: 12, color: colors.textSecondary, fontFamily: "Satoshi-Medium" },
-    salary: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Bold",
-      color: colors.green,
-      marginBottom: 16,
-    },
-    section: { marginBottom: 20 },
-    sectionTitle: {
-      fontSize: 18,
-      fontFamily: "Satoshi-Bold",
-      marginBottom: 8,
-      color: colors.text,
-    },
-    body: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      lineHeight: 22,
-    },
-    skillList: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-    skillTag: {
-      backgroundColor: colors.skillTag,
-      borderRadius: 6,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-    },
-    skillText: { fontSize: 13, color: colors.skillTagText, fontFamily: "Satoshi-Medium" },
-    bulletItem: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      marginBottom: 4,
-    },
-    footer: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      padding: 16,
-      paddingBottom: 32,
-      backgroundColor: colors.background,
-      borderTopWidth: 1,
-      borderTopColor: colors.borderLight,
-    },
-    applyButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: "center",
-    },
-    disabled: { opacity: 0.6 },
-    applyText: { color: colors.primaryText, fontSize: 16, fontFamily: "Satoshi-Medium" },
-  });

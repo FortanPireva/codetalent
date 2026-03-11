@@ -1,4 +1,4 @@
-# Codeks HR Platform — Frontend Pages Reference
+# Talentflow Platform — Frontend Pages Reference
 
 **Styling:** Tailwind CSS + shadcn/ui (utility-first CSS with accessible component primitives)
 **Framework:** React 19 + Next.js 15 (App Router), all pages are client components (`"use client"`)
@@ -65,7 +65,7 @@ src/app/
 ### Public Pages
 
 #### `/` — Landing Page
-- Public-facing page introducing the Codeks HR platform
+- Public-facing page introducing the Talentflow platform
 - Call-to-action buttons for Login and Register
 - Overview of the assessment process for candidates
 

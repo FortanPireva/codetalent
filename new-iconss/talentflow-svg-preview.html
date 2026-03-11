@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talentflow — SVG Assets</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Geist+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f0f0f;
+    font-family: 'Geist Sans', sans-serif;
+    color: #f4f3ef;
+    min-height: 100vh;
+    padding: 64px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 72px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  header h1 { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #333; font-weight: 400; }
+  header span { font-size: 10px; letter-spacing: 0.14em; color: #2a2a2a; }
+
+  .assets {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: #1a1a1a;
+  }
+
+  .asset-row {
+    background: #0f0f0f;
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr;
+    gap: 1px;
+    background: #1a1a1a;
+  }
+  .asset-meta {
+    background: #0f0f0f;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+  .asset-name {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #f4f3ef;
+  }
+  .asset-file {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: #2e2e2e;
+    font-family: monospace;
+  }
+
+  .preview-dark {
+    background: #0a0a0a;
+    padding: 48px 52px;
+    display: flex;
+    align-items: center;
+  }
+  .preview-light {
+    background: #f4f3ef;
+    padding: 48px 52px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* inline SVG styles */
+  .svg-dark path, .svg-dark line, .svg-dark circle, .svg-dark text {
+    stroke-color: #f4f3ef;
+  }
+
+  /* ─── ICON ─────────────────────────── */
+  .icon-dark path[d*="M36 4"], .icon-dark path[d*="M36 14"] { stroke: #f4f3ef; }
+  .icon-dark line { stroke: #f4f3ef; }
+  .icon-dark circle { fill: #f4f3ef; }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+  }
+  footer span { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #222; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Talentflow · SVG Assets</h1>
+  <span>3 files · icon · wordmark · lockup</span>
+</header>
+
+<div class="assets">
+
+  <!-- ── ROW 1: ICON ── -->
+  <div class="asset-row">
+    <div class="asset-meta">
+      <div class="asset-name">Icon</div>
+      <div class="asset-file">talentflow-icon.svg</div>
+      <div class="asset-file" style="color:#222;margin-top:4px">72 × 72</div>
+    </div>
+
+    <!-- Dark bg -->
+    <div class="preview-dark">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z" fill="none" stroke="#f4f3ef" stroke-width="1.6"/>
+        <path d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z" fill="none" stroke="#f4f3ef" stroke-width="0.8" opacity="0.18"/>
+        <line x1="22" y1="28" x2="50" y2="28" stroke="#f4f3ef" stroke-width="3.5" stroke-linecap="square"/>
+        <line x1="36" y1="28" x2="36" y2="51" stroke="#f4f3ef" stroke-width="3.5" stroke-linecap="square"/>
+        <circle cx="52" cy="50" r="2.5" fill="#f4f3ef" opacity="0.3"/>
+      </svg>
+    </div>
+
+    <!-- Light bg -->
+    <div class="preview-light">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z" fill="none" stroke="#0a0a0a" stroke-width="1.6"/>
+        <path d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z" fill="none" stroke="#0a0a0a" stroke-width="0.8" opacity="0.18"/>
+        <line x1="22" y1="28" x2="50" y2="28" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+        <line x1="36" y1="28" x2="36" y2="51" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+        <circle cx="52" cy="50" r="2.5" fill="#0a0a0a" opacity="0.3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── ROW 2: WORDMARK ── -->
+  <div class="asset-row">
+    <div class="asset-meta">
+      <div class="asset-name">Wordmark</div>
+      <div class="asset-file">talentflow-wordmark.svg</div>
+      <div class="asset-file" style="color:#222;margin-top:4px">280 × 48</div>
+    </div>
+
+    <div class="preview-dark">
+      <svg width="280" height="48" viewBox="0 0 280 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="36" font-family="'Syne', sans-serif" font-weight="700" font-size="34" letter-spacing="-0.8" fill="#f4f3ef">Talentflow</text>
+      </svg>
+    </div>
+
+    <div class="preview-light">
+      <svg width="280" height="48" viewBox="0 0 280 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="36" font-family="'Syne', sans-serif" font-weight="700" font-size="34" letter-spacing="-0.8" fill="#0a0a0a">Talentflow</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── ROW 3: ICON + TEXT ── -->
+  <div class="asset-row">
+    <div class="asset-meta">
+      <div class="asset-name">Icon + Text</div>
+      <div class="asset-file">talentflow-icon-text.svg</div>
+      <div class="asset-file" style="color:#222;margin-top:4px">320 × 72</div>
+    </div>
+
+    <div class="preview-dark">
+      <svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z" fill="none" stroke="#f4f3ef" stroke-width="1.6"/>
+        <path d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z" fill="none" stroke="#f4f3ef" stroke-width="0.8" opacity="0.18"/>
+        <line x1="22" y1="28" x2="50" y2="28" stroke="#f4f3ef" stroke-width="3.5" stroke-linecap="square"/>
+        <line x1="36" y1="28" x2="36" y2="51" stroke="#f4f3ef" stroke-width="3.5" stroke-linecap="square"/>
+        <circle cx="52" cy="50" r="2.5" fill="#f4f3ef" opacity="0.3"/>
+        <text x="84" y="48" font-family="'Syne', sans-serif" font-weight="700" font-size="34" letter-spacing="-0.8" fill="#f4f3ef">Talentflow</text>
+        <text x="86" y="62" font-family="'Geist Sans', sans-serif" font-weight="300" font-size="9" letter-spacing="3" fill="#f4f3ef" opacity="0.35">HIRING INTELLIGENCE</text>
+      </svg>
+    </div>
+
+    <div class="preview-light">
+      <svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z" fill="none" stroke="#0a0a0a" stroke-width="1.6"/>
+        <path d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z" fill="none" stroke="#0a0a0a" stroke-width="0.8" opacity="0.18"/>
+        <line x1="22" y1="28" x2="50" y2="28" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+        <line x1="36" y1="28" x2="36" y2="51" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="square"/>
+        <circle cx="52" cy="50" r="2.5" fill="#0a0a0a" opacity="0.3"/>
+        <text x="84" y="48" font-family="'Syne', sans-serif" font-weight="700" font-size="34" letter-spacing="-0.8" fill="#0a0a0a">Talentflow</text>
+        <text x="86" y="62" font-family="'Geist Sans', sans-serif" font-weight="300" font-size="9" letter-spacing="3" fill="#0a0a0a" opacity="0.35">HIRING INTELLIGENCE</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Talentflow · SVG Assets · 2025</span>
+  <span>Syne 700 · Geist Sans 300</span>
+</footer>
+
+</body>
+</html>

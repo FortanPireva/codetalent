@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Code } from "lucide-react";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 const companyLinks = [
   { label: "Post a Job", href: "/register/client" },
@@ -29,10 +29,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2">
-              <Code className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">Codeks HR</span>
-            </div>
+            <TalentflowLogo size={30} />
             <p className="mt-3 text-sm text-muted-foreground">
               The B2B developer marketplace connecting companies with pre-vetted
               engineers through AI-powered code assessments.
@@ -92,7 +89,7 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Codeks HR. All rights reserved.
+            &copy; {new Date().getFullYear()} Talentflow. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
             Powered by AI-driven code review

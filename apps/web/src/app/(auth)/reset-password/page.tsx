@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -56,6 +57,9 @@ function ResetPasswordForm() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader>
+            <div className="flex justify-center mb-2">
+              <TalentflowLogo size={40} variant="icon" />
+            </div>
             <CardTitle className="text-2xl font-bold text-center">
               Invalid link
             </CardTitle>
@@ -80,6 +84,9 @@ function ResetPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-2">
+            <TalentflowLogo size={40} variant="icon" />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">
             Set a new password
           </CardTitle>

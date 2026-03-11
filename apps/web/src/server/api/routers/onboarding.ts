@@ -20,6 +20,9 @@ export const onboardingRouter = createTRPCRouter({
         profilePicture: true,
         skills: true,
         availability: true,
+        hourlyRate: true,
+        monthlyRate: true,
+        rateCurrency: true,
       },
     });
 
@@ -43,6 +46,9 @@ export const onboardingRouter = createTRPCRouter({
         profilePicture: z.string().url().optional().or(z.literal("")),
         skills: z.array(z.string()).min(1, "At least one skill is required"),
         availability: z.nativeEnum(Availability),
+        hourlyRate: z.number().positive().optional(),
+        monthlyRate: z.number().positive().optional(),
+        rateCurrency: z.string().min(1).max(10).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -75,6 +81,9 @@ export const onboardingRouter = createTRPCRouter({
           profilePicture: input.profilePicture || null,
           skills: input.skills,
           availability: input.availability,
+          hourlyRate: input.hourlyRate ?? null,
+          monthlyRate: input.monthlyRate ?? null,
+          rateCurrency: input.rateCurrency ?? "USD",
           candidateStatus: "PENDING_REVIEW",
         },
         select: {

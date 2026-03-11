@@ -1,4 +1,4 @@
-# Codeks HR Platform — Technical Architecture Document
+# Talentflow Platform — Technical Architecture Document
 
 **Version:** 1.0  
 **Date:** February 2026  
@@ -9,7 +9,7 @@
 
 ## 1. Executive Overview
 
-Codeks HR is an internal web platform that automates the technical hiring pipeline for Codeks Agency. It replaces manual screening with a structured, GitHub-based assessment workflow paired with AI-powered code review, producing a searchable talent pool of verified engineers ready for client resourcing.
+Talentflow is an internal web platform that automates the technical hiring pipeline for Codeks Agency. It replaces manual screening with a structured, GitHub-based assessment workflow paired with AI-powered code review, producing a searchable talent pool of verified engineers ready for client resourcing.
 
 ### 1.1 Business Objectives
 
@@ -881,4 +881,4 @@ npm run dev
 
 ---
 
-*This document serves as the definitive technical reference for building and maintaining the Codeks HR platform. All architectural decisions are optimized for a small team (1-3 developers) building an MVP that can scale to thousands of candidates without re-architecture.*
+*This document serves as the definitive technical reference for building and maintaining the Talentflow platform. All architectural decisions are optimized for a small team (1-3 developers) building an MVP that can scale to thousands of candidates without re-architecture.*

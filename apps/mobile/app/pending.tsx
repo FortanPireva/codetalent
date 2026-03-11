@@ -1,57 +1,26 @@
-import { useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
 
 export default function PendingScreen() {
   const { logout } = useAuth();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.icon}>⏳</Text>
-      <Text style={styles.title}>Under Review</Text>
-      <Text style={styles.description}>
-        Your profile is being reviewed by our team. We&apos;ll notify you once
-        it&apos;s approved.
+    <View className="flex-1 items-center justify-center bg-background p-6">
+      <Text className="mb-4 text-5xl">⏳</Text>
+      <Text className="mb-2 text-center font-bold text-2xl text-foreground">
+        Under Review
       </Text>
-      <TouchableOpacity
-        style={styles.logoutButton}
+      <Text className="text-center font-sans text-base text-muted-foreground leading-6">
+        Your profile is under review by the Codeks team. We'll notify you once
+        it's approved.
+      </Text>
+      <Pressable
+        className="mt-6"
         onPress={() => { logout().catch(() => {}); }}
         hitSlop={{ top: 16, bottom: 16, left: 24, right: 24 }}
       >
-        <Text style={styles.logoutText}>Sign Out</Text>
-      </TouchableOpacity>
+        <Text className="font-sans text-sm text-placeholder">Sign Out</Text>
+      </Pressable>
     </View>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 24,
-      backgroundColor: colors.background,
-    },
-    icon: { fontSize: 48, marginBottom: 16 },
-    title: {
-      fontSize: 24,
-      fontFamily: "Satoshi-Bold",
-      marginBottom: 8,
-      textAlign: "center",
-      color: colors.text,
-    },
-    description: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      textAlign: "center",
-      lineHeight: 22,
-    },
-    logoutButton: { marginTop: 24 },
-    logoutText: { color: colors.textTertiary, fontSize: 14, fontFamily: "Satoshi-Regular" },
-  });

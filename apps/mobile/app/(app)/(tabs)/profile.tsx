@@ -1,199 +1,110 @@
-import { useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
-  StyleSheet,
+  Pressable,
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
 
 export default function ProfileScreen() {
   const { logout } = useAuth();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
   const { data: profile, isLoading, refetch, isRefetching } =
     api.auth.getProfile.useQuery();
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.textSecondary} />
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View style={styles.center}>
-        <Text style={{ color: colors.text, fontFamily: "Satoshi-Regular" }}>
-          Profile not found
-        </Text>
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-sans text-foreground">Profile not found</Text>
       </View>
     );
   }
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
+      className="flex-1 bg-surface"
+      contentContainerClassName="p-4"
       refreshControl={
-        <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          tintColor={colors.textSecondary}
-        />
+        <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
       }
     >
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
+      {/* Header */}
+      <View className="mb-6 items-center">
+        <View className="mb-3 h-20 w-20 items-center justify-center rounded-full bg-primary">
+          <Text className="font-bold text-3xl text-primary-foreground">
             {profile.name?.charAt(0)?.toUpperCase() ?? "?"}
           </Text>
         </View>
-        <Text style={styles.name}>{profile.name}</Text>
-        <Text style={styles.email}>{profile.email}</Text>
+        <Text className="font-bold text-xl text-foreground">{profile.name}</Text>
+        <Text className="mt-1 font-sans text-sm text-muted-foreground">
+          {profile.email}
+        </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Details</Text>
-        <InfoRow label="Availability" value={profile.availability} colors={colors} />
-        {profile.location && (
-          <InfoRow label="Location" value={profile.location} colors={colors} />
-        )}
-        {profile.phone && <InfoRow label="Phone" value={profile.phone} colors={colors} />}
+      {/* Details */}
+      <View className="mb-3 rounded-xl bg-card p-4">
+        <Text className="mb-3 font-bold text-base text-foreground">Details</Text>
+        <InfoRow label="Availability" value={profile.availability} />
+        {profile.location && <InfoRow label="Location" value={profile.location} />}
+        {profile.phone && <InfoRow label="Phone" value={profile.phone} />}
         <InfoRow
           label="Assessments Passed"
           value={String(profile.passedAssessmentCount)}
-          colors={colors}
         />
       </View>
 
+      {/* Skills */}
       {profile.skills.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Skills</Text>
-          <View style={styles.skills}>
+        <View className="mb-3 rounded-xl bg-card p-4">
+          <Text className="mb-3 font-bold text-base text-foreground">Skills</Text>
+          <View className="flex-row flex-wrap gap-1.5">
             {profile.skills.map((skill) => (
-              <View key={skill} style={styles.skillTag}>
-                <Text style={styles.skillText}>{skill}</Text>
+              <View key={skill} className="rounded-md bg-tag px-2.5 py-1.5">
+                <Text className="font-medium text-xs text-muted-foreground">
+                  {skill}
+                </Text>
               </View>
             ))}
           </View>
         </View>
       )}
 
+      {/* Bio */}
       {profile.bio && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bio</Text>
-          <Text style={styles.bio}>{profile.bio}</Text>
+        <View className="mb-3 rounded-xl bg-card p-4">
+          <Text className="mb-3 font-bold text-base text-foreground">Bio</Text>
+          <Text className="font-sans text-sm text-muted-foreground leading-5">
+            {profile.bio}
+          </Text>
         </View>
       )}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Sign Out</Text>
-      </TouchableOpacity>
+      {/* Logout */}
+      <Pressable
+        className="mb-8 mt-2 items-center rounded-xl bg-destructive/10 py-4"
+        onPress={logout}
+      >
+        <Text className="font-medium text-base text-destructive">Sign Out</Text>
+      </Pressable>
     </ScrollView>
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  colors,
-}: {
-  label: string;
-  value: string;
-  colors: ThemeColors;
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.borderLight,
-      }}
-    >
-      <Text style={{ fontSize: 14, color: colors.textSecondary, fontFamily: "Satoshi-Regular" }}>
-        {label}
-      </Text>
-      <Text style={{ fontSize: 14, fontFamily: "Satoshi-Medium", color: colors.text }}>
-        {value}
-      </Text>
+    <View className="flex-row justify-between border-b border-border-light py-2">
+      <Text className="font-sans text-sm text-muted-foreground">{label}</Text>
+      <Text className="font-medium text-sm text-foreground">{value}</Text>
     </View>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.surface },
-    center: { flex: 1, justifyContent: "center", alignItems: "center" },
-    content: { padding: 16 },
-    header: { alignItems: "center", marginBottom: 24 },
-    avatar: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 12,
-    },
-    avatarText: {
-      color: colors.primaryText,
-      fontSize: 32,
-      fontFamily: "Satoshi-Bold",
-    },
-    name: { fontSize: 22, fontFamily: "Satoshi-Bold", color: colors.text },
-    email: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      marginTop: 4,
-    },
-    section: {
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Bold",
-      marginBottom: 12,
-      color: colors.text,
-    },
-    skills: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-    skillTag: {
-      backgroundColor: colors.tag,
-      borderRadius: 6,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-    },
-    skillText: { fontSize: 13, color: colors.textSecondary, fontFamily: "Satoshi-Medium" },
-    bio: {
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      lineHeight: 20,
-    },
-    logoutButton: {
-      backgroundColor: colors.redBg,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: "center",
-      marginTop: 8,
-      marginBottom: 32,
-    },
-    logoutText: {
-      color: colors.red,
-      fontSize: 16,
-      fontFamily: "Satoshi-Medium",
-    },
-  });

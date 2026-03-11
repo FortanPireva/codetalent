@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/trpc/react";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -36,6 +37,9 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
+            <div className="flex justify-center mb-2">
+              <TalentflowLogo size={40} variant="icon" />
+            </div>
             <CardTitle className="text-2xl font-bold text-center">
               Check your email
             </CardTitle>
@@ -61,6 +65,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-2">
+            <TalentflowLogo size={40} variant="icon" />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">
             Forgot your password?
           </CardTitle>

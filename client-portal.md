@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the client-facing features for Codeks HR, enabling companies to manage jobs, discover candidates, track applications through a Kanban pipeline, and communicate via in-app messaging.
+This document details the client-facing features for Talentflow, enabling companies to manage jobs, discover candidates, track applications through a Kanban pipeline, and communicate via in-app messaging.
 
 ---
 
@@ -12,7 +12,7 @@ This document details the client-facing features for Codeks HR, enabling compani
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  CODEKS HR                                           [Avatar] TechCorp ▼│
+│  Talentflow                                           [Avatar] TechCorp ▼│
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  Welcome back, Sarah                                                    │

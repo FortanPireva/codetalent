@@ -226,7 +226,7 @@ export default function ClientOnboardingPage() {
           Complete Your Company Profile
         </h1>
         <p className="text-muted-foreground mt-2">
-          Tell us about your company to get started with Codeks HR
+          Tell us about your company to get started with Talentflow
         </p>
       </div>
 
@@ -235,13 +235,12 @@ export default function ClientOnboardingPage() {
         {steps.map((step, index) => (
           <div key={step.title} className="flex items-center">
             <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
-                index < currentStep
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${index < currentStep
                   ? "bg-primary border-primary text-primary-foreground"
                   : index === currentStep
                     ? "border-primary text-primary"
                     : "border-gray-300 text-gray-400"
-              }`}
+                }`}
             >
               {index < currentStep ? (
                 <CheckCircle className="h-5 w-5" />
@@ -251,9 +250,8 @@ export default function ClientOnboardingPage() {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-8 h-0.5 mx-1 ${
-                  index < currentStep ? "bg-primary" : "bg-gray-300"
-                }`}
+                className={`w-8 h-0.5 mx-1 ${index < currentStep ? "bg-primary" : "bg-gray-300"
+                  }`}
               />
             )}
           </div>

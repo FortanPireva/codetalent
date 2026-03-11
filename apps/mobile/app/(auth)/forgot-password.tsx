@@ -1,17 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { Link } from "expo-router";
 import { api } from "@/lib/trpc";
-import { useTheme } from "@/theme";
-import type { ThemeColors } from "@/theme";
+import { TalentflowLogo } from "@/components/TalentflowLogo";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -19,8 +17,6 @@ export default function ForgotPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const resetMutation = api.auth.requestPasswordReset.useMutation();
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   async function handleSubmit() {
     if (!email) {
@@ -44,20 +40,27 @@ export default function ForgotPasswordScreen() {
   if (sent) {
     return (
       <KeyboardAvoidingView
-        style={styles.container}
+        className="flex-1 bg-background"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.inner}>
-          <Text style={styles.title}>Check your email</Text>
-          <Text style={styles.subtitle}>
+        <View className="flex-1 justify-center px-6">
+          <View className="mb-4 items-center">
+            <TalentflowLogo size={72} />
+          </View>
+          <Text className="mb-2 text-center font-bold text-3xl text-foreground">
+            Check your email
+          </Text>
+          <Text className="mb-8 text-center font-sans text-base text-muted-foreground">
             If an account exists for {email}, we sent a password reset link.
             Open the link in your browser to reset your password.
           </Text>
 
           <Link href="/(auth)/login" asChild>
-            <TouchableOpacity style={styles.linkButton}>
-              <Text style={styles.linkText}>Back to Sign In</Text>
-            </TouchableOpacity>
+            <Pressable className="mt-4 items-center">
+              <Text className="font-sans text-sm text-muted-foreground">
+                Back to Sign In
+              </Text>
+            </Pressable>
           </Link>
         </View>
       </KeyboardAvoidingView>
@@ -66,19 +69,24 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-background"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Forgot Password</Text>
-        <Text style={styles.subtitle}>
-          Enter your email and we&apos;ll send you a reset link
+      <View className="flex-1 justify-center px-6">
+        <View className="mb-4 items-center">
+          <TalentflowLogo size={72} />
+        </View>
+        <Text className="mb-2 text-center font-bold text-3xl text-foreground">
+          Forgot Password
+        </Text>
+        <Text className="mb-8 text-center font-sans text-base text-muted-foreground">
+          Enter your email and we'll send you a reset link
         </Text>
 
         <TextInput
-          style={styles.input}
+          className="mb-4 rounded-xl border border-border bg-input-bg px-4 py-4 font-sans text-base text-foreground"
           placeholder="Email"
-          placeholderTextColor={colors.placeholder}
+          placeholderTextColor="#999"
           value={email}
           onChangeText={(text) => {
             setEmail(text);
@@ -90,82 +98,29 @@ export default function ForgotPasswordScreen() {
         />
 
         {error ? (
-          <Text style={styles.errorText}>{error}</Text>
+          <Text className="mb-2 text-center font-sans text-sm text-destructive">
+            {error}
+          </Text>
         ) : null}
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+        <Pressable
+          className={`mt-2 items-center rounded-xl bg-primary py-4 ${loading ? "opacity-60" : ""}`}
           onPress={handleSubmit}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
+          <Text className="font-medium text-base text-primary-foreground">
             {loading ? "Sending..." : "Send Reset Link"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <Link href="/(auth)/login" asChild>
-          <TouchableOpacity style={styles.linkButton}>
-            <Text style={styles.linkText}>Back to Sign In</Text>
-          </TouchableOpacity>
+          <Pressable className="mt-4 items-center">
+            <Text className="font-sans text-sm text-muted-foreground">
+              Back to Sign In
+            </Text>
+          </Pressable>
         </Link>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    inner: { flex: 1, justifyContent: "center", paddingHorizontal: 24 },
-    title: {
-      fontSize: 32,
-      fontFamily: "Satoshi-Bold",
-      textAlign: "center",
-      marginBottom: 8,
-      color: colors.text,
-    },
-    subtitle: {
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      color: colors.textSecondary,
-      textAlign: "center",
-      marginBottom: 32,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      fontFamily: "Satoshi-Regular",
-      marginBottom: 16,
-      backgroundColor: colors.inputBackground,
-      color: colors.text,
-    },
-    errorText: {
-      color: "#dc2626",
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-      textAlign: "center",
-      marginBottom: 8,
-    },
-    button: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: "center",
-      marginTop: 8,
-    },
-    buttonDisabled: { opacity: 0.6 },
-    buttonText: {
-      color: colors.primaryText,
-      fontSize: 16,
-      fontFamily: "Satoshi-Medium",
-    },
-    linkButton: { marginTop: 16, alignItems: "center" },
-    linkText: {
-      color: colors.textSecondary,
-      fontSize: 14,
-      fontFamily: "Satoshi-Regular",
-    },
-  });

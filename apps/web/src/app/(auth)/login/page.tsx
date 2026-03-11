@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,8 +52,11 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-2">
+            <TalentflowLogo size={40} variant="icon" />
+          </div>
           <CardTitle className="text-2xl font-bold text-center">
-            Sign in to Codeks HR
+            Sign in to Talentflow
           </CardTitle>
           <CardDescription className="text-center">
             Enter your credentials to access your account

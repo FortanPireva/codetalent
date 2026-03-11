@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Code } from "lucide-react";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 export function Navbar() {
   return (
     <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Code className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold tracking-tight">Codeks HR</span>
-          </div>
+          <Link href="/">
+            <TalentflowLogo size={34} />
+          </Link>
 
           <div className="hidden lg:flex items-center gap-8">
             <a

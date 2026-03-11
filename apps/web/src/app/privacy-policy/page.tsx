@@ -5,9 +5,9 @@ import { Code, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Codeks HR",
+  title: "Privacy Policy - Talentflow",
   description:
-    "Learn how Codeks HR collects, uses, and protects your personal information.",
+    "Learn how Talentflow collects, uses, and protects your personal information.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             <Link href="/" className="flex items-center gap-2">
               <Code className="h-7 w-7 text-primary" />
               <span className="text-xl font-bold tracking-tight">
-                Codeks HR
+                Talentflow
               </span>
             </Link>
             <Button variant="ghost" size="sm" asChild>
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold">1. Introduction</h2>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              Codeks HR (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;)
+              Talentflow (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;)
               operates a B2B developer marketplace that connects companies with
               pre-vetted software engineers through AI-powered code assessments.
               This Privacy Policy explains how we collect, use, disclose, and
@@ -278,7 +278,7 @@ export default function PrivacyPolicyPage() {
 
       <footer className="border-t py-8">
         <div className="mx-auto max-w-3xl px-4 text-center text-sm text-muted-foreground sm:px-6 lg:px-8">
-          &copy; {new Date().getFullYear()} Codeks HR. All rights reserved.
+          &copy; {new Date().getFullYear()} Talentflow. All rights reserved.
         </div>
       </footer>
     </div>

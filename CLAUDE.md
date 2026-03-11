@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Codeks HR is an internal hiring automation platform that pairs GitHub-based technical assessments with AI-powered code review. Candidates complete coding challenges via forked repos, and admins trigger Claude AI reviews to generate structured scoring, producing a searchable talent pool.
+Talentflow is an internal hiring automation platform that pairs GitHub-based technical assessments with AI-powered code review. Candidates complete coding challenges via forked repos, and admins trigger Claude AI reviews to generate structured scoring, producing a searchable talent pool.
 
 ## Tech Stack
 

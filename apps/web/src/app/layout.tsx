@@ -14,9 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-touch-icon.png",
+  },
   title: {
-    default: "Codeks HR — AI-Powered Developer Marketplace",
-    template: "%s | Codeks HR",
+    default: "Talentflow — AI-Powered Developer Marketplace",
+    template: "%s | Talentflow",
   },
   description:
     "The B2B developer marketplace where companies find pre-vetted engineers through AI-powered code assessments, and developers land quality remote roles.",
@@ -25,14 +29,14 @@ export const metadata: Metadata = {
   ),
   openGraph: {
     type: "website",
-    siteName: "Codeks HR",
-    title: "Codeks HR — AI-Powered Developer Marketplace",
+    siteName: "Talentflow",
+    title: "Talentflow — AI-Powered Developer Marketplace",
     description:
       "Find exceptional remote engineers through AI-powered code assessments. Real GitHub challenges, not resumes.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Codeks HR — AI-Powered Developer Marketplace",
+    title: "Talentflow — AI-Powered Developer Marketplace",
     description:
       "Find exceptional remote engineers through AI-powered code assessments. Real GitHub challenges, not resumes.",
   },

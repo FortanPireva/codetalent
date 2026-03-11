@@ -1,5 +1,5 @@
 // ============================================================================
-// CODEKS HR - EXTENDED SCHEMA FOR CLIENT PORTAL
+// Talentflow - EXTENDED SCHEMA FOR CLIENT PORTAL
 // ============================================================================
 // This extends the existing schema with:
 // - Client (Company) management
@@ -123,7 +123,7 @@ enum ApplicationStatus {
 }
 
 enum ApplicationSource {
-  PLATFORM         // Applied through Codeks HR
+  PLATFORM         // Applied through Talentflow
   MATCHED          // AI/Admin matched
   REFERRED         // Referral
   SOURCED          // Client found candidate

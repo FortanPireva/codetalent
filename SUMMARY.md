@@ -1,8 +1,8 @@
-# Codeks HR — Platform Summary
+# Talentflow — Platform Summary
 
 ## Overview
 
-Codeks HR is an internal hiring automation platform that pairs GitHub-based technical assessments with AI-powered code review. It serves three user roles — **Admins**, **Candidates**, and **Client Companies** — on a single integrated system, producing a searchable talent pool and streamlined hiring pipeline.
+Talentflow is an internal hiring automation platform that pairs GitHub-based technical assessments with AI-powered code review. It serves three user roles — **Admins**, **Candidates**, and **Client Companies** — on a single integrated system, producing a searchable talent pool and streamlined hiring pipeline.
 
 ## Tech Stack
 

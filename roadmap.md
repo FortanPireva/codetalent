@@ -1,4 +1,4 @@
-# Codeks HR Platform — Product Roadmap
+# Talentflow Platform — Product Roadmap
 ## From Assessment Tool to Talent Marketplace
 
 **Version:** 2.0  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Codeks HR is evolving from an internal assessment and talent pool tool into a **two-sided talent marketplace** that connects verified engineers with client companies seeking to hire. This roadmap outlines the phased expansion from the current MVP to a full-featured matching platform.
+Talentflow is evolving from an internal assessment and talent pool tool into a **two-sided talent marketplace** that connects verified engineers with client companies seeking to hire. This roadmap outlines the phased expansion from the current MVP to a full-featured matching platform.
 
 ### Current State (MVP)
 - ✅ Candidate registration + onboarding profile flow
@@ -679,4 +679,4 @@ enum Role {
 
 ---
 
-*This roadmap transforms Codeks HR from an internal tool into a competitive talent marketplace, creating a sustainable business model around verified technical talent while maintaining the quality bar established by the assessment system.*
+*This roadmap transforms Talentflow from an internal tool into a competitive talent marketplace, creating a sustainable business model around verified technical talent while maintaining the quality bar established by the assessment system.*

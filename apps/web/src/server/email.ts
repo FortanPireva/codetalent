@@ -10,7 +10,7 @@ export async function sendPasswordResetEmail(to: string, token: string) {
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "Reset your password — Codeks HR",
+    subject: "Reset your password — Talentflow",
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>Reset your password</h2>

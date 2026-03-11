@@ -1,14 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { decode } from "next-auth/jwt";
 import { authOptions } from "@/server/auth";
 import { getSupabase } from "@/lib/supabase";
 import Anthropic from "@anthropic-ai/sdk";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export async function POST(req: NextRequest) {
+async function getUserId(req: NextRequest): Promise<string | null> {
+  // Try Bearer token first (mobile)
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.slice(7);
+      const decoded = await decode({
+        token,
+        secret: process.env.NEXTAUTH_SECRET!,
+      });
+      return (decoded?.sub as string) ?? null;
+    } catch {
+      // Fall through to session-based auth
+    }
+  }
+  // Fall back to cookie-based session (web)
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  return session?.user?.id ?? null;
+}
+
+export async function POST(req: NextRequest) {
+  const userId = await getUserId(req);
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -39,7 +60,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload to Supabase Storage
-    const fileName = `${session.user.id}/${Date.now()}.pdf`;
+    const fileName = `${userId}/${Date.now()}.pdf`;
     const supabase = getSupabase();
     const { error: uploadError } = await supabase.storage
       .from("resumes")

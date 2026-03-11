@@ -22,10 +22,10 @@ import {
   LogOut,
   Menu,
   X,
-  Building2,
   Settings,
 } from "lucide-react";
 import { useState } from "react";
+import { TalentflowLogo } from "@/components/talentflow-logo";
 
 const navigation = [
   { name: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
@@ -62,7 +62,7 @@ export default function ClientLayout({
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b lg:px-8">
-          <span className="text-xl font-bold">Codeks HR</span>
+          <TalentflowLogo size={28} light />
           <Button
             variant="ghost"
             onClick={() => signOut({ callbackUrl: "/login" })}
@@ -95,12 +95,8 @@ export default function ClientLayout({
         )}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
-          <Link
-            href="/client/dashboard"
-            className="flex items-center gap-2 text-xl font-bold text-white"
-          >
-            <Building2 className="h-6 w-6" />
-            Client Portal
+          <Link href="/client/dashboard">
+            <TalentflowLogo size={28} light />
           </Link>
           <Button
             variant="ghost"
@@ -135,12 +131,8 @@ export default function ClientLayout({
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <div className="flex flex-col flex-1 bg-slate-900">
           <div className="flex items-center h-16 px-4 border-b border-slate-800">
-            <Link
-              href="/client/dashboard"
-              className="flex items-center gap-2 text-xl font-bold text-white"
-            >
-              <Building2 className="h-6 w-6" />
-              Client Portal
+            <Link href="/client/dashboard">
+              <TalentflowLogo size={28} light />
             </Link>
           </div>
           <nav className="flex-1 p-4 space-y-2">

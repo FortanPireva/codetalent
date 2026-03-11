@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { decode } from "next-auth/jwt";
 import { authOptions } from "@/server/auth";
 import { getSupabase } from "@/lib/supabase";
 
@@ -11,9 +12,27 @@ const EXT_MAP: Record<string, string> = {
   "image/webp": "webp",
 };
 
-export async function POST(req: NextRequest) {
+async function getUserId(req: NextRequest): Promise<string | null> {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.slice(7);
+      const decoded = await decode({
+        token,
+        secret: process.env.NEXTAUTH_SECRET!,
+      });
+      return (decoded?.sub as string) ?? null;
+    } catch {
+      // Fall through to session-based auth
+    }
+  }
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  return session?.user?.id ?? null;
+}
+
+export async function POST(req: NextRequest) {
+  const userId = await getUserId(req);
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     const bucket = type === "avatar" ? "avatars" : "logos";
     const ext = EXT_MAP[file.type] ?? "jpg";
-    const fileName = `${session.user.id}/${Date.now()}.${ext}`;
+    const fileName = `${userId}/${Date.now()}.${ext}`;
 
     const supabase = getSupabase();
     const { error: uploadError } = await supabase.storage
