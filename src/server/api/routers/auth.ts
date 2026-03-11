@@ -67,6 +67,9 @@ export const authRouter = createTRPCRouter({
         profilePicture: true,
         phone: true,
         location: true,
+        hourlyRate: true,
+        monthlyRate: true,
+        rateCurrency: true,
         createdAt: true,
       },
     });
@@ -78,7 +81,14 @@ export const authRouter = createTRPCRouter({
       });
     }
 
-    return user;
+    const passedAssessmentCount = await ctx.db.submission.count({
+      where: {
+        userId: ctx.session.user.id,
+        status: "PASSED",
+      },
+    });
+
+    return { ...user, passedAssessmentCount };
   }),
 
   updateProfile: protectedProcedure
@@ -94,6 +104,8 @@ export const authRouter = createTRPCRouter({
         phone: z.string().optional(),
         location: z.string().optional(),
         availability: z.nativeEnum(Availability).optional(),
+        hourlyRate: z.number().min(0).max(10000).optional().nullable(),
+        monthlyRate: z.number().min(0).max(10000).optional().nullable(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -105,6 +117,8 @@ export const authRouter = createTRPCRouter({
           linkedinUrl: input.linkedinUrl || null,
           resumeUrl: input.resumeUrl || null,
           profilePicture: input.profilePicture || null,
+          ...(input.hourlyRate !== undefined ? { hourlyRate: input.hourlyRate } : {}),
+          ...(input.monthlyRate !== undefined ? { monthlyRate: input.monthlyRate } : {}),
         },
         select: {
           id: true,
@@ -120,6 +134,9 @@ export const authRouter = createTRPCRouter({
           profilePicture: true,
           phone: true,
           location: true,
+          hourlyRate: true,
+          monthlyRate: true,
+          rateCurrency: true,
         },
       });
 

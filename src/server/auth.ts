@@ -16,6 +16,7 @@ declare module "next-auth" {
       role: Role;
       candidateStatus: CandidateStatus;
       clientStatus: ClientOnboardingStatus;
+      hasActiveSubscription: boolean;
     } & DefaultSession["user"];
   }
 
@@ -24,6 +25,7 @@ declare module "next-auth" {
     role: Role;
     candidateStatus: CandidateStatus;
     clientStatus: ClientOnboardingStatus;
+    hasActiveSubscription: boolean;
   }
 }
 
@@ -33,6 +35,7 @@ declare module "next-auth/jwt" {
     role: Role;
     candidateStatus: CandidateStatus;
     clientStatus: ClientOnboardingStatus;
+    hasActiveSubscription: boolean;
   }
 }
 
@@ -74,6 +77,20 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid email or password");
         }
 
+        // Check subscription status for CLIENT users
+        let hasActiveSubscription = false;
+        if (user.role === "CLIENT") {
+          const client = await db.client.findUnique({
+            where: { userId: user.id },
+            include: { subscription: true },
+          });
+          if (client?.subscription) {
+            hasActiveSubscription =
+              client.subscription.status === "ACTIVE" &&
+              client.subscription.currentPeriodEnd > new Date();
+          }
+        }
+
         return {
           id: user.id,
           email: user.email,
@@ -81,6 +98,7 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           candidateStatus: user.candidateStatus,
           clientStatus: user.clientStatus,
+          hasActiveSubscription,
         };
       },
     }),
@@ -92,15 +110,29 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.candidateStatus = user.candidateStatus;
         token.clientStatus = user.clientStatus;
+        token.hasActiveSubscription = user.hasActiveSubscription;
       }
       if (trigger === "update") {
         const freshUser = await db.user.findUnique({
           where: { id: token.id },
-          select: { candidateStatus: true, clientStatus: true },
+          select: {
+            candidateStatus: true,
+            clientStatus: true,
+            client: {
+              include: { subscription: true },
+            },
+          },
         });
         if (freshUser) {
           token.candidateStatus = freshUser.candidateStatus;
           token.clientStatus = freshUser.clientStatus;
+          if (freshUser.client?.subscription) {
+            token.hasActiveSubscription =
+              freshUser.client.subscription.status === "ACTIVE" &&
+              freshUser.client.subscription.currentPeriodEnd > new Date();
+          } else {
+            token.hasActiveSubscription = false;
+          }
         }
       }
       return token;
@@ -111,6 +143,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.candidateStatus = token.candidateStatus;
         session.user.clientStatus = token.clientStatus;
+        session.user.hasActiveSubscription = token.hasActiveSubscription;
       }
       return session;
     },

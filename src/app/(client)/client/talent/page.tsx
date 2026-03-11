@@ -36,10 +36,13 @@ import {
   Briefcase,
 } from "lucide-react";
 import { toast } from "sonner";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 export default function TalentDiscoveryPage() {
   const [search, setSearch] = useState("");
   const [passedOnly, setPassedOnly] = useState(false);
+  const [minRate, setMinRate] = useState("");
+  const [maxRate, setMaxRate] = useState("");
   const [inviteCandidateId, setInviteCandidateId] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
@@ -49,6 +52,8 @@ export default function TalentDiscoveryPage() {
     api.talentPool.clientList.useQuery({
       search: search || undefined,
       passedOnly,
+      minHourlyRate: minRate ? parseFloat(minRate) : undefined,
+      maxHourlyRate: maxRate ? parseFloat(maxRate) : undefined,
     });
 
   const { data: openJobs, isLoading: isLoadingJobs } =
@@ -118,6 +123,28 @@ export default function TalentDiscoveryPage() {
               </label>
             </div>
           </div>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm whitespace-nowrap">Hourly Rate ($)</label>
+              <Input
+                type="number"
+                placeholder="Min"
+                value={minRate}
+                onChange={(e) => setMinRate(e.target.value)}
+                className="w-24"
+                min="0"
+              />
+              <span className="text-muted-foreground">-</span>
+              <Input
+                type="number"
+                placeholder="Max"
+                value={maxRate}
+                onChange={(e) => setMaxRate(e.target.value)}
+                className="w-24"
+                min="0"
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -184,8 +211,9 @@ export default function TalentDiscoveryPage() {
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">
+                      <p className="font-semibold truncate flex items-center gap-1">
                         {candidate.name ?? "Unknown"}
+                        <VerifiedBadge passedCount={candidate.passedCount} />
                       </p>
                       {candidate.location && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -205,6 +233,21 @@ export default function TalentDiscoveryPage() {
                   {candidate.bio && (
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                       {candidate.bio}
+                    </p>
+                  )}
+
+                  {/* Rate */}
+                  {(candidate.hourlyRate != null || candidate.monthlyRate != null) && (
+                    <p className="text-sm font-medium mb-3">
+                      {candidate.hourlyRate != null && (
+                        <span>${candidate.hourlyRate}/hr</span>
+                      )}
+                      {candidate.hourlyRate != null && candidate.monthlyRate != null && (
+                        <span className="text-muted-foreground mx-1.5">·</span>
+                      )}
+                      {candidate.monthlyRate != null && (
+                        <span>${candidate.monthlyRate}/mo</span>
+                      )}
                     </p>
                   )}
 

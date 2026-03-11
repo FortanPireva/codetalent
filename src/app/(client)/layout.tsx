@@ -18,6 +18,7 @@ import {
   Briefcase,
   ClipboardList,
   Users,
+  CreditCard,
   LogOut,
   Menu,
   X,
@@ -31,6 +32,7 @@ const navigation = [
   { name: "Jobs", href: "/client/jobs", icon: Briefcase },
   { name: "Applications", href: "/client/applications", icon: ClipboardList },
   { name: "Talent", href: "/client/talent", icon: Users },
+  { name: "Billing", href: "/client/billing", icon: CreditCard },
   { name: "Settings", href: "/client/settings", icon: Settings },
 ];
 

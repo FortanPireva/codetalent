@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { MapPin, ArrowRight, X } from "lucide-react";
+import { VerifiedBadge } from "@/components/verified-badge";
 import type { ApplicationStatus, Availability } from "@prisma/client";
 
 const availabilityLabel: Record<Availability, string> = {
@@ -27,6 +28,7 @@ export interface ApplicationUser {
   resumeUrl: string | null;
   profilePicture: string | null;
   createdAt: Date;
+  passedCount?: number;
 }
 
 export interface ApplicationData {
@@ -89,8 +91,9 @@ export function ApplicationCard({
       <button onClick={onClick} className="w-full text-left space-y-2">
         {/* Name + location */}
         <div>
-          <p className="text-sm font-bold tracking-tight">
+          <p className="text-sm font-bold tracking-tight flex items-center gap-1">
             {app.user.name ?? "Unknown"}
+            <VerifiedBadge passedCount={app.user.passedCount ?? 0} />
           </p>
           {app.user.location && (
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">

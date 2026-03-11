@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, clientProcedure } from "@/server/api/trpc";
-import { CompanySize } from "@prisma/client";
+import { CompanySize, SubscriptionTier, BillingInterval } from "@prisma/client";
 
 export const clientOnboardingRouter = createTRPCRouter({
   getStatus: protectedProcedure.query(async ({ ctx }) => {
@@ -36,6 +36,8 @@ export const clientOnboardingRouter = createTRPCRouter({
         description: z.string().min(10, "Description must be at least 10 characters"),
         techStack: z.array(z.string()).default([]),
         logo: z.string().url().optional().or(z.literal("")),
+        selectedPlan: z.nativeEnum(SubscriptionTier).optional(),
+        billingInterval: z.nativeEnum(BillingInterval).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -102,6 +104,9 @@ export const clientOnboardingRouter = createTRPCRouter({
             contactName: input.name,
             contactEmail: user.email,
             userId: ctx.session.user.id,
+            notes: input.selectedPlan
+              ? `Selected plan: ${input.selectedPlan}/${input.billingInterval ?? "MONTHLY"}`
+              : null,
           },
         });
 

@@ -37,6 +37,7 @@ import {
 } from "@/lib/utils";
 import { Availability } from "@prisma/client";
 import { Search, Github, Linkedin, ExternalLink, Eye } from "lucide-react";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 export default function TalentPoolPage() {
   const [search, setSearch] = useState("");
@@ -44,11 +45,15 @@ export default function TalentPoolPage() {
     Availability | "ALL"
   >("ALL");
   const [passedOnly, setPassedOnly] = useState(false);
+  const [minRate, setMinRate] = useState("");
+  const [maxRate, setMaxRate] = useState("");
 
   const { data: candidates, isLoading, refetch } = api.talentPool.list.useQuery({
     search: search || undefined,
     availability: availabilityFilter === "ALL" ? undefined : availabilityFilter,
     passedOnly,
+    minHourlyRate: minRate ? parseFloat(minRate) : undefined,
+    maxHourlyRate: maxRate ? parseFloat(maxRate) : undefined,
   });
 
   const updateAvailabilityMutation = api.talentPool.updateAvailability.useMutation(
@@ -122,6 +127,28 @@ export default function TalentPoolPage() {
               </label>
             </div>
           </div>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm whitespace-nowrap">Hourly Rate ($)</label>
+              <Input
+                type="number"
+                placeholder="Min"
+                value={minRate}
+                onChange={(e) => setMinRate(e.target.value)}
+                className="w-24"
+                min="0"
+              />
+              <span className="text-muted-foreground">-</span>
+              <Input
+                type="number"
+                placeholder="Max"
+                value={maxRate}
+                onChange={(e) => setMaxRate(e.target.value)}
+                className="w-24"
+                min="0"
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -155,6 +182,7 @@ export default function TalentPoolPage() {
                     <TableHead>Skills</TableHead>
                     <TableHead>Assessments</TableHead>
                     <TableHead>Avg Score</TableHead>
+                    <TableHead>Rate</TableHead>
                     <TableHead>Availability</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Links</TableHead>
@@ -177,12 +205,15 @@ export default function TalentPoolPage() {
                             </div>
                           )}
                           <div>
-                            <Link
-                              href={`/admin/verification/${candidate.id}`}
-                              className="font-medium hover:underline"
-                            >
-                              {candidate.name ?? "Unknown"}
-                            </Link>
+                            <span className="flex items-center gap-1">
+                              <Link
+                                href={`/admin/verification/${candidate.id}`}
+                                className="font-medium hover:underline"
+                              >
+                                {candidate.name ?? "Unknown"}
+                              </Link>
+                              <VerifiedBadge passedCount={candidate.passedCount} />
+                            </span>
                             <p className="text-sm text-muted-foreground">
                               {candidate.email}
                             </p>
@@ -231,6 +262,20 @@ export default function TalentPoolPage() {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {candidate.hourlyRate != null ? (
+                            <span>${candidate.hourlyRate}/hr</span>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                          {candidate.monthlyRate != null && (
+                            <p className="text-xs text-muted-foreground">
+                              ${candidate.monthlyRate}/mo
+                            </p>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Select

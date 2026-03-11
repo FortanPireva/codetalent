@@ -12,6 +12,8 @@ export const talentPoolRouter = createTRPCRouter({
         skills: z.array(z.string()).optional(),
         search: z.string().optional(),
         passedOnly: z.boolean().default(false),
+        minHourlyRate: z.number().min(0).optional(),
+        maxHourlyRate: z.number().min(0).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -38,6 +40,14 @@ export const talentPoolRouter = createTRPCRouter({
                   some: {
                     status: SubmissionStatus.PASSED,
                   },
+                },
+              }
+            : {}),
+          ...(input.minHourlyRate !== undefined || input.maxHourlyRate !== undefined
+            ? {
+                hourlyRate: {
+                  ...(input.minHourlyRate !== undefined ? { gte: input.minHourlyRate } : {}),
+                  ...(input.maxHourlyRate !== undefined ? { lte: input.maxHourlyRate } : {}),
                 },
               }
             : {}),
@@ -74,6 +84,8 @@ export const talentPoolRouter = createTRPCRouter({
         location: candidate.location,
         githubUrl: candidate.githubUrl,
         linkedinUrl: candidate.linkedinUrl,
+        hourlyRate: candidate.hourlyRate,
+        monthlyRate: candidate.monthlyRate,
         createdAt: candidate.createdAt,
         submissionCount: candidate.submissions.length,
         passedCount: candidate.submissions.filter((s) => s.review?.passed)
@@ -205,6 +217,8 @@ export const talentPoolRouter = createTRPCRouter({
         resumeUrl: candidate.resumeUrl,
         phone: candidate.phone,
         location: candidate.location,
+        hourlyRate: candidate.hourlyRate,
+        monthlyRate: candidate.monthlyRate,
         createdAt: candidate.createdAt,
         submissions: candidate.submissions,
       };
@@ -378,6 +392,8 @@ export const talentPoolRouter = createTRPCRouter({
         githubUrl: candidate.githubUrl,
         linkedinUrl: candidate.linkedinUrl,
         resumeUrl: candidate.resumeUrl,
+        hourlyRate: candidate.hourlyRate,
+        monthlyRate: candidate.monthlyRate,
         submissions: candidate.submissions,
       };
     }),
@@ -388,6 +404,8 @@ export const talentPoolRouter = createTRPCRouter({
         search: z.string().optional(),
         skills: z.array(z.string()).optional(),
         passedOnly: z.boolean().default(false),
+        minHourlyRate: z.number().min(0).optional(),
+        maxHourlyRate: z.number().min(0).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -413,6 +431,14 @@ export const talentPoolRouter = createTRPCRouter({
                   some: {
                     status: SubmissionStatus.PASSED,
                   },
+                },
+              }
+            : {}),
+          ...(input.minHourlyRate !== undefined || input.maxHourlyRate !== undefined
+            ? {
+                hourlyRate: {
+                  ...(input.minHourlyRate !== undefined ? { gte: input.minHourlyRate } : {}),
+                  ...(input.maxHourlyRate !== undefined ? { lte: input.maxHourlyRate } : {}),
                 },
               }
             : {}),
@@ -442,6 +468,8 @@ export const talentPoolRouter = createTRPCRouter({
         availability: candidate.availability,
         githubUrl: candidate.githubUrl,
         linkedinUrl: candidate.linkedinUrl,
+        hourlyRate: candidate.hourlyRate,
+        monthlyRate: candidate.monthlyRate,
         createdAt: candidate.createdAt,
         submissionCount: candidate.submissions.length,
         passedCount: candidate.submissions.filter((s) => s.review?.passed).length,

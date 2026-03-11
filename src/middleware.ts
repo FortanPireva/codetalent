@@ -28,6 +28,12 @@ export default withAuth(
         if (isClientOnboarding || isClientPending || isClientRejected) {
           return NextResponse.redirect(new URL("/client/dashboard", req.url));
         }
+
+        // Subscription gate: redirect to billing if no active subscription
+        const isClientBilling = pathname.startsWith("/client/billing");
+        if (!token.hasActiveSubscription && !isClientBilling) {
+          return NextResponse.redirect(new URL("/client/billing", req.url));
+        }
       } else if (clientStatus === "PENDING_REVIEW") {
         if (!isClientPending) {
           return NextResponse.redirect(new URL("/client/pending", req.url));

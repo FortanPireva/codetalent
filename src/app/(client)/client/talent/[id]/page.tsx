@@ -39,6 +39,7 @@ import {
   Send,
 } from "lucide-react";
 import { toast } from "sonner";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 export default function CandidateDetailPage() {
   const params = useParams();
@@ -146,7 +147,10 @@ export default function CandidateDetailPage() {
               <AvatarFallback className="text-xl">{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold">{candidate.name ?? "Unknown"}</h1>
+              <h1 className="text-2xl font-bold flex items-center gap-1.5">
+                {candidate.name ?? "Unknown"}
+                <VerifiedBadge passedCount={candidate.submissions?.filter(s => s.review?.passed).length ?? 0} size="md" />
+              </h1>
               {candidate.location && (
                 <p className="text-muted-foreground flex items-center gap-1 mt-1">
                   <MapPin className="h-4 w-4" />
@@ -162,6 +166,31 @@ export default function CandidateDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Rates */}
+      {(candidate.hourlyRate != null || candidate.monthlyRate != null) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Rates</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-6">
+              {candidate.hourlyRate != null && (
+                <div>
+                  <p className="text-2xl font-bold">${candidate.hourlyRate}</p>
+                  <p className="text-sm text-muted-foreground">per hour</p>
+                </div>
+              )}
+              {candidate.monthlyRate != null && (
+                <div>
+                  <p className="text-2xl font-bold">${candidate.monthlyRate}</p>
+                  <p className="text-sm text-muted-foreground">per month</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Bio */}
       {candidate.bio && (

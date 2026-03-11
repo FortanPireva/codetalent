@@ -26,6 +26,7 @@ import {
   Building2,
   Building,
   Briefcase,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -38,6 +39,7 @@ const navigation = [
   { name: "Talent Pool", href: "/admin/talent-pool", icon: UserCheck },
   { name: "Clients", href: "/admin/clients", icon: Building2 },
   { name: "Jobs", href: "/admin/jobs", icon: Briefcase },
+  { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
 ];
 
 export default function AdminLayout({

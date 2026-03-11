@@ -31,6 +31,12 @@ export function Navbar() {
             >
               How It Works
             </a>
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Pricing
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">

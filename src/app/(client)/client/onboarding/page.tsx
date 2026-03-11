@@ -27,13 +27,17 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CompanySize } from "@prisma/client";
+import { CompanySize, SubscriptionTier, BillingInterval } from "@prisma/client";
 import { companySizeLabels } from "@/lib/utils";
+import { PLANS, formatPrice } from "@/lib/plans";
+import { cn } from "@/lib/utils";
 import {
   User,
   Building2,
   Code,
+  CreditCard,
   CheckCircle,
+  Check,
   ArrowRight,
   ArrowLeft,
   X,
@@ -55,6 +59,8 @@ const clientOnboardingSchema = z.object({
     .max(1000),
   techStack: z.array(z.string()),
   logo: z.string().url().optional().or(z.literal("")),
+  selectedPlan: z.nativeEnum(SubscriptionTier),
+  billingInterval: z.nativeEnum(BillingInterval),
 });
 
 type ClientOnboardingFormData = z.infer<typeof clientOnboardingSchema>;
@@ -76,6 +82,11 @@ const steps = [
     description: "Your tech stack",
   },
   {
+    title: "Choose Plan",
+    icon: CreditCard,
+    description: "Select your subscription plan",
+  },
+  {
     title: "Review & Submit",
     icon: CheckCircle,
     description: "Confirm your details",
@@ -86,6 +97,7 @@ const stepFields: (keyof ClientOnboardingFormData)[][] = [
   ["name", "phone"],
   ["companyName", "industry", "size", "location", "description"],
   ["techStack"],
+  ["selectedPlan", "billingInterval"],
   [],
 ];
 
@@ -129,6 +141,8 @@ export default function ClientOnboardingPage() {
       description: "",
       techStack: [],
       logo: "",
+      selectedPlan: SubscriptionTier.GROWTH,
+      billingInterval: BillingInterval.MONTHLY,
     },
   });
 
@@ -476,8 +490,117 @@ export default function ClientOnboardingPage() {
               </div>
             )}
 
-            {/* Step 3: Review & Submit */}
+            {/* Step 3: Choose Plan */}
             {currentStep === 3 && (
+              <div className="space-y-6">
+                {/* Billing Toggle */}
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setValue("billingInterval", BillingInterval.MONTHLY, {
+                        shouldValidate: true,
+                      })
+                    }
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                      formValues.billingInterval === "MONTHLY"
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground bg-secondary"
+                    )}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setValue("billingInterval", BillingInterval.YEARLY, {
+                        shouldValidate: true,
+                      })
+                    }
+                    className={cn(
+                      "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                      formValues.billingInterval === "YEARLY"
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground bg-secondary"
+                    )}
+                  >
+                    Yearly (Save 26%)
+                  </button>
+                </div>
+
+                {/* Plan Cards */}
+                <div className="grid gap-4">
+                  {PLANS.map((plan) => {
+                    const isSelected = formValues.selectedPlan === plan.tier;
+                    const price =
+                      formValues.billingInterval === "YEARLY"
+                        ? Math.round(plan.yearlyPrice / 12)
+                        : plan.monthlyPrice;
+
+                    return (
+                      <button
+                        key={plan.tier}
+                        type="button"
+                        onClick={() =>
+                          setValue("selectedPlan", plan.tier as SubscriptionTier, {
+                            shouldValidate: true,
+                          })
+                        }
+                        className={cn(
+                          "w-full text-left rounded-lg border-2 p-4 transition-all duration-200",
+                          isSelected
+                            ? "border-foreground bg-foreground/5"
+                            : "border-border hover:border-foreground/30"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">{plan.name}</span>
+                              {plan.recommended && (
+                                <Badge variant="default" className="text-[10px] rounded-md">
+                                  Most Popular
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {plan.description}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-2xl font-bold">
+                              {formatPrice(price)}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              /mo
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                          {plan.features.slice(0, 3).map((f) => (
+                            <span
+                              key={f}
+                              className="text-xs text-muted-foreground flex items-center gap-1"
+                            >
+                              <Check className="h-3 w-3" />
+                              {f}
+                            </span>
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <p className="text-sm text-muted-foreground text-center">
+                  Have a promo code? You&apos;ll enter it at checkout.
+                </p>
+              </div>
+            )}
+
+            {/* Step 4: Review & Submit */}
+            {currentStep === 4 && (
               <div className="space-y-6">
                 {logoPreview && (
                   <div className="flex items-center gap-4">
@@ -559,6 +682,24 @@ export default function ClientOnboardingPage() {
                     </div>
                   </div>
                 )}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Selected Plan
+                    </p>
+                    <p className="font-medium">
+                      {PLANS.find((p) => p.tier === formValues.selectedPlan)?.name ?? formValues.selectedPlan}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Billing
+                    </p>
+                    <p className="font-medium">
+                      {formValues.billingInterval === "YEARLY" ? "Yearly" : "Monthly"}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 

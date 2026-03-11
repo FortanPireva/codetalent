@@ -276,7 +276,7 @@ export const applicationRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
       }
 
-      return ctx.db.jobApplication.findMany({
+      const applications = await ctx.db.jobApplication.findMany({
         where: { jobId: input.jobId },
         include: {
           user: {
@@ -294,11 +294,24 @@ export const applicationRouter = createTRPCRouter({
               resumeUrl: true,
               profilePicture: true,
               createdAt: true,
+              submissions: {
+                where: { review: { passed: true } },
+                select: { id: true },
+              },
             },
           },
         },
         orderBy: { appliedAt: "desc" },
       });
+
+      return applications.map((app) => ({
+        ...app,
+        user: {
+          ...app.user,
+          passedCount: app.user.submissions.length,
+          submissions: undefined,
+        },
+      }));
     }),
 
   updateStatus: clientProcedure

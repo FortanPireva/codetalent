@@ -6,7 +6,7 @@ const companyLinks = [
   { label: "Post a Job", href: "/register/client" },
   { label: "Talent Pool", href: "/login" },
   { label: "AI Code Review", href: "#ai-vetting" },
-  { label: "Pricing", href: "#for-companies" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 const developerLinks = [

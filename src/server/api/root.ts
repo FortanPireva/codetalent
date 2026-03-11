@@ -8,6 +8,7 @@ import { clientRouter } from "@/server/api/routers/client";
 import { clientOnboardingRouter } from "@/server/api/routers/clientOnboarding";
 import { jobRouter } from "@/server/api/routers/job";
 import { applicationRouter } from "@/server/api/routers/application";
+import { subscriptionRouter } from "@/server/api/routers/subscription";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   clientOnboarding: clientOnboardingRouter,
   job: jobRouter,
   application: applicationRouter,
+  subscription: subscriptionRouter,
 });
 
 export type AppRouter = typeof appRouter;

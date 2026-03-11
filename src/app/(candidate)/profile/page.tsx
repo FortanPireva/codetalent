@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { Availability } from "@prisma/client";
 import { availabilityLabels } from "@/lib/utils";
 import { X, Camera, Loader2 } from "lucide-react";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,6 +40,8 @@ const profileSchema = z.object({
   linkedinUrl: z.string().url().optional().or(z.literal("")),
   resumeUrl: z.string().url().optional().or(z.literal("")),
   availability: z.nativeEnum(Availability),
+  hourlyRate: z.string().optional(),
+  monthlyRate: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -76,6 +79,8 @@ export default function ProfilePage() {
       linkedinUrl: "",
       resumeUrl: "",
       availability: Availability.ACTIVELY_LOOKING,
+      hourlyRate: "",
+      monthlyRate: "",
     },
   });
 
@@ -90,14 +95,19 @@ export default function ProfilePage() {
         linkedinUrl: profile.linkedinUrl ?? "",
         resumeUrl: profile.resumeUrl ?? "",
         availability: profile.availability,
+        hourlyRate: profile.hourlyRate != null ? String(profile.hourlyRate) : "",
+        monthlyRate: profile.monthlyRate != null ? String(profile.monthlyRate) : "",
       });
     }
   }, [profile, reset]);
 
   const onSubmit = (data: ProfileFormData) => {
+    const { hourlyRate, monthlyRate, ...rest } = data;
     updateMutation.mutate({
-      ...data,
+      ...rest,
       skills: profile?.skills,
+      hourlyRate: hourlyRate && hourlyRate.trim() !== "" ? parseFloat(hourlyRate) : null,
+      monthlyRate: monthlyRate && monthlyRate.trim() !== "" ? parseFloat(monthlyRate) : null,
     });
   };
 
@@ -168,7 +178,10 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          Profile
+          <VerifiedBadge passedCount={profile?.passedAssessmentCount ?? 0} size="md" />
+        </h1>
         <p className="text-muted-foreground">
           Manage your personal information and preferences
         </p>
@@ -339,6 +352,43 @@ export default function ProfilePage() {
                   {errors.resumeUrl.message}
                 </p>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Rates</CardTitle>
+            <CardDescription>
+              Set your hourly and monthly rates so clients can assess budget fit
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="hourlyRate">Hourly Rate ($/hr)</Label>
+                <Input
+                  id="hourlyRate"
+                  type="number"
+                  min="0"
+                  max="10000"
+                  step="0.50"
+                  placeholder="e.g. 75"
+                  {...register("hourlyRate")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="monthlyRate">Monthly Rate ($/mo)</Label>
+                <Input
+                  id="monthlyRate"
+                  type="number"
+                  min="0"
+                  max="10000"
+                  step="0.50"
+                  placeholder="e.g. 8000"
+                  {...register("monthlyRate")}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

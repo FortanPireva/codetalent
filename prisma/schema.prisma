@@ -113,6 +113,24 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum SubscriptionTier {
+  STARTER
+  GROWTH
+  SCALE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAST_DUE
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -133,6 +151,9 @@ model User {
   rejectionReason String?
   clientStatus          ClientOnboardingStatus @default(ONBOARDING)
   clientRejectionReason String?
+  hourlyRate    Float?
+  monthlyRate   Float?
+  rateCurrency  String   @default("USD")
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -144,6 +165,7 @@ model User {
   @@index([availability])
   @@index([candidateStatus])
   @@index([clientStatus])
+  @@index([hourlyRate])
   @@index([createdAt])
 }
 
@@ -234,10 +256,31 @@ model Client {
   updatedAt    DateTime     @updatedAt
 
   jobs         Job[]
+  subscription ClientSubscription?
 
   @@index([status])
   @@index([industry])
   @@index([createdAt])
+}
+
+model ClientSubscription {
+  id                  String             @id @default(cuid())
+  tier                SubscriptionTier
+  billingInterval     BillingInterval
+  status              SubscriptionStatus @default(ACTIVE)
+  activeJobPostLimit  Int                @default(3)
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+  cancelledAt         DateTime?
+  externalCustomerId  String?
+  externalSubId       String?
+  clientId            String             @unique
+  client              Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([status])
+  @@index([currentPeriodEnd])
 }
 
 model Job {

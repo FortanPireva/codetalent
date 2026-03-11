@@ -27,6 +27,7 @@ import {
   ExternalLink,
   User,
 } from "lucide-react";
+import { VerifiedBadge } from "@/components/verified-badge";
 import type { ApplicationData } from "./ApplicationCard";
 import type { ApplicationStatus } from "@prisma/client";
 
@@ -97,8 +98,9 @@ export function CandidateDrawer({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-lg font-bold tracking-tight">
+              <SheetTitle className="text-lg font-bold tracking-tight flex items-center gap-1.5">
                 {user.name ?? "Unknown"}
+                <VerifiedBadge passedCount={user.passedCount ?? 0} />
               </SheetTitle>
               <SheetDescription className="text-sm text-muted-foreground mt-0.5">
                 {user.email}
