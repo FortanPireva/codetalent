@@ -15,14 +15,15 @@ export default async function OgImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#0a0a0a",
-          padding: "60px 80px",
-          fontFamily: "system-ui, sans-serif",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#0a0a0a",
           position: "relative",
           overflow: "hidden",
+          fontFamily: "system-ui, sans-serif",
         }}
       >
-        {/* Subtle grid pattern */}
+        {/* Subtle grid */}
         <div
           style={{
             position: "absolute",
@@ -30,168 +31,131 @@ export default async function OgImage() {
             left: 0,
             right: 0,
             bottom: 0,
+            display: "flex",
             backgroundImage:
               "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
 
-        {/* Top gradient accent */}
+        {/* Radial glow behind logo */}
         <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "4px",
-            background: "linear-gradient(90deg, #ffffff 0%, #a0a0a0 50%, #ffffff 100%)",
+            top: "-100px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "800px",
+            height: "500px",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)",
+            display: "flex",
           }}
         />
 
-        {/* Logo + brand */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 24 24"
+        {/* Hexagon T logo */}
+        <svg
+          width="88"
+          height="88"
+          viewBox="0 0 72 72"
+          fill="none"
+          style={{ marginBottom: "28px" }}
+        >
+          <path
+            d="M36 4 L64.8 20.5 L64.8 51.5 L36 68 L7.2 51.5 L7.2 20.5 Z"
             fill="none"
-            stroke="#ffffff"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="16 18 22 12 16 6" />
-            <polyline points="8 6 2 12 8 18" />
-          </svg>
-          <span
-            style={{
-              fontSize: "28px",
-              fontWeight: 700,
-              color: "#ffffff",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Talentflow
-          </span>
-        </div>
+            stroke="#f4f3ef"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M36 14 L56.5 25.75 L56.5 46.25 L36 58 L15.5 46.25 L15.5 25.75 Z"
+            fill="none"
+            stroke="#f4f3ef"
+            strokeWidth="0.8"
+            opacity="0.18"
+          />
+          <line
+            x1="22"
+            y1="28"
+            x2="50"
+            y2="28"
+            stroke="#f4f3ef"
+            strokeWidth="3.5"
+          />
+          <line
+            x1="36"
+            y1="28"
+            x2="36"
+            y2="51"
+            stroke="#f4f3ef"
+            strokeWidth="3.5"
+          />
+          <circle cx="52" cy="50" r="2.5" fill="#f4f3ef" opacity="0.3" />
+        </svg>
 
-        {/* Main content */}
+        {/* Wordmark */}
         <div
           style={{
+            fontSize: "26px",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            color: "rgba(244,243,239,0.45)",
+            marginBottom: "32px",
             display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            justifyContent: "center",
-            gap: "24px",
-            marginTop: "-20px",
           }}
         >
-          {/* Badge */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "rgba(255,255,255,0.1)",
-                borderRadius: "9999px",
-                padding: "6px 16px",
-                fontSize: "14px",
-                color: "#a0a0a0",
-                fontWeight: 500,
-                letterSpacing: "0.04em",
-                textTransform: "uppercase" as const,
-              }}
-            >
-              AI-Powered Developer Marketplace
-            </div>
-          </div>
-
-          {/* Headline */}
-          <div
-            style={{
-              fontSize: "56px",
-              fontWeight: 700,
-              color: "#ffffff",
-              lineHeight: 1.15,
-              letterSpacing: "-0.03em",
-              maxWidth: "800px",
-            }}
-          >
-            Find exceptional remote engineers
-          </div>
-
-          {/* Subtitle */}
-          <div
-            style={{
-              fontSize: "22px",
-              color: "#8a8a8a",
-              lineHeight: 1.5,
-              maxWidth: "700px",
-            }}
-          >
-            Pre-vetted developers through AI-powered code assessments. Real
-            GitHub challenges, not resumes.
-          </div>
+          Talentflow
         </div>
 
-        {/* Bottom stats row */}
+        {/* Headline */}
         <div
           style={{
+            fontSize: "58px",
+            fontWeight: 800,
+            color: "#f4f3ef",
+            letterSpacing: "-0.035em",
+            lineHeight: 1.1,
+            textAlign: "center",
+            maxWidth: "860px",
             display: "flex",
-            gap: "48px",
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            paddingTop: "28px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <span
-              style={{ fontSize: "24px", fontWeight: 700, color: "#ffffff" }}
-            >
-              500+
-            </span>
-            <span style={{ fontSize: "14px", color: "#666666" }}>
-              Vetted Developers
-            </span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <span
-              style={{ fontSize: "24px", fontWeight: 700, color: "#ffffff" }}
-            >
-              50+
-            </span>
-            <span style={{ fontSize: "14px", color: "#666666" }}>
-              Companies Hiring
-            </span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <span
-              style={{ fontSize: "24px", fontWeight: 700, color: "#ffffff" }}
-            >
-              8
-            </span>
-            <span style={{ fontSize: "14px", color: "#666666" }}>
-              AI Scoring Dimensions
-            </span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            <span
-              style={{ fontSize: "24px", fontWeight: 700, color: "#ffffff" }}
-            >
-              Minutes
-            </span>
-            <span style={{ fontSize: "14px", color: "#666666" }}>
-              Review Turnaround
-            </span>
-          </div>
+          Real Code. Real Engineers.
+        </div>
+
+        {/* Subline */}
+        <div
+          style={{
+            fontSize: "23px",
+            color: "rgba(244,243,239,0.5)",
+            marginTop: "22px",
+            textAlign: "center",
+            maxWidth: "620px",
+            lineHeight: 1.5,
+            display: "flex",
+          }}
+        >
+          AI-powered assessments that find developers who ship.
+        </div>
+
+        {/* Domain */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "36px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "16px",
+            color: "rgba(244,243,239,0.25)",
+            letterSpacing: "0.04em",
+          }}
+        >
+          codeks.hr
         </div>
       </div>
     ),
-    {
-      ...size,
-    }
+    { ...size },
   );
 }

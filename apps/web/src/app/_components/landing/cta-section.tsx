@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Smartphone } from "lucide-react";
 
 export function CtaSection() {
   return (
@@ -24,10 +25,52 @@ export function CtaSection() {
               size="lg"
               variant="outline"
               asChild
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              className="border-white/30 text-white hover:bg-white/10 hover:text-white"
             >
               <Link href="/register">Join as a Developer</Link>
             </Button>
+          </div>
+        </div>
+
+        <div className="mt-16 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-sm text-muted-foreground">
+            <Smartphone className="h-4 w-4" />
+            Available on mobile for developers
+          </div>
+          <h3 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+            Take your career on the go
+          </h3>
+          <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
+            Track your applications, get notified about new opportunities, and
+            manage your profile — all from your phone.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <Link
+              href="https://apps.apple.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                alt="Download on the App Store"
+                width={150}
+                height={50}
+                className="h-[50px] w-auto"
+              />
+            </Link>
+            <Link
+              href="https://play.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                alt="Get it on Google Play"
+                width={168}
+                height={50}
+                className="h-[50px] w-auto"
+              />
+            </Link>
           </div>
         </div>
       </div>
