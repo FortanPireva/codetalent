@@ -22,12 +22,13 @@ import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus, Building2, B
 
 export default function AdminDashboardPage() {
   const { data: stats } = api.talentPool.stats.useQuery();
-  const { data: submissions } = api.assessment.listSubmissions.useQuery({});
+  const { data: submissionsData } = api.assessment.listSubmissions.useQuery({});
   const { data: assessments } = api.assessment.listAll.useQuery();
   const { data: clientStats } = api.clients.stats.useQuery();
   const { data: pendingClientCount } = api.clients.pendingClientCount.useQuery();
   const { data: jobStats } = api.job.adminStats.useQuery();
 
+  const submissions = submissionsData?.items;
   const recentSubmissions = submissions?.slice(0, 5);
   const pendingReviews = submissions?.filter((s) => s.status === "SUBMITTED");
 

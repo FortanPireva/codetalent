@@ -35,6 +35,7 @@ export {
   SubscriptionTier,
   SubscriptionStatus,
   BillingInterval,
+  NotificationType,
 } from "@prisma/client";
 
-export type { Job, User, Client, Assessment, Submission, Review, JobApplication, ClientSubscription } from "@prisma/client";
+export type { Job, User, Client, Assessment, Submission, Review, JobApplication, ClientSubscription, PushToken, NotificationPreference, Notification, JobMatchLog } from "@prisma/client";

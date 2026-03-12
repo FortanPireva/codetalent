@@ -39,11 +39,18 @@
       "package": "net.codeks.talentflow"
     },
     "plugins": [
+      "expo-system-ui",
       "expo-router",
       "expo-secure-store",
       "expo-splash-screen",
       "expo-font",
-      "expo-document-picker"
+      "expo-document-picker",
+      [
+        "expo-notifications",
+        {
+          "sounds": []
+        }
+      ]
     ],
     "extra": {
       "router": {},

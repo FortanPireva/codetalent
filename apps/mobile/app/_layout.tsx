@@ -9,6 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { api, createMobileTRPCClient } from "@/lib/trpc";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
+import { useNotifications } from "@/hooks/useNotifications";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,9 +31,12 @@ export default function RootLayout() {
 }
 
 function RootLayoutInner() {
-  const { isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const { colorScheme, isDark } = useTheme();
   const bgColor = isDark ? "#141414" : "#FFFFFF";
+
+  // Register push notifications when authenticated
+  useNotifications(isAuthenticated);
 
   const [fontsLoaded] = useFonts({
     "Satoshi-Regular": require("../assets/fonts/Satoshi-Regular.ttf"),

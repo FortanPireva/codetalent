@@ -30,6 +30,8 @@ import {
   candidateStatusColors,
 } from "@/lib/utils";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   CheckCircle,
@@ -42,6 +44,7 @@ import {
   Mail,
   FileText,
   Calendar,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function VerificationDetailPage() {
@@ -79,6 +82,18 @@ export default function VerificationDetailPage() {
       utils.talentPool.listPendingVerification.invalidate();
       utils.talentPool.stats.invalidate();
       router.push("/admin/verification");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const toggleVerifiedMutation = api.notification.toggleVerified.useMutation({
+    onSuccess: (data) => {
+      toast.success(
+        data.isVerified ? "Developer verified" : "Verification removed"
+      );
+      utils.talentPool.getPendingCandidate.invalidate({ id: candidateId });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -268,8 +283,36 @@ export default function VerificationDetailPage() {
           )}
         </div>
 
-        {/* Sidebar with links */}
+        {/* Sidebar */}
         <div className="space-y-6">
+          {/* Verified Developer Toggle */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5" />
+                Verified Developer
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="verified-toggle" className="text-sm">
+                  Verified developers get 24h early access to new job alerts
+                </Label>
+                <Switch
+                  id="verified-toggle"
+                  checked={candidate.isVerified ?? false}
+                  onCheckedChange={(checked: boolean) =>
+                    toggleVerifiedMutation.mutate({
+                      userId: candidateId,
+                      isVerified: checked,
+                    })
+                  }
+                  disabled={toggleVerifiedMutation.isPending}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Links</CardTitle>

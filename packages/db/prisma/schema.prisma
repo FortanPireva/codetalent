@@ -131,6 +131,14 @@ enum BillingInterval {
   YEARLY
 }
 
+enum NotificationType {
+  JOB_MATCH
+  APPLICATION_STATUS_CHANGE
+  ASSESSMENT_RESULT
+  CONTRACT_UPDATE
+  MILESTONE_APPROVAL
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -156,12 +164,16 @@ model User {
   hourlyRate    Float?
   monthlyRate   Float?
   rateCurrency  String   @default("USD")
+  isVerified    Boolean  @default(false)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  submissions     Submission[]
-  client          Client?
-  jobApplications JobApplication[]
+  submissions            Submission[]
+  client                 Client?
+  jobApplications        JobApplication[]
+  pushTokens             PushToken[]
+  notificationPreference NotificationPreference?
+  notifications          Notification[]
 
   @@index([role])
   @@index([availability])
@@ -169,6 +181,9 @@ model User {
   @@index([clientStatus])
   @@index([hourlyRate])
   @@index([createdAt])
+  @@index([role, candidateStatus])
+  @@index([role, candidateStatus, availability])
+  @@index([role, clientStatus])
 }
 
 model Assessment {
@@ -210,6 +225,8 @@ model Submission {
   @@index([userId])
   @@index([assessmentId])
   @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
 }
 
 model Review {
@@ -365,6 +382,8 @@ model Job {
   @@index([employmentType])
   @@index([workArrangement])
   @@index([createdAt])
+  @@index([status, publishedAt])
+  @@index([clientId, status])
 }
 
 model JobApplication {
@@ -384,4 +403,52 @@ model JobApplication {
   @@index([jobId])
   @@index([status])
   @@index([appliedAt])
+  @@index([jobId, status])
+  @@index([userId, appliedAt])
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  platform  String   // "ios" | "android"
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model NotificationPreference {
+  id                 String  @id @default(cuid())
+  assessmentResults  Boolean @default(true)
+  newJobMatches      Boolean @default(true)
+  applicationUpdates Boolean @default(true)
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id     String           @id @default(cuid())
+  type   NotificationType
+  title  String
+  body   String
+  data   Json?
+  read   Boolean          @default(false)
+  sentAt DateTime         @default(now())
+  userId String
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, sentAt])
+}
+
+model JobMatchLog {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  matchedAt DateTime @default(now())
+
+  @@unique([userId, jobId])
+  @@index([userId])
 }

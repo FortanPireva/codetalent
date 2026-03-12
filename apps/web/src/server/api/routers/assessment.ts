@@ -303,20 +303,26 @@ export const assessmentRouter = createTRPCRouter({
         status: z.nativeEnum(SubmissionStatus).optional(),
         difficulty: z.nativeEnum(Difficulty).optional(),
         search: z.string().optional(),
+        cursor: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
       })
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db.submission.findMany({
+      const { cursor, limit, ...filters } = input;
+
+      const submissions = await ctx.db.submission.findMany({
+        take: limit + 1,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
         where: {
-          status: input.status,
-          assessment: input.difficulty
-            ? { difficulty: input.difficulty }
+          status: filters.status,
+          assessment: filters.difficulty
+            ? { difficulty: filters.difficulty }
             : undefined,
-          user: input.search
+          user: filters.search
             ? {
                 OR: [
-                  { name: { contains: input.search, mode: "insensitive" } },
-                  { email: { contains: input.search, mode: "insensitive" } },
+                  { name: { contains: filters.search, mode: "insensitive" as const } },
+                  { email: { contains: filters.search, mode: "insensitive" as const } },
                 ],
               }
             : undefined,
@@ -345,6 +351,14 @@ export const assessmentRouter = createTRPCRouter({
         },
         orderBy: { createdAt: "desc" },
       });
+
+      let nextCursor: string | undefined;
+      if (submissions.length > limit) {
+        const nextItem = submissions.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      return { items: submissions, nextCursor };
     }),
 
   // Admin: Get single submission with full detail

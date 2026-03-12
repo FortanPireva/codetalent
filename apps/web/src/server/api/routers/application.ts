@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, approvedProcedure, clientProcedure } from "@/server/api/trpc";
 import { ApplicationStatus } from "@codetalent/db";
 import { db } from "@/server/db";
+import { sendNotification } from "@/server/services/notifications";
 
 export const applicationRouter = createTRPCRouter({
   apply: approvedProcedure
@@ -214,7 +215,7 @@ export const applicationRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Client profile not found" });
       }
 
-      return ctx.db.$transaction(async (tx) => {
+      const application = await ctx.db.$transaction(async (tx) => {
         const job = await tx.job.findUnique({
           where: { id: input.jobId },
           select: { id: true, clientId: true, status: true },
@@ -240,7 +241,7 @@ export const applicationRouter = createTRPCRouter({
           });
         }
 
-        const application = await tx.jobApplication.create({
+        const result = await tx.jobApplication.create({
           data: {
             userId: input.candidateId,
             jobId: input.jobId,
@@ -253,8 +254,23 @@ export const applicationRouter = createTRPCRouter({
           data: { applicationCount: { increment: 1 } },
         });
 
-        return application;
+        return result;
       });
+
+      // Send interview invitation notification (fire-and-forget)
+      const jobDetails = await ctx.db.job.findUnique({
+        where: { id: input.jobId },
+        select: { title: true },
+      });
+      sendNotification({
+        userId: input.candidateId,
+        type: "APPLICATION_STATUS_CHANGE",
+        title: "Interview Invitation",
+        body: `You've been invited to interview for ${jobDetails?.title ?? "a position"}`,
+        data: { jobId: input.jobId },
+      }).catch((err) => console.error("Failed to send interview invitation notification:", err));
+
+      return application;
     }),
 
   listForJob: clientProcedure
@@ -342,8 +358,8 @@ export const applicationRouter = createTRPCRouter({
 
       const previousStatus = application.status;
 
-      return ctx.db.$transaction(async (tx) => {
-        const updated = await tx.jobApplication.update({
+      const updated = await ctx.db.$transaction(async (tx) => {
+        const result = await tx.jobApplication.update({
           where: { id: input.applicationId },
           data: { status: input.status },
         });
@@ -361,7 +377,22 @@ export const applicationRouter = createTRPCRouter({
           });
         }
 
-        return updated;
+        return result;
       });
+
+      // Send notification to candidate (fire-and-forget)
+      const job = await ctx.db.job.findUnique({
+        where: { id: application.job.id },
+        select: { title: true },
+      });
+      sendNotification({
+        userId: application.userId,
+        type: "APPLICATION_STATUS_CHANGE",
+        title: "Application Update",
+        body: `Your application for ${job?.title ?? "a position"} has been updated to ${input.status}`,
+        data: { applicationId: input.applicationId, jobId: application.job.id, status: input.status },
+      }).catch((err) => console.error("Failed to send application status notification:", err));
+
+      return updated;
     }),
 });

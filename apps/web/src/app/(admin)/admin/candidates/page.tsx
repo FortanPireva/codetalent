@@ -48,13 +48,22 @@ export default function CandidatesPipelinePage() {
     "ALL"
   );
 
-  const { data: submissions, isLoading } = api.assessment.listSubmissions.useQuery(
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = api.assessment.listSubmissions.useInfiniteQuery(
     {
       search: search || undefined,
       status: statusFilter === "ALL" ? undefined : statusFilter,
       difficulty: difficultyFilter === "ALL" ? undefined : difficultyFilter,
-    }
+      limit: 20,
+    },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
+  const submissions = data?.pages.flatMap((p) => p.items);
 
   return (
     <div className="space-y-6">
@@ -227,6 +236,17 @@ export default function CandidatesPipelinePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+          {hasNextPage && (
+            <div className="flex justify-center pt-4">
+              <Button
+                variant="outline"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? "Loading..." : "Load More"}
+              </Button>
             </div>
           )}
         </CardContent>

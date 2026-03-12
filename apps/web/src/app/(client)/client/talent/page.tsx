@@ -48,13 +48,23 @@ export default function TalentDiscoveryPage() {
 
   const utils = api.useUtils();
 
-  const { data: candidates, isLoading } =
-    api.talentPool.clientList.useQuery({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = api.talentPool.clientList.useInfiniteQuery(
+    {
       search: search || undefined,
       passedOnly,
       minHourlyRate: minRate ? parseFloat(minRate) : undefined,
       maxHourlyRate: maxRate ? parseFloat(maxRate) : undefined,
-    });
+      limit: 20,
+    },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
+  );
+  const candidates = data?.pages.flatMap((p) => p.items);
 
   const { data: openJobs, isLoading: isLoadingJobs } =
     api.job.list.useQuery(
@@ -320,6 +330,18 @@ export default function TalentDiscoveryPage() {
               </Card>
             );
           })}
+        </div>
+      )}
+
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </Button>
         </div>
       )}
 

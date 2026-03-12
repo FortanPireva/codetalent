@@ -7,6 +7,7 @@ import {
   adminProcedure,
 } from "@/server/api/trpc";
 import { SubmissionStatus, Difficulty } from "@codetalent/db";
+import { sendNotification } from "@/server/services/notifications";
 
 const PASS_THRESHOLDS: Record<Difficulty, number> = {
   INTERN: 3.0,
@@ -329,14 +330,25 @@ export const reviewRouter = createTRPCRouter({
         });
 
         // Update submission status
+        const finalStatus = passed ? SubmissionStatus.PASSED : SubmissionStatus.REJECTED;
         await ctx.db.submission.update({
           where: { id: input.submissionId },
-          data: {
-            status: passed
-              ? SubmissionStatus.PASSED
-              : SubmissionStatus.REJECTED,
-          },
+          data: { status: finalStatus },
         });
+
+        // Send assessment result notification (fire-and-forget)
+        sendNotification({
+          userId: submission.userId,
+          type: "ASSESSMENT_RESULT",
+          title: "Assessment Review Complete",
+          body: `Your ${submission.assessment.title} assessment has been reviewed — ${passed ? "Passed" : "Not passed"}`,
+          data: {
+            submissionId: input.submissionId,
+            assessmentId: submission.assessmentId,
+            passed,
+            averageScore,
+          },
+        }).catch((err) => console.error("Failed to send assessment result notification:", err));
 
         return review;
       } catch (error) {

@@ -14,27 +14,33 @@ export const talentPoolRouter = createTRPCRouter({
         passedOnly: z.boolean().default(false),
         minHourlyRate: z.number().min(0).optional(),
         maxHourlyRate: z.number().min(0).optional(),
+        cursor: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
       })
     )
     .query(async ({ ctx, input }) => {
+      const { cursor, limit, ...filters } = input;
+
       const candidates = await ctx.db.user.findMany({
+        take: limit + 1,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
         where: {
           role: "CANDIDATE",
           candidateStatus: "APPROVED",
-          availability: input.availability,
-          ...(input.search
+          availability: filters.availability,
+          ...(filters.search
             ? {
                 OR: [
-                  { name: { contains: input.search, mode: "insensitive" } },
-                  { email: { contains: input.search, mode: "insensitive" } },
-                  { location: { contains: input.search, mode: "insensitive" } },
+                  { name: { contains: filters.search, mode: "insensitive" as const } },
+                  { email: { contains: filters.search, mode: "insensitive" as const } },
+                  { location: { contains: filters.search, mode: "insensitive" as const } },
                 ],
               }
             : {}),
-          ...(input.skills && input.skills.length > 0
-            ? { skills: { hasSome: input.skills } }
+          ...(filters.skills && filters.skills.length > 0
+            ? { skills: { hasSome: filters.skills } }
             : {}),
-          ...(input.passedOnly
+          ...(filters.passedOnly
             ? {
                 submissions: {
                   some: {
@@ -43,11 +49,11 @@ export const talentPoolRouter = createTRPCRouter({
                 },
               }
             : {}),
-          ...(input.minHourlyRate !== undefined || input.maxHourlyRate !== undefined
+          ...(filters.minHourlyRate !== undefined || filters.maxHourlyRate !== undefined
             ? {
                 hourlyRate: {
-                  ...(input.minHourlyRate !== undefined ? { gte: input.minHourlyRate } : {}),
-                  ...(input.maxHourlyRate !== undefined ? { lte: input.maxHourlyRate } : {}),
+                  ...(filters.minHourlyRate !== undefined ? { gte: filters.minHourlyRate } : {}),
+                  ...(filters.maxHourlyRate !== undefined ? { lte: filters.maxHourlyRate } : {}),
                 },
               }
             : {}),
@@ -74,7 +80,13 @@ export const talentPoolRouter = createTRPCRouter({
         orderBy: { createdAt: "desc" },
       });
 
-      return candidates.map((candidate) => ({
+      let nextCursor: string | undefined;
+      if (candidates.length > limit) {
+        const nextItem = candidates.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const items = candidates.map((candidate) => ({
         id: candidate.id,
         name: candidate.name,
         email: candidate.email,
@@ -99,6 +111,8 @@ export const talentPoolRouter = createTRPCRouter({
             : null,
         latestSubmission: candidate.submissions[0] ?? null,
       }));
+
+      return { items, nextCursor };
     }),
 
   // Admin: Update candidate availability
@@ -239,8 +253,8 @@ export const talentPoolRouter = createTRPCRouter({
           ...(input.search
             ? {
                 OR: [
-                  { name: { contains: input.search, mode: "insensitive" } },
-                  { email: { contains: input.search, mode: "insensitive" } },
+                  { name: { contains: input.search, mode: "insensitive" as const } },
+                  { email: { contains: input.search, mode: "insensitive" as const } },
                 ],
               }
             : {}),
@@ -297,6 +311,7 @@ export const talentPoolRouter = createTRPCRouter({
         resumeUrl: candidate.resumeUrl,
         profilePicture: candidate.profilePicture,
         candidateStatus: candidate.candidateStatus,
+        isVerified: candidate.isVerified,
         createdAt: candidate.createdAt,
       };
     }),
@@ -406,26 +421,32 @@ export const talentPoolRouter = createTRPCRouter({
         passedOnly: z.boolean().default(false),
         minHourlyRate: z.number().min(0).optional(),
         maxHourlyRate: z.number().min(0).optional(),
+        cursor: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
       })
     )
     .query(async ({ ctx, input }) => {
+      const { cursor, limit, ...filters } = input;
+
       const candidates = await ctx.db.user.findMany({
+        take: limit + 1,
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
         where: {
           role: "CANDIDATE",
           candidateStatus: "APPROVED",
           availability: { in: [Availability.ACTIVELY_LOOKING, Availability.OPEN_TO_OFFERS] },
-          ...(input.search
+          ...(filters.search
             ? {
                 OR: [
-                  { name: { contains: input.search, mode: "insensitive" } },
-                  { location: { contains: input.search, mode: "insensitive" } },
+                  { name: { contains: filters.search, mode: "insensitive" as const } },
+                  { location: { contains: filters.search, mode: "insensitive" as const } },
                 ],
               }
             : {}),
-          ...(input.skills && input.skills.length > 0
-            ? { skills: { hasSome: input.skills } }
+          ...(filters.skills && filters.skills.length > 0
+            ? { skills: { hasSome: filters.skills } }
             : {}),
-          ...(input.passedOnly
+          ...(filters.passedOnly
             ? {
                 submissions: {
                   some: {
@@ -434,18 +455,18 @@ export const talentPoolRouter = createTRPCRouter({
                 },
               }
             : {}),
-          ...(input.minHourlyRate !== undefined || input.maxHourlyRate !== undefined
+          ...(filters.minHourlyRate !== undefined || filters.maxHourlyRate !== undefined
             ? {
                 hourlyRate: {
-                  ...(input.minHourlyRate !== undefined ? { gte: input.minHourlyRate } : {}),
-                  ...(input.maxHourlyRate !== undefined ? { lte: input.maxHourlyRate } : {}),
+                  ...(filters.minHourlyRate !== undefined ? { gte: filters.minHourlyRate } : {}),
+                  ...(filters.maxHourlyRate !== undefined ? { lte: filters.maxHourlyRate } : {}),
                 },
               }
             : {}),
         },
         include: {
           submissions: {
-            include: {
+            select: {
               review: {
                 select: {
                   averageScore: true,
@@ -458,7 +479,13 @@ export const talentPoolRouter = createTRPCRouter({
         orderBy: { createdAt: "desc" },
       });
 
-      return candidates.map((candidate) => ({
+      let nextCursor: string | undefined;
+      if (candidates.length > limit) {
+        const nextItem = candidates.pop()!;
+        nextCursor = nextItem.id;
+      }
+
+      const items = candidates.map((candidate) => ({
         id: candidate.id,
         name: candidate.name,
         profilePicture: candidate.profilePicture,
@@ -481,5 +508,7 @@ export const talentPoolRouter = createTRPCRouter({
               candidate.submissions.filter((s) => s.review).length
             : null,
       }));
+
+      return { items, nextCursor };
     }),
 });

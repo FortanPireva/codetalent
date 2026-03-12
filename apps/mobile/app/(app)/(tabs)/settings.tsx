@@ -20,6 +20,8 @@ const NOTIFICATION_KEYS = {
   applicationUpdates: "notif_application_updates",
 } as const;
 
+type NotifKey = keyof typeof NOTIFICATION_KEYS;
+
 export default function SettingsScreen() {
   const router = useRouter();
   const { logout } = useAuth();
@@ -34,9 +36,29 @@ export default function SettingsScreen() {
     applicationUpdates: true,
   });
 
+  // Sync preferences from server
+  const { data: serverPrefs } = api.notification.getPreferences.useQuery(undefined, {
+    staleTime: 30_000,
+  });
+  const updatePrefsMutation = api.notification.updatePreferences.useMutation();
+
+  // Load from server when available, fallback to AsyncStorage
   useEffect(() => {
-    loadNotificationPrefs();
-  }, []);
+    if (serverPrefs) {
+      const synced = {
+        assessmentResults: serverPrefs.assessmentResults,
+        newJobMatches: serverPrefs.newJobMatches,
+        applicationUpdates: serverPrefs.applicationUpdates,
+      };
+      setNotifications(synced);
+      // Cache locally
+      for (const [key, storageKey] of Object.entries(NOTIFICATION_KEYS)) {
+        AsyncStorage.setItem(storageKey, String(synced[key as NotifKey]));
+      }
+    } else {
+      loadNotificationPrefs();
+    }
+  }, [serverPrefs]);
 
   async function loadNotificationPrefs() {
     const keys = Object.entries(NOTIFICATION_KEYS);
@@ -48,10 +70,12 @@ export default function SettingsScreen() {
     }
   }
 
-  async function toggleNotification(key: keyof typeof NOTIFICATION_KEYS) {
+  async function toggleNotification(key: NotifKey) {
     const newValue = !notifications[key];
     setNotifications((prev) => ({ ...prev, [key]: newValue }));
     await AsyncStorage.setItem(NOTIFICATION_KEYS[key], String(newValue));
+    // Sync to server
+    updatePrefsMutation.mutate({ [key]: newValue });
   }
 
   if (isLoading) {
