@@ -19,14 +19,28 @@ import {
   difficultyLabels,
 } from "@/lib/utils";
 import { Users, FileCode, CheckCircle, Clock, ArrowRight, UserPlus, Building2, Building, Briefcase } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminDashboardPage() {
-  const { data: stats } = api.talentPool.stats.useQuery();
-  const { data: submissionsData } = api.assessment.listSubmissions.useQuery({});
-  const { data: assessments } = api.assessment.listAll.useQuery();
-  const { data: clientStats } = api.clients.stats.useQuery();
-  const { data: pendingClientCount } = api.clients.pendingClientCount.useQuery();
-  const { data: jobStats } = api.job.adminStats.useQuery();
+  const { data: stats, isLoading: statsLoading } =
+    api.talentPool.stats.useQuery();
+  const { data: submissionsData, isLoading: submissionsLoading } =
+    api.assessment.listSubmissions.useQuery({});
+  const { data: assessments, isLoading: assessmentsLoading } =
+    api.assessment.listAll.useQuery();
+  const { data: clientStats, isLoading: clientStatsLoading } =
+    api.clients.stats.useQuery();
+  const { data: pendingClientCount, isLoading: pendingClientLoading } =
+    api.clients.pendingClientCount.useQuery();
+  const { data: jobStats, isLoading: jobStatsLoading } =
+    api.job.adminStats.useQuery();
+
+  const cardsLoading =
+    statsLoading ||
+    assessmentsLoading ||
+    clientStatsLoading ||
+    pendingClientLoading ||
+    jobStatsLoading;
 
   const submissions = submissionsData?.items;
   const recentSubmissions = submissions?.slice(0, 5);
@@ -42,143 +56,160 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Candidates
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalCandidates ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.activelyLooking ?? 0} actively looking
-            </p>
-          </CardContent>
-        </Card>
+      {cardsLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-12 mb-1" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Candidates
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats?.totalCandidates ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {stats?.activelyLooking ?? 0} actively looking
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Assessments
-            </CardTitle>
-            <FileCode className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {assessments?.filter((a) => a.isActive).length ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {assessments?.length ?? 0} total
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Active Assessments
+              </CardTitle>
+              <FileCode className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {assessments?.filter((a) => a.isActive).length ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {assessments?.length ?? 0} total
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Passed Assessments
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.passedAssessments ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              candidates in talent pool
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Passed Assessments
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats?.passedAssessments ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                candidates in talent pool
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Reviews
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {pendingReviews?.length ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              awaiting AI review
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pending Reviews
+              </CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {pendingReviews?.length ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                awaiting AI review
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Verification
-            </CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.pendingVerification ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              new candidates to review
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pending Verification
+              </CardTitle>
+              <UserPlus className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats?.pendingVerification ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                new candidates to review
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Clients
-            </CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {clientStats?.activeClients ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {clientStats?.leads ?? 0} leads
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Active Clients
+              </CardTitle>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {clientStats?.activeClients ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {clientStats?.leads ?? 0} leads
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Clients
-            </CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {pendingClientCount ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              awaiting approval
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pending Clients
+              </CardTitle>
+              <Building className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {pendingClientCount ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                awaiting approval
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Jobs
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {jobStats?.totalJobs ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {jobStats?.openJobs ?? 0} open
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Jobs
+              </CardTitle>
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {jobStats?.totalJobs ?? 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {jobStats?.openJobs ?? 0} open
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent submissions */}
@@ -200,7 +231,22 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentSubmissions?.length === 0 ? (
+            {submissionsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-5 w-14 rounded-full" />
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : recentSubmissions?.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
                 No submissions yet
               </p>
@@ -250,7 +296,19 @@ export default function AdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {pendingReviews?.length === 0 ? (
+            {submissionsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                  </div>
+                ))}
+              </div>
+            ) : pendingReviews?.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
                 No pending reviews
               </p>

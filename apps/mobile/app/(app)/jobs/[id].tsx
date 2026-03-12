@@ -20,6 +20,7 @@ import {
 import { InfoPill } from "@/components/jobs/InfoPill";
 import { InterviewTimeline } from "@/components/jobs/InterviewTimeline";
 import { JobDetailSkeleton } from "@/components/jobs/JobDetailSkeleton";
+import { CompanyAvatar } from "@/components/jobs/JobCard";
 
 function SectionHeader({ icon, title, color }: { icon?: string; title: string; color: string }) {
   return (
@@ -145,8 +146,6 @@ export default function JobDetailScreen() {
       ? formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod)
       : "";
 
-  const initial = job.client.name.charAt(0).toUpperCase();
-
   const techGroups = [
     { label: "Required Skills", skills: job.requiredSkills, variant: "required" as const },
     { label: "Preferred Skills", skills: job.preferredSkills, variant: "preferred" as const },
@@ -174,8 +173,8 @@ export default function JobDetailScreen() {
       <ScrollView contentContainerClassName="pb-28">
         {/* Company + Title */}
         <View className="mb-4 items-center px-4">
-          <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl" style={{ backgroundColor: c.tag }}>
-            <Text className="font-bold text-xl" style={{ color: c.mutedFg }}>{initial}</Text>
+          <View className="mb-3">
+            <CompanyAvatar name={job.client.name} logo={job.client.logo} size={56} colors={c} />
           </View>
           <Text className="mb-1 text-center font-bold text-2xl" style={{ color: c.fg }}>
             {job.title}

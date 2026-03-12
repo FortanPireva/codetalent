@@ -22,6 +22,7 @@ import {
   difficultyLabels,
 } from "@/lib/utils";
 import { Clock, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const { data: assessments, isLoading: assessmentsLoading } =
@@ -48,14 +49,21 @@ export default function DashboardPage() {
           {assessmentsLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i}>
                   <CardHeader>
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mt-2" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-4 w-1/3 mt-2" />
                   </CardHeader>
                   <CardContent>
-                    <div className="h-16 bg-gray-200 rounded" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3" />
                   </CardContent>
+                  <CardFooter>
+                    <Skeleton className="h-10 w-full" />
+                  </CardFooter>
                 </Card>
               ))}
             </div>
@@ -107,12 +115,21 @@ export default function DashboardPage() {
           {submissionsLoading ? (
             <div className="space-y-4">
               {[1, 2].map((i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i}>
                   <CardHeader>
-                    <div className="h-6 bg-gray-200 rounded w-1/2" />
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-5 w-14 rounded-full" />
+                        <Skeleton className="h-5 w-20 rounded-full" />
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-20 bg-gray-200 rounded" />
+                    <Skeleton className="h-5 w-40" />
                   </CardContent>
                 </Card>
               ))}
