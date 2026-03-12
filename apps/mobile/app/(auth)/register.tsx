@@ -151,6 +151,14 @@ export default function RegisterScreen() {
             </Text>
           </Pressable>
         </Link>
+
+        <Link href="/(auth)/welcome" asChild>
+          <Pressable className="mt-6 items-center">
+            <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
+              Learn more about Talentflow
+            </Text>
+          </Pressable>
+        </Link>
       </View>
     </KeyboardAvoidingView>
   );
