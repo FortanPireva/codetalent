@@ -17,7 +17,7 @@ async function getUserId(req: NextRequest): Promise<string | null> {
         token,
         secret: process.env.NEXTAUTH_SECRET!,
       });
-      return (decoded?.sub as string) ?? null;
+      return (decoded?.sub as string) ?? (decoded?.id as string) ?? null;
     } catch {
       // Fall through to session-based auth
     }
