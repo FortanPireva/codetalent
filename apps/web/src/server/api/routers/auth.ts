@@ -10,6 +10,7 @@ import {
 } from "@/server/api/trpc";
 import { Availability } from "@codetalent/db";
 import { sendPasswordResetEmail } from "@/server/email";
+import { verifyGoogleToken, verifyAppleToken } from "@/server/auth-providers";
 
 export const authRouter = createTRPCRouter({
   // Mobile login - returns JWT for Bearer auth
@@ -29,6 +30,13 @@ export const authRouter = createTRPCRouter({
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Invalid email or password",
+        });
+      }
+
+      if (!user.password) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This account uses social login. Please sign in with Google or Apple.",
         });
       }
 
@@ -66,6 +74,111 @@ export const authRouter = createTRPCRouter({
         },
         secret: process.env.NEXTAUTH_SECRET!,
         maxAge: 30 * 24 * 60 * 60, // 30 days
+      });
+
+      return {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          candidateStatus: user.candidateStatus,
+          clientStatus: user.clientStatus,
+          hasActiveSubscription,
+        },
+      };
+    }),
+
+  socialLogin: publicProcedure
+    .input(
+      z.object({
+        provider: z.enum(["google", "apple"]),
+        idToken: z.string(),
+        name: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // 1. Verify token with provider
+      let email: string;
+      let sub: string;
+      let providerName: string | undefined;
+
+      try {
+        if (input.provider === "google") {
+          const payload = await verifyGoogleToken(input.idToken);
+          email = payload.email;
+          sub = payload.sub;
+          providerName = payload.name;
+        } else {
+          const payload = await verifyAppleToken(input.idToken);
+          email = payload.email;
+          sub = payload.sub;
+        }
+      } catch {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: `Invalid ${input.provider} token`,
+        });
+      }
+
+      // 2. Find user by provider ID
+      let user = input.provider === "google"
+        ? await ctx.db.user.findUnique({ where: { googleId: sub } })
+        : await ctx.db.user.findUnique({ where: { appleId: sub } });
+
+      if (!user) {
+        // 3. Find by email → link account
+        user = await ctx.db.user.findUnique({
+          where: { email },
+        });
+
+        if (user) {
+          user = await ctx.db.user.update({
+            where: { id: user.id },
+            data: input.provider === "google" ? { googleId: sub } : { appleId: sub },
+          });
+        } else {
+          // 4. Create new user
+          user = await ctx.db.user.create({
+            data: {
+              email,
+              name: input.name ?? providerName ?? null,
+              role: "CANDIDATE",
+              candidateStatus: "ONBOARDING",
+              ...(input.provider === "google" ? { googleId: sub } : { appleId: sub }),
+            },
+          });
+        }
+      }
+
+      // 5. Check CLIENT subscription
+      let hasActiveSubscription = false;
+      if (user.role === "CLIENT") {
+        const client = await ctx.db.client.findUnique({
+          where: { userId: user.id },
+          include: { subscription: true },
+        });
+        if (client?.subscription) {
+          hasActiveSubscription =
+            client.subscription.status === "ACTIVE" &&
+            client.subscription.currentPeriodEnd > new Date();
+        }
+      }
+
+      // 6. Encode JWT + return
+      const token = await encode({
+        token: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          candidateStatus: user.candidateStatus,
+          clientStatus: user.clientStatus,
+          hasActiveSubscription,
+        },
+        secret: process.env.NEXTAUTH_SECRET!,
+        maxAge: 30 * 24 * 60 * 60,
       });
 
       return {

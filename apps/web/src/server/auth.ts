@@ -68,6 +68,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid email or password");
         }
 
+        if (!user.password) {
+          throw new Error("This account uses social login. Please sign in with Google or Apple.");
+        }
+
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password

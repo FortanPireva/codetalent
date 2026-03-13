@@ -12,6 +12,7 @@ import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { TalentflowLogo } from "@/components/TalentflowLogo";
+import { SocialLoginButtons } from "@/components/SocialLoginButtons";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const registerMutation = api.auth.register.useMutation();
   const { loginWithToken } = useAuth();
   const c = useThemeColors();
@@ -72,80 +74,122 @@ export default function RegisterScreen() {
           Join Talentflow as a candidate
         </Text>
 
-        <TextInput
-          className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
-          style={{
-            backgroundColor: c.inputBg,
-            borderColor: c.border,
-            borderWidth: 1,
-            color: c.fg,
-          }}
-          placeholder="Full Name"
-          placeholderTextColor={c.placeholder}
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-            setError("");
-          }}
-          autoComplete="name"
-        />
-        <TextInput
-          className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
-          style={{
-            backgroundColor: c.inputBg,
-            borderColor: c.border,
-            borderWidth: 1,
-            color: c.fg,
-          }}
-          placeholder="Email"
-          placeholderTextColor={c.placeholder}
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            setError("");
-          }}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          autoComplete="email"
-        />
-        <TextInput
-          className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
-          style={{
-            backgroundColor: c.inputBg,
-            borderColor: c.border,
-            borderWidth: 1,
-            color: c.fg,
-          }}
-          placeholder="Password (min 8 characters)"
-          placeholderTextColor={c.placeholder}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setError("");
-          }}
-          secureTextEntry
-          autoComplete="new-password"
-        />
+        {showEmailForm ? (
+          <>
+            <TextInput
+              className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
+              style={{
+                backgroundColor: c.inputBg,
+                borderColor: c.border,
+                borderWidth: 1,
+                color: c.fg,
+              }}
+              placeholder="Full Name"
+              placeholderTextColor={c.placeholder}
+              value={name}
+              onChangeText={(text) => {
+                setName(text);
+                setError("");
+              }}
+              autoComplete="name"
+            />
+            <TextInput
+              className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
+              style={{
+                backgroundColor: c.inputBg,
+                borderColor: c.border,
+                borderWidth: 1,
+                color: c.fg,
+              }}
+              placeholder="Email"
+              placeholderTextColor={c.placeholder}
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setError("");
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+            />
+            <TextInput
+              className="mb-4 rounded-xl px-4 py-4 font-sans text-base"
+              style={{
+                backgroundColor: c.inputBg,
+                borderColor: c.border,
+                borderWidth: 1,
+                color: c.fg,
+              }}
+              placeholder="Password (min 8 characters)"
+              placeholderTextColor={c.placeholder}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setError("");
+              }}
+              secureTextEntry
+              autoComplete="new-password"
+            />
 
-        {error ? (
-          <Text className="mb-2 text-center font-sans text-sm" style={{ color: c.destructive }}>
-            {error}
-          </Text>
-        ) : null}
+            {error ? (
+              <Text className="mb-2 text-center font-sans text-sm" style={{ color: c.destructive }}>
+                {error}
+              </Text>
+            ) : null}
 
-        <Pressable
-          className={`mt-2 items-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
-          style={{ backgroundColor: c.primary }}
-          onPress={handleRegister}
-          disabled={loading}
-        >
-          <Text className="font-medium text-base" style={{ color: c.primaryFg }}>
-            {loading ? "Creating account..." : "Sign Up"}
-          </Text>
-        </Pressable>
+            <Pressable
+              className={`items-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
+              style={{ backgroundColor: c.primary }}
+              onPress={handleRegister}
+              disabled={loading}
+            >
+              <Text className="font-medium text-base" style={{ color: c.primaryFg }}>
+                {loading ? "Creating account..." : "Sign Up"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              className="mt-4 items-center"
+              onPress={() => {
+                setShowEmailForm(false);
+                setError("");
+              }}
+            >
+              <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
+                Back to other sign up options
+              </Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <SocialLoginButtons />
+
+            <View className="my-5 flex-row items-center">
+              <View className="flex-1 border-b" style={{ borderColor: c.border }} />
+              <Text className="mx-4 font-sans text-sm" style={{ color: c.mutedFg }}>
+                or
+              </Text>
+              <View className="flex-1 border-b" style={{ borderColor: c.border }} />
+            </View>
+
+            <Pressable
+              className="items-center rounded-xl py-4"
+              style={{
+                backgroundColor: c.inputBg,
+                borderColor: c.border,
+                borderWidth: 1,
+              }}
+              onPress={() => setShowEmailForm(true)}
+            >
+              <Text className="font-medium text-base" style={{ color: c.fg }}>
+                Continue with email
+              </Text>
+            </Pressable>
+          </>
+        )}
 
         <Link href="/(auth)/login" asChild>
-          <Pressable className="mt-4 items-center">
+          <Pressable className="mt-6 items-center">
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
               Already have an account? Sign in
             </Text>
@@ -153,7 +197,7 @@ export default function RegisterScreen() {
         </Link>
 
         <Link href="/(auth)/welcome" asChild>
-          <Pressable className="mt-6 items-center">
+          <Pressable className="mt-4 items-center">
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
               Learn more about Talentflow
             </Text>

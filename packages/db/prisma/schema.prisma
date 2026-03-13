@@ -143,8 +143,10 @@ enum NotificationType {
 model User {
   id           String       @id @default(cuid())
   email        String       @unique
-  password     String
+  password     String?
   name         String?
+  googleId     String?      @unique
+  appleId      String?      @unique
   role         Role         @default(CANDIDATE)
   availability Availability @default(ACTIVELY_LOOKING)
   bio          String?
@@ -184,6 +186,8 @@ model User {
   @@index([role, candidateStatus])
   @@index([role, candidateStatus, availability])
   @@index([role, clientStatus])
+  @@index([googleId])
+  @@index([appleId])
 }
 
 model Assessment {
