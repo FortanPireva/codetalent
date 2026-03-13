@@ -13,6 +13,11 @@ export default function TabLayout() {
     refetchInterval: 30_000,
   });
 
+  const { data: threads } = api.messages.listThreads.useQuery(undefined, {
+    refetchInterval: 30_000,
+  });
+  const totalUnread = threads?.reduce((sum, t) => sum + (t.unreadCount ?? 0), 0) ?? 0;
+
   return (
     <Tabs
       sceneContainerStyle={{ backgroundColor: surfaceColor }}
@@ -64,6 +69,13 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text>,
+        }}
+      />
+      <Tabs.Screen
         name="jobs"
         options={{
           title: "Jobs",
@@ -79,17 +91,41 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="assessments"
+        name="messages"
         options={{
-          title: "Assessments",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📝</Text>,
+          title: "Messages",
+          tabBarIcon: ({ color }) => (
+            <View>
+              <Text style={{ color, fontSize: 20 }}>💬</Text>
+              {totalUnread > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -6,
+                    backgroundColor: "#EF4444",
+                    borderRadius: 8,
+                    minWidth: 16,
+                    height: 16,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 4,
+                  }}
+                >
+                  <Text style={{ color: "#FFFFFF", fontSize: 10, fontFamily: "Satoshi-Bold" }}>
+                    {totalUnread > 99 ? "99+" : totalUnread}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>⚙️</Text>,
+          title: "Profile",
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>👤</Text>,
         }}
       />
     </Tabs>

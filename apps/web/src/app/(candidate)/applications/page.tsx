@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
 import { ApplicationStatus } from "@codetalent/db";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import {
   DollarSign,
   Calendar,
   X,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,9 +52,16 @@ const COLUMN_DOT_COLORS: Record<ApplicationStatus, string> = {
 };
 
 export default function ApplicationsPage() {
+  const router = useRouter();
   const utils = api.useUtils();
   const { data: applications, isLoading } =
     api.application.myApplications.useQuery();
+
+  const getOrCreateThread = api.messages.getOrCreateThread.useMutation({
+    onSuccess: (data) => {
+      router.push(`/messages/${data.threadId}`);
+    },
+  });
 
   const withdrawMutation = api.application.withdraw.useMutation({
     onSuccess: () => {
@@ -210,6 +219,25 @@ export default function ApplicationsPage() {
                             <Calendar className="h-3 w-3 shrink-0" />
                             <span>Applied {formatDate(app.appliedAt)}</span>
                           </div>
+
+                          {(app.status === "INVITED" ||
+                            app.status === "INTERVIEW" ||
+                            app.status === "HIRED") && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full mt-1"
+                              disabled={getOrCreateThread.isPending}
+                              onClick={() =>
+                                getOrCreateThread.mutate({
+                                  applicationId: app.id,
+                                })
+                              }
+                            >
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              Message
+                            </Button>
+                          )}
 
                           {app.status === "APPLIED" && (
                             <AlertDialog>

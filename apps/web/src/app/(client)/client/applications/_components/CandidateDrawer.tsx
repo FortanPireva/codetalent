@@ -26,8 +26,11 @@ import {
   X,
   ExternalLink,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 import type { ApplicationData } from "./ApplicationCard";
 import type { ApplicationStatus } from "@codetalent/db";
 
@@ -66,6 +69,13 @@ export function CandidateDrawer({
   onStatusChange,
   isPending,
 }: CandidateDrawerProps) {
+  const router = useRouter();
+  const getOrCreateThread = api.messages.getOrCreateThread.useMutation({
+    onSuccess: (data) => {
+      router.push(`/client/messages/${data.threadId}`);
+    },
+  });
+
   if (!application) return null;
 
   const app = application;
@@ -144,6 +154,21 @@ export function CandidateDrawer({
             ))}
           </div>
         )}
+
+        {/* Message button */}
+        <div className="px-6 py-3 border-b border-border/60">
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={getOrCreateThread.isPending}
+            onClick={() =>
+              getOrCreateThread.mutate({ applicationId: app.id })
+            }
+          >
+            <MessageSquare className="h-3.5 w-3.5 mr-2" />
+            Message Candidate
+          </Button>
+        </div>
 
         {/* Candidate details */}
         <div className="px-6 py-5 space-y-6">

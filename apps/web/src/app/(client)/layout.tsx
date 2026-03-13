@@ -23,14 +23,17 @@ import {
   Menu,
   X,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { TalentflowLogo } from "@/components/talentflow-logo";
+import { api } from "@/trpc/react";
 
 const navigation = [
   { name: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard },
   { name: "Jobs", href: "/client/jobs", icon: Briefcase },
   { name: "Applications", href: "/client/applications", icon: ClipboardList },
+  { name: "Messages", href: "/client/messages", icon: MessageSquare },
   { name: "Talent", href: "/client/talent", icon: Users },
   { name: "Billing", href: "/client/billing", icon: CreditCard },
   { name: "Settings", href: "/client/settings", icon: Settings },
@@ -44,6 +47,11 @@ export default function ClientLayout({
   const pathname = usePathname();
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data: threads } = api.messages.listThreads.useQuery(undefined, {
+    refetchInterval: 15_000,
+  });
+  const totalUnread = threads?.reduce((sum, t) => sum + t.unreadCount, 0) ?? 0;
 
   // Don't show sidebar on onboarding/pending/rejected pages
   const isOnboardingFlow =
@@ -122,6 +130,11 @@ export default function ClientLayout({
             >
               <item.icon className="h-5 w-5" />
               {item.name}
+              {item.name === "Messages" && totalUnread > 0 && (
+                <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                  {totalUnread}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -149,6 +162,11 @@ export default function ClientLayout({
               >
                 <item.icon className="h-5 w-5" />
                 {item.name}
+                {item.name === "Messages" && totalUnread > 0 && (
+                  <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    {totalUnread}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

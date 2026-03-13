@@ -4,6 +4,8 @@ import { createTRPCRouter, approvedProcedure, clientProcedure } from "@/server/a
 import { ApplicationStatus } from "@codetalent/db";
 import { db } from "@/server/db";
 import { sendNotification } from "@/server/services/notifications";
+import { connectMongo } from "@/server/mongodb";
+import { Thread } from "@/server/mongodb/models";
 
 export const applicationRouter = createTRPCRouter({
   apply: approvedProcedure
@@ -256,6 +258,17 @@ export const applicationRouter = createTRPCRouter({
 
         return result;
       });
+
+      // Auto-create messaging thread (fire-and-forget)
+      connectMongo()
+        .then(() =>
+          Thread.findOneAndUpdate(
+            { applicationId: application.id, candidateId: input.candidateId, clientId: client.id },
+            { $setOnInsert: { applicationId: application.id, candidateId: input.candidateId, clientId: client.id } },
+            { upsert: true, new: true },
+          ),
+        )
+        .catch((err) => console.error("Failed to create messaging thread:", err));
 
       // Send interview invitation notification (fire-and-forget)
       const jobDetails = await ctx.db.job.findUnique({

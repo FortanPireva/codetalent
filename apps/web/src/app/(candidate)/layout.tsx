@@ -22,13 +22,16 @@ import {
   X,
   Briefcase,
   ClipboardList,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { TalentflowLogo } from "@/components/talentflow-logo";
+import { api } from "@/trpc/react";
 
 const navigation = [
   { name: "Jobs", href: "/jobs", icon: Briefcase },
   { name: "My Applications", href: "/applications", icon: ClipboardList },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Assessments", href: "/dashboard", icon: FileCode },
   { name: "Profile", href: "/profile", icon: User },
@@ -44,6 +47,11 @@ export default function CandidateLayout({
   const pathname = usePathname();
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data: threads } = api.messages.listThreads.useQuery(undefined, {
+    refetchInterval: 15_000,
+  });
+  const totalUnread = threads?.reduce((sum, t) => sum + t.unreadCount, 0) ?? 0;
 
   const isMinimal = minimalPaths.some((p) => pathname.startsWith(p));
 
@@ -117,6 +125,11 @@ export default function CandidateLayout({
             >
               <item.icon className="h-5 w-5" />
               {item.name}
+              {item.name === "Messages" && totalUnread > 0 && (
+                <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                  {totalUnread}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -144,6 +157,11 @@ export default function CandidateLayout({
               >
                 <item.icon className="h-5 w-5" />
                 {item.name}
+                {item.name === "Messages" && totalUnread > 0 && (
+                  <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    {totalUnread}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

@@ -72,6 +72,7 @@ export default function AppLayout() {
           contentStyle: { backgroundColor: surfaceColor },
         }}
       />
+      <Stack.Screen name="messages" options={{ headerShown: false }} />
     </Stack>
   );
 }
