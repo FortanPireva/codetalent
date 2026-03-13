@@ -15,9 +15,7 @@ const deleteRequestSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   reason: z.string().optional(),
   confirmation: z.literal(true, {
-    errorMap: () => ({
-      message: "You must confirm that you understand this action",
-    }),
+    message: "You must confirm that you understand this action",
   }),
 });
 
