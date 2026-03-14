@@ -39,6 +39,7 @@
       "package": "net.codeks.talentflow"
     },
     "plugins": [
+      "./plugins/withAsyncStorageLocalRepo",
       "expo-system-ui",
       "expo-router",
       "expo-secure-store",
