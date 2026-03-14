@@ -141,7 +141,7 @@ export function CandidateDrawer({
                 className={`w-full h-9 text-sm font-medium transition-all duration-200 ${
                   action.variant === "advance"
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                    : "bg-transparent border border-red-300 text-red-600 hover:bg-red-50"
+                    : "bg-transparent border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
                 }`}
               >
                 {action.variant === "advance" ? (

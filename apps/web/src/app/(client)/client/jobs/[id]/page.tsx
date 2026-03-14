@@ -128,8 +128,8 @@ export default function JobDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-10 w-48 bg-gray-100 animate-pulse rounded" />
-        <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+        <div className="h-10 w-48 bg-muted animate-pulse rounded" />
+        <div className="h-64 bg-muted animate-pulse rounded-lg" />
       </div>
     );
   }
@@ -731,7 +731,7 @@ export default function JobDetailPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-14 bg-gray-100 rounded animate-pulse"
+                  className="h-14 bg-muted rounded animate-pulse"
                 />
               ))}
             </div>

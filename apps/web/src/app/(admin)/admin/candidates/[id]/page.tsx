@@ -83,13 +83,13 @@ export default function SubmissionDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-1/4 animate-pulse" />
+        <div className="h-8 bg-muted rounded w-1/4 animate-pulse" />
         <Card className="animate-pulse">
           <CardHeader>
-            <div className="h-8 bg-gray-200 rounded w-1/2" />
+            <div className="h-8 bg-muted rounded w-1/2" />
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-gray-200 rounded" />
+            <div className="h-64 bg-muted rounded" />
           </CardContent>
         </Card>
       </div>
@@ -270,7 +270,7 @@ export default function SubmissionDetailPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <h4 className="font-semibold mb-2 text-green-700">
+                    <h4 className="font-semibold mb-2 text-green-700 dark:text-green-400">
                       Strengths
                     </h4>
                     <ul className="list-disc list-inside space-y-1 text-sm">
@@ -282,7 +282,7 @@ export default function SubmissionDetailPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2 text-orange-700">
+                    <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-400">
                       Areas for Improvement
                     </h4>
                     <ul className="list-disc list-inside space-y-1 text-sm">
@@ -331,7 +331,7 @@ export default function SubmissionDetailPage() {
                         value: submission.review.bestPractices,
                       },
                     ].map((score) => (
-                      <div key={score.label} className="bg-gray-50 rounded-lg p-3">
+                      <div key={score.label} className="bg-background rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">
                           {score.label}
                         </p>

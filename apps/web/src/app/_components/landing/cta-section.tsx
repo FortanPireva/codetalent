@@ -7,7 +7,7 @@ export function CtaSection() {
   return (
     <section className="py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-2xl bg-primary px-6 py-16 text-center text-primary-foreground sm:px-12 lg:py-20">
+        <div className="rounded-2xl bg-primary px-6 py-16 text-center text-primary-foreground dark:bg-card dark:text-foreground sm:px-12 lg:py-20">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Ready to transform how you hire?
           </h2>
@@ -25,7 +25,7 @@ export function CtaSection() {
               size="lg"
               variant="outline"
               asChild
-              className="border-white/30 text-white hover:bg-white/10 hover:text-white"
+              className="border-white/30 text-white hover:bg-white/10 hover:text-white dark:border-border dark:text-foreground dark:hover:bg-accent/30"
             >
               <Link href="/register">Join as a Developer</Link>
             </Button>

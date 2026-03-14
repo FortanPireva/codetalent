@@ -152,8 +152,8 @@ export function ApplicationCard({
               }}
               className={`h-7 text-xs font-medium flex-1 transition-all duration-200 ${
                 action.variant === "advance"
-                  ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
-                  : "border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                  ? "border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:border-emerald-400 dark:hover:border-emerald-600"
+                  : "border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-400 dark:hover:border-red-600"
               }`}
             >
               {action.variant === "advance" ? (

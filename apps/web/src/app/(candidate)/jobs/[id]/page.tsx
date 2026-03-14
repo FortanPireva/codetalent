@@ -83,13 +83,13 @@ export default function CandidateJobDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-1/4 animate-pulse" />
+        <div className="h-8 bg-muted rounded w-1/4 animate-pulse" />
         <Card className="animate-pulse">
           <CardHeader>
-            <div className="h-8 bg-gray-200 rounded w-1/2" />
+            <div className="h-8 bg-muted rounded w-1/2" />
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-gray-200 rounded" />
+            <div className="h-64 bg-muted rounded" />
           </CardContent>
         </Card>
       </div>
@@ -143,7 +143,7 @@ export default function CandidateJobDetailPage() {
                 <span className="font-medium">{job.client.name}</span>
                 {job.location && (
                   <>
-                    <span className="text-gray-300">|</span>
+                    <span className="text-muted-foreground">|</span>
                     <MapPin className="h-4 w-4" />
                     <span>{job.location}</span>
                   </>
@@ -425,7 +425,7 @@ export default function CandidateJobDetailPage() {
                   <img
                     src={job.client.logo}
                     alt={job.client.name}
-                    className="h-10 w-10 rounded-lg object-contain border bg-white shrink-0"
+                    className="h-10 w-10 rounded-lg object-contain border bg-card shrink-0"
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -459,7 +459,7 @@ export default function CandidateJobDetailPage() {
                   href={job.client.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                  className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   <Globe className="h-4 w-4" />
                   {job.client.website}

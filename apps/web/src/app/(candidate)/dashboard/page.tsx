@@ -236,9 +236,9 @@ export default function DashboardPage() {
 
       <Separator />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900">How it works</h3>
-        <ol className="mt-2 text-sm text-blue-800 list-decimal list-inside space-y-1">
+      <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-300">How it works</h3>
+        <ol className="mt-2 text-sm text-blue-800 dark:text-blue-300 list-decimal list-inside space-y-1">
           <li>Choose an assessment that matches your skill level</li>
           <li>Fork the GitHub repository provided</li>
           <li>Complete the challenge within the time limit</li>

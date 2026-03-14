@@ -213,7 +213,7 @@ export function JobForm({ defaultValues, onSubmit, isPending, mode }: JobFormPro
                   ? "bg-primary border-primary text-primary-foreground cursor-pointer"
                   : index === currentStep
                     ? "border-primary text-primary"
-                    : "border-gray-300 text-gray-400"
+                    : "border text-muted-foreground"
               }`}
             >
               {index < currentStep ? (
@@ -225,7 +225,7 @@ export function JobForm({ defaultValues, onSubmit, isPending, mode }: JobFormPro
             {index < steps.length - 1 && (
               <div
                 className={`w-6 h-0.5 mx-0.5 ${
-                  index < currentStep ? "bg-primary" : "bg-gray-300"
+                  index < currentStep ? "bg-primary" : "bg-border"
                 }`}
               />
             )}

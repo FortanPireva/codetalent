@@ -140,7 +140,7 @@ export default function CandidatesPipelinePage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-16 bg-gray-100 rounded animate-pulse"
+                  className="h-16 bg-muted rounded animate-pulse"
                 />
               ))}
             </div>

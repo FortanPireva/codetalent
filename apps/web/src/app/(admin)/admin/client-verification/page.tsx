@@ -128,7 +128,7 @@ export default function ClientVerificationPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-16 bg-gray-100 rounded animate-pulse"
+                  className="h-16 bg-muted rounded animate-pulse"
                 />
               ))}
             </div>
@@ -160,7 +160,7 @@ export default function ClientVerificationPage() {
                             href={client.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                           >
                             <ExternalLink className="h-3 w-3" />
                             Website
@@ -191,7 +191,7 @@ export default function ClientVerificationPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              className="text-green-600 dark:text-green-400 border-green-600 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-950"
                               onClick={() =>
                                 approveMutation.mutate({
                                   userId: client.user!.id,
@@ -205,7 +205,7 @@ export default function ClientVerificationPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
                               onClick={() =>
                                 openRejectDialog(client.user!.id)
                               }

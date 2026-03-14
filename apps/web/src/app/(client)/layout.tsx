@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { TalentflowLogo } from "@/components/talentflow-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { api } from "@/trpc/react";
 
 const navigation = [
@@ -68,17 +69,20 @@ export default function ClientLayout({
 
   if (isOnboardingFlow) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b lg:px-8">
-          <TalentflowLogo size={28} light />
-          <Button
-            variant="ghost"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="text-red-600"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign out
-          </Button>
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-card border-b lg:px-8">
+          <TalentflowLogo size={28} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="text-red-600"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign out
+            </Button>
+          </div>
         </header>
         <main className="p-4 lg:p-8">{children}</main>
       </div>
@@ -86,7 +90,7 @@ export default function ClientLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -98,18 +102,18 @@ export default function ClientLayout({
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 shadow-lg transform transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar shadow-lg transform transition-transform lg:hidden",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
           <Link href="/client/dashboard">
-            <TalentflowLogo size={28} light />
+            <TalentflowLogo size={28} />
           </Link>
           <Button
             variant="ghost"
             size="sm"
-            className="text-slate-400 hover:text-white hover:bg-slate-800"
+            className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="h-5 w-5" />
@@ -123,15 +127,15 @@ export default function ClientLayout({
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 pathname === item.href || (item.href !== "/client/dashboard" && pathname.startsWith(item.href))
-                  ? "bg-slate-800 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-sidebar-accent text-sidebar-foreground"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
               )}
               onClick={() => setSidebarOpen(false)}
             >
               <item.icon className="h-5 w-5" />
               {item.name}
               {item.name === "Messages" && totalUnread > 0 && (
-                <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
                   {totalUnread}
                 </span>
               )}
@@ -142,10 +146,10 @@ export default function ClientLayout({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-1 bg-slate-900">
-          <div className="flex items-center h-16 px-4 border-b border-slate-800">
+        <div className="flex flex-col flex-1 bg-sidebar">
+          <div className="flex items-center h-16 px-4 border-b border-sidebar-border">
             <Link href="/client/dashboard">
-              <TalentflowLogo size={28} light />
+              <TalentflowLogo size={28} />
             </Link>
           </div>
           <nav className="flex-1 p-4 space-y-2">
@@ -156,14 +160,14 @@ export default function ClientLayout({
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === item.href || (item.href !== "/client/dashboard" && pathname.startsWith(item.href))
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-sidebar-accent text-sidebar-foreground"
+                    : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                 )}
               >
                 <item.icon className="h-5 w-5" />
                 {item.name}
                 {item.name === "Messages" && totalUnread > 0 && (
-                  <span className="ml-auto bg-blue-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                  <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
                     {totalUnread}
                   </span>
                 )}
@@ -176,7 +180,7 @@ export default function ClientLayout({
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b lg:px-8">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-card border-b lg:px-8">
           <Button
             variant="ghost"
             size="sm"
@@ -188,33 +192,36 @@ export default function ClientLayout({
 
           <div className="flex-1" />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 bg-slate-700">
-                  <AvatarFallback className="bg-slate-700 text-white">
-                    {userInitials}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline-block">
-                  {session?.user?.name ?? "Client"}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem disabled className="text-muted-foreground">
-                {session?.user?.email}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="text-red-600"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline-block">
+                    {session?.user?.name ?? "Client"}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem disabled className="text-muted-foreground">
+                  {session?.user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="text-red-600"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
 
         {/* Page content */}

@@ -97,7 +97,7 @@ export default function JobsListPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-48 rounded-lg bg-gray-100 animate-pulse"
+              className="h-48 rounded-lg bg-muted animate-pulse"
             />
           ))}
         </div>

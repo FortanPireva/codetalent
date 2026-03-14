@@ -100,10 +100,10 @@ export default function ApplicationsPage() {
         <div className="flex gap-4 overflow-x-auto pb-4">
           {COLUMNS.map((col) => (
             <div key={col} className="w-72 lg:w-80 shrink-0">
-              <div className="h-8 bg-gray-200 rounded animate-pulse mb-3" />
+              <div className="h-8 bg-muted rounded animate-pulse mb-3" />
               <div className="space-y-3">
-                <div className="h-32 bg-gray-200 rounded animate-pulse" />
-                <div className="h-32 bg-gray-200 rounded animate-pulse" />
+                <div className="h-32 bg-muted rounded animate-pulse" />
+                <div className="h-32 bg-muted rounded animate-pulse" />
               </div>
             </div>
           ))}
@@ -165,7 +165,7 @@ export default function ApplicationsPage() {
                 </Badge>
               </div>
 
-              <div className="space-y-3 bg-gray-50 rounded-lg p-3 min-h-[200px]">
+              <div className="space-y-3 bg-background rounded-lg p-3 min-h-[200px]">
                 {items.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-8">
                     No applications
@@ -245,7 +245,7 @@ export default function ApplicationsPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 mt-1"
+                                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 mt-1"
                                 >
                                   <X className="h-3 w-3 mr-1" />
                                   Withdraw

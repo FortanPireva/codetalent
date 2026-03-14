@@ -239,7 +239,7 @@ export default function ClientOnboardingPage() {
                   ? "bg-primary border-primary text-primary-foreground"
                   : index === currentStep
                     ? "border-primary text-primary"
-                    : "border-gray-300 text-gray-400"
+                    : "border text-muted-foreground"
                 }`}
             >
               {index < currentStep ? (
@@ -250,7 +250,7 @@ export default function ClientOnboardingPage() {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-8 h-0.5 mx-1 ${index < currentStep ? "bg-primary" : "bg-gray-300"
+                className={`w-8 h-0.5 mx-1 ${index < currentStep ? "bg-primary" : "bg-border"
                   }`}
               />
             )}

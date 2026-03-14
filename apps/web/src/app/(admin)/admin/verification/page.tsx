@@ -127,7 +127,7 @@ export default function VerificationPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-16 bg-gray-100 rounded animate-pulse"
+                  className="h-16 bg-muted rounded animate-pulse"
                 />
               ))}
             </div>
@@ -209,7 +209,7 @@ export default function VerificationPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="text-green-600 dark:text-green-400 border-green-600 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-950"
                             onClick={() =>
                               approveMutation.mutate({ userId: candidate.id })
                             }
@@ -221,7 +221,7 @@ export default function VerificationPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-red-600 border-red-600 hover:bg-red-50"
+                            className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
                             onClick={() => openRejectDialog(candidate.id)}
                             disabled={rejectMutation.isPending}
                           >

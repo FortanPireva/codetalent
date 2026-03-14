@@ -171,17 +171,17 @@ export default function TalentDiscoveryPage() {
             <Card key={i} className="animate-pulse">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="h-12 w-12 rounded-full bg-gray-200" />
+                  <div className="h-12 w-12 rounded-full bg-muted" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-2/3" />
-                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
                   </div>
                 </div>
-                <div className="h-10 bg-gray-200 rounded mb-3" />
+                <div className="h-10 bg-muted rounded mb-3" />
                 <div className="flex gap-1">
-                  <div className="h-5 bg-gray-200 rounded w-16" />
-                  <div className="h-5 bg-gray-200 rounded w-14" />
-                  <div className="h-5 bg-gray-200 rounded w-12" />
+                  <div className="h-5 bg-muted rounded w-16" />
+                  <div className="h-5 bg-muted rounded w-14" />
+                  <div className="h-5 bg-muted rounded w-12" />
                 </div>
               </CardContent>
             </Card>

@@ -4,8 +4,6 @@ interface TalentflowLogoProps {
   className?: string;
   size?: number;
   variant?: "icon" | "full";
-  /** Use light colors (for dark backgrounds) */
-  light?: boolean;
 }
 
 /** Hexagon "T" mark — icon only */
@@ -64,9 +62,8 @@ export function TalentflowLogo({
   className,
   size = 32,
   variant = "full",
-  light = false,
 }: TalentflowLogoProps) {
-  const color = light ? "#f4f3ef" : "#0a0a0a";
+  const color = "currentColor";
 
   if (variant === "icon") {
     return (

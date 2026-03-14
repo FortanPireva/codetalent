@@ -1,16 +1,19 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
-      <TRPCReactProvider>
-        {children}
-        <Toaster position="top-right" richColors />
-      </TRPCReactProvider>
-    </SessionProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark">
+      <SessionProvider>
+        <TRPCReactProvider>
+          {children}
+          <Toaster position="top-right" richColors />
+        </TRPCReactProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }

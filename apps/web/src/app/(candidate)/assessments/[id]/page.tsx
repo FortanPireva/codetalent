@@ -89,14 +89,14 @@ export default function AssessmentDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-1/4 animate-pulse" />
+        <div className="h-8 bg-muted rounded w-1/4 animate-pulse" />
         <Card className="animate-pulse">
           <CardHeader>
-            <div className="h-8 bg-gray-200 rounded w-1/2" />
-            <div className="h-4 bg-gray-200 rounded w-1/4 mt-2" />
+            <div className="h-8 bg-muted rounded w-1/2" />
+            <div className="h-4 bg-muted rounded w-1/4 mt-2" />
           </CardHeader>
           <CardContent>
-            <div className="h-32 bg-gray-200 rounded" />
+            <div className="h-32 bg-muted rounded" />
           </CardContent>
         </Card>
       </div>
@@ -166,16 +166,16 @@ export default function AssessmentDetailPage() {
             </a>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">Instructions</h4>
-            <ol className="text-sm text-blue-800 list-decimal list-inside space-y-1">
+          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Instructions</h4>
+            <ol className="text-sm text-blue-800 dark:text-blue-300 list-decimal list-inside space-y-1">
               <li>Fork the repository above to your GitHub account</li>
               <li>Complete the challenge as described</li>
               <li>Push your changes to your fork</li>
               <li>Submit your fork URL below</li>
               <li>Wait for AI-powered code review</li>
             </ol>
-            <p className="mt-2 text-sm text-blue-800">
+            <p className="mt-2 text-sm text-blue-800 dark:text-blue-300">
               <strong>Pass threshold:</strong>{" "}
               {getPassThreshold(assessment.difficulty).toFixed(1)}/5.0 average
               score
@@ -305,7 +305,7 @@ export default function AssessmentDetailPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <h4 className="font-semibold mb-2 text-green-700">
+                      <h4 className="font-semibold mb-2 text-green-700 dark:text-green-400">
                         Strengths
                       </h4>
                       <ul className="list-disc list-inside space-y-1 text-sm">
@@ -317,7 +317,7 @@ export default function AssessmentDetailPage() {
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-2 text-orange-700">
+                      <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-400">
                         Areas for Improvement
                       </h4>
                       <ul className="list-disc list-inside space-y-1 text-sm">
@@ -347,7 +347,7 @@ export default function AssessmentDetailPage() {
                       ].map((score) => (
                         <div
                           key={score.label}
-                          className="bg-gray-50 rounded-lg p-3"
+                          className="bg-background rounded-lg p-3"
                         >
                           <p className="text-xs text-muted-foreground">
                             {score.label}

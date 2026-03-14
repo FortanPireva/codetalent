@@ -143,10 +143,10 @@ export default function CandidateJobsPage() {
           {[1, 2, 3].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="pt-6">
-                <div className="h-6 bg-gray-200 rounded w-1/3 mb-3" />
-                <div className="h-4 bg-gray-200 rounded w-1/4 mb-4" />
-                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-2/3" />
+                <div className="h-6 bg-muted rounded w-1/3 mb-3" />
+                <div className="h-4 bg-muted rounded w-1/4 mb-4" />
+                <div className="h-4 bg-muted rounded w-full mb-2" />
+                <div className="h-4 bg-muted rounded w-2/3" />
               </CardContent>
             </Card>
           ))}
@@ -176,7 +176,7 @@ export default function CandidateJobsPage() {
                         {job.title}
                       </Link>
                       {appliedJobIds.has(job.id) && (
-                        <Badge className="bg-green-100 text-green-800 shrink-0">
+                        <Badge className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 shrink-0">
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Applied
                         </Badge>
@@ -196,7 +196,7 @@ export default function CandidateJobsPage() {
                       <span>{job.client.name}</span>
                       {job.location && (
                         <>
-                          <span className="text-gray-300">|</span>
+                          <span className="text-muted-foreground">|</span>
                           <MapPin className="h-4 w-4 shrink-0" />
                           <span>{job.location}</span>
                         </>

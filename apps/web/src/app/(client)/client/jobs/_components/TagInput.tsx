@@ -60,7 +60,7 @@ export function TagInput({ value, onChange, placeholder, suggestions }: TagInput
               key={s}
               type="button"
               onClick={() => addTag(s)}
-              className="text-xs px-2 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+              className="text-xs px-2 py-1 rounded-md bg-muted hover:bg-accent text-foreground transition-colors"
             >
               + {s}
             </button>

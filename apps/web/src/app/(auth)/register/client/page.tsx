@@ -66,7 +66,7 @@ export default function ClientRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-2">
@@ -153,7 +153,7 @@ export default function ClientRegisterPage() {
                 ? "Creating account..."
                 : "Register as Client"}
             </Button>
-            <p className="text-sm text-center text-gray-600">
+            <p className="text-sm text-center text-muted-foreground">
               Already have an account?{" "}
               <Link
                 href="/login"
@@ -162,7 +162,7 @@ export default function ClientRegisterPage() {
                 Sign in
               </Link>
             </p>
-            <p className="text-sm text-center text-gray-600">
+            <p className="text-sm text-center text-muted-foreground">
               Looking for work?{" "}
               <Link
                 href="/register"

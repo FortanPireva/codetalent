@@ -110,13 +110,13 @@ export default function VerificationDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-1/4 animate-pulse" />
+        <div className="h-8 bg-muted rounded w-1/4 animate-pulse" />
         <Card className="animate-pulse">
           <CardHeader>
-            <div className="h-8 bg-gray-200 rounded w-1/2" />
+            <div className="h-8 bg-muted rounded w-1/2" />
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-gray-200 rounded" />
+            <div className="h-64 bg-muted rounded" />
           </CardContent>
         </Card>
       </div>
@@ -258,7 +258,7 @@ export default function VerificationDetailPage() {
               <CardContent className="flex items-center justify-end gap-3 pt-6">
                 <Button
                   variant="outline"
-                  className="text-red-600 border-red-600 hover:bg-red-50"
+                  className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
                   onClick={() => {
                     setRejectReason("");
                     setRejectDialogOpen(true);

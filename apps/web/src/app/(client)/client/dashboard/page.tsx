@@ -85,7 +85,7 @@ export default function ClientDashboardPage() {
                   <img
                     src={status.client.logo}
                     alt={status.client.name}
-                    className="w-16 h-16 rounded-lg object-contain border bg-white"
+                    className="w-16 h-16 rounded-lg object-contain border bg-card"
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -135,7 +135,7 @@ export default function ClientDashboardPage() {
                   href={status.client.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-blue-600 hover:underline"
+                  className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   <Globe className="h-3.5 w-3.5" />
                   {status.client.website}
@@ -191,8 +191,8 @@ export default function ClientDashboardPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <Briefcase className="h-5 w-5 text-green-700" />
+                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <Briefcase className="h-5 w-5 text-green-700 dark:text-green-400" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{jobStats.openJobs}</p>
@@ -204,8 +204,8 @@ export default function ClientDashboardPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                  <FileEdit className="h-5 w-5 text-gray-700" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <FileEdit className="h-5 w-5 text-foreground" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{jobStats.draftJobs}</p>
@@ -217,8 +217,8 @@ export default function ClientDashboardPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Briefcase className="h-5 w-5 text-blue-700" />
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
+                  <Briefcase className="h-5 w-5 text-blue-700 dark:text-blue-300" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{jobStats.filledJobs}</p>
@@ -230,8 +230,8 @@ export default function ClientDashboardPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <Briefcase className="h-5 w-5 text-purple-700" />
+                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
+                  <Briefcase className="h-5 w-5 text-purple-700 dark:text-purple-300" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{jobStats.totalJobs}</p>
