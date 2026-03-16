@@ -210,6 +210,69 @@ export const messagesRouter = createTRPCRouter({
       return { success: true };
     }),
 
+  getThreadDetail: protectedProcedure
+    .input(z.object({ threadId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      await connectMongo();
+
+      const thread = await Thread.findById(input.threadId).lean();
+      if (!thread) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Thread not found" });
+      }
+
+      await assertThreadAccess(
+        thread as IThread,
+        ctx.session,
+        ctx.db,
+      );
+
+      // Fetch candidate info
+      const candidate = await ctx.db.user.findUnique({
+        where: { id: thread.candidateId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profilePicture: true,
+          location: true,
+          skills: true,
+          availability: true,
+          linkedinUrl: true,
+          githubUrl: true,
+          bio: true,
+        },
+      });
+
+      // Fetch job + application info via applicationId
+      const application = thread.applicationId
+        ? await ctx.db.jobApplication.findUnique({
+            where: { id: thread.applicationId },
+            select: {
+              id: true,
+              status: true,
+              appliedAt: true,
+              job: {
+                select: {
+                  id: true,
+                  title: true,
+                  location: true,
+                  employmentType: true,
+                  workArrangement: true,
+                  experienceLevel: true,
+                  status: true,
+                },
+              },
+            },
+          })
+        : null;
+
+      return {
+        threadId: (thread._id as Types.ObjectId).toString(),
+        candidate,
+        application,
+      };
+    }),
+
   listThreads: protectedProcedure.query(async ({ ctx }) => {
     await connectMongo();
 

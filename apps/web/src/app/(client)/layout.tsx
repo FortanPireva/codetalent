@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
   Briefcase,
@@ -198,6 +198,9 @@ export default function ClientLayout({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
+                    {session?.user?.picture && (
+                      <AvatarImage src={session.user.picture} alt={session.user.name ?? ""} />
+                    )}
                     <AvatarFallback>
                       {userInitials}
                     </AvatarFallback>

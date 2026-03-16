@@ -18,6 +18,7 @@ declare module "next-auth" {
       candidateStatus: CandidateStatus;
       clientStatus: ClientOnboardingStatus;
       hasActiveSubscription: boolean;
+      picture?: string | null;
     } & DefaultSession["user"];
   }
 
@@ -37,6 +38,7 @@ declare module "next-auth/jwt" {
     candidateStatus: CandidateStatus;
     clientStatus: ClientOnboardingStatus;
     hasActiveSubscription: boolean;
+    picture?: string | null;
   }
 }
 
@@ -122,11 +124,18 @@ export const authOptions: NextAuthOptions = {
         let dbUser = await db.user.findUnique({ where: { email } });
 
         if (dbUser) {
-          // Link Google account if not already linked
+          // Link Google account and set profile picture if missing
+          const updateData: Record<string, string> = {};
           if (!dbUser.googleId && account.providerAccountId) {
+            updateData.googleId = account.providerAccountId;
+          }
+          if (!dbUser.profilePicture && user.image) {
+            updateData.profilePicture = user.image;
+          }
+          if (Object.keys(updateData).length > 0) {
             await db.user.update({
               where: { id: dbUser.id },
-              data: { googleId: account.providerAccountId },
+              data: updateData,
             });
           }
         } else {
@@ -136,6 +145,7 @@ export const authOptions: NextAuthOptions = {
               email,
               name: user.name ?? email.split("@")[0],
               googleId: account.providerAccountId,
+              profilePicture: user.image ?? undefined,
               role: "CANDIDATE",
               candidateStatus: "ONBOARDING",
             },
@@ -156,6 +166,7 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.role;
           token.candidateStatus = dbUser.candidateStatus;
           token.clientStatus = dbUser.clientStatus;
+          token.picture = dbUser.profilePicture;
           token.hasActiveSubscription = dbUser.client?.subscription
             ? dbUser.client.subscription.status === "ACTIVE" &&
               dbUser.client.subscription.currentPeriodEnd > new Date()
@@ -167,6 +178,12 @@ export const authOptions: NextAuthOptions = {
         token.candidateStatus = user.candidateStatus;
         token.clientStatus = user.clientStatus;
         token.hasActiveSubscription = user.hasActiveSubscription;
+        // Load profile picture from DB for credentials login
+        const dbUser = await db.user.findUnique({
+          where: { id: user.id },
+          select: { profilePicture: true },
+        });
+        token.picture = dbUser?.profilePicture ?? null;
       }
 
       // Refresh from DB on explicit update OR for CLIENT users who don't have a subscription yet
@@ -180,6 +197,7 @@ export const authOptions: NextAuthOptions = {
           select: {
             candidateStatus: true,
             clientStatus: true,
+            profilePicture: true,
             client: {
               include: { subscription: true },
             },
@@ -188,6 +206,7 @@ export const authOptions: NextAuthOptions = {
         if (freshUser) {
           token.candidateStatus = freshUser.candidateStatus;
           token.clientStatus = freshUser.clientStatus;
+          token.picture = freshUser.profilePicture;
           if (freshUser.client?.subscription) {
             token.hasActiveSubscription =
               freshUser.client.subscription.status === "ACTIVE" &&
@@ -206,6 +225,7 @@ export const authOptions: NextAuthOptions = {
         session.user.candidateStatus = token.candidateStatus;
         session.user.clientStatus = token.clientStatus;
         session.user.hasActiveSubscription = token.hasActiveSubscription;
+        session.user.picture = token.picture;
       }
       return session;
     },
