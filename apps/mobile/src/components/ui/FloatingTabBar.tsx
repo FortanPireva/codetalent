@@ -1,4 +1,4 @@
-import { View, Pressable, Text, StyleSheet } from "react-native";
+import { View, Pressable, Text, StyleSheet, Platform } from "react-native";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Animated, {
   useAnimatedStyle,
@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColors } from "@/hooks/useThemeColors";
 
 const SPRING_CONFIG = { damping: 15, stiffness: 200 };
@@ -81,9 +82,10 @@ export function FloatingTabBar({
   navigation,
 }: BottomTabBarProps) {
   const c = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { bottom: Math.max(insets.bottom, Platform.OS === "android" ? 48 : 12) + 12 }]}>
       <View
         style={[
           styles.container,
@@ -142,7 +144,6 @@ export function FloatingTabBar({
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
-    bottom: 24,
     left: 0,
     right: 0,
     alignItems: "center",

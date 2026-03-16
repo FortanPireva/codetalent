@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
@@ -19,8 +20,10 @@ export default function ConversationScreen() {
   const { threadId } = useLocalSearchParams<{ threadId: string }>();
   const { user } = useAuth();
   const c = useThemeColors();
+  const insets = useSafeAreaInsets();
   const [text, setText] = useState("");
   const utils = api.useUtils();
+  const flatListRef = useRef<FlatList>(null);
 
   const {
     data,
@@ -68,15 +71,18 @@ export default function ConversationScreen() {
     <KeyboardAvoidingView
       className="flex-1"
       style={{ backgroundColor: c.surface }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      behavior="padding"
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 80}
     >
       <FlatList
+        ref={flatListRef}
         className="flex-1 px-4"
         inverted
         data={messages}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingVertical: 16 }}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           <View className="items-center p-8">
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
@@ -117,7 +123,11 @@ export default function ConversationScreen() {
       {/* Input Area */}
       <View
         className="flex-row items-end gap-2 border-t px-4 py-3"
-        style={{ borderTopColor: c.borderLight, backgroundColor: c.bg }}
+        style={{
+          borderTopColor: c.borderLight,
+          backgroundColor: c.bg,
+          paddingBottom: Math.max(insets.bottom, 12),
+        }}
       >
         <TextInput
           className="max-h-24 min-h-[40px] flex-1 rounded-xl px-4 py-2.5 font-sans text-sm"

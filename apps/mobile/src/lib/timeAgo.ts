@@ -6,8 +6,21 @@ const MONTH_NAMES = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+function parseDate(date: Date | string): Date {
+  if (date instanceof Date) return date;
+  // Hermes on Android can fail with certain ISO formats.
+  // Ensure the string ends with a timezone designator.
+  let s = date;
+  if (!s.endsWith("Z") && !/[+-]\d{2}:\d{2}$/.test(s)) {
+    s += "Z";
+  }
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return new Date();
+  return d;
+}
+
 export function timeAgo(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+  const d = parseDate(date);
   const now = Date.now();
   const diff = Math.floor((now - d.getTime()) / 1000);
 
