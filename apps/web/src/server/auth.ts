@@ -5,6 +5,7 @@ import {
   type DefaultSession,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
 import { Role, CandidateStatus, ClientOnboardingStatus } from "@codetalent/db";
@@ -49,6 +50,10 @@ export const authOptions: NextAuthOptions = {
     error: "/login",
   },
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -108,8 +113,55 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      if (user) {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const email = user.email;
+        if (!email) return false;
+
+        // Find or create user, link googleId
+        let dbUser = await db.user.findUnique({ where: { email } });
+
+        if (dbUser) {
+          // Link Google account if not already linked
+          if (!dbUser.googleId && account.providerAccountId) {
+            await db.user.update({
+              where: { id: dbUser.id },
+              data: { googleId: account.providerAccountId },
+            });
+          }
+        } else {
+          // Create new user
+          dbUser = await db.user.create({
+            data: {
+              email,
+              name: user.name ?? email.split("@")[0],
+              googleId: account.providerAccountId,
+              role: "CANDIDATE",
+              candidateStatus: "ONBOARDING",
+            },
+          });
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account, trigger }) {
+      // After Google sign-in, load user from DB
+      if (account?.provider === "google") {
+        const dbUser = await db.user.findUnique({
+          where: { email: token.email! },
+          include: { client: { include: { subscription: true } } },
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.candidateStatus = dbUser.candidateStatus;
+          token.clientStatus = dbUser.clientStatus;
+          token.hasActiveSubscription = dbUser.client?.subscription
+            ? dbUser.client.subscription.status === "ACTIVE" &&
+              dbUser.client.subscription.currentPeriodEnd > new Date()
+            : false;
+        }
+      } else if (user) {
         token.id = user.id;
         token.role = user.role;
         token.candidateStatus = user.candidateStatus;

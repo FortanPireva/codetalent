@@ -1,26 +1,24 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Platform, Alert } from "react-native";
 import {
-  useIdTokenAuthRequest,
-  discovery,
-} from "expo-auth-session/providers/google";
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import * as AppleAuthentication from "expo-apple-authentication";
-import * as WebBrowser from "expo-web-browser";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
-
-WebBrowser.maybeCompleteAuthSession();
 
 export function useSocialAuth() {
   const [loading, setLoading] = useState(false);
   const { loginWithToken } = useAuth();
   const socialLoginMutation = api.auth.socialLogin.useMutation();
 
-  const [request, response, promptAsync] = useIdTokenAuthRequest({
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-  });
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    });
+  }, []);
 
   const handleSocialLogin = useCallback(
     async (provider: "google" | "apple", idToken: string, name?: string) => {
@@ -45,17 +43,26 @@ export function useSocialAuth() {
 
   const signInWithGoogle = useCallback(async () => {
     try {
-      const result = await promptAsync();
-      if (result.type === "success") {
-        const idToken = result.params.id_token;
-        if (idToken) {
-          await handleSocialLogin("google", idToken);
-        }
+      if (Platform.OS === "android") {
+        await GoogleSignin.hasPlayServices();
       }
-    } catch {
-      Alert.alert("Error", "Google sign-in was cancelled or failed");
+      const response = await GoogleSignin.signIn();
+
+      if (response.type === "success" && response.data.idToken) {
+        await handleSocialLogin("google", response.data.idToken);
+      }
+    } catch (err: unknown) {
+      console.error("Google sign-in error:", err);
+      const code = (err as { code?: string })?.code;
+      if (
+        code !== statusCodes.SIGN_IN_CANCELLED &&
+        code !== statusCodes.IN_PROGRESS
+      ) {
+        const message = err instanceof Error ? err.message : "Google sign-in failed";
+        Alert.alert("Error", message);
+      }
     }
-  }, [promptAsync, handleSocialLogin]);
+  }, [handleSocialLogin]);
 
   const signInWithApple = useCallback(async () => {
     if (Platform.OS !== "ios") return;

@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "scheme": "talentflow",
+    "scheme": "net.codeks.talentflow",
     "splash": {
       "image": "./assets/splash-light.png",
       "resizeMode": "cover",
@@ -26,8 +26,16 @@
         "tinted": "./assets/icon-tinted.png"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "975704495002-6720hvdr9bgirh4c7v48bdv6pk5j7ijo.apps.googleusercontent.com  "
+            ]
+          }
+        ]
+      },
+      "appleTeamId": "K68DXPQN8U"
     },
     "android": {
       "adaptiveIcon": {
@@ -47,6 +55,7 @@
       "expo-font",
       "expo-document-picker",
       "expo-apple-authentication",
+      "@react-native-google-signin/google-signin",
       [
         "expo-notifications",
         {
