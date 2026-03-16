@@ -7,6 +7,7 @@ import {
   RefreshControl,
   Linking,
 } from "react-native";
+import { CheckCircle, Clock, ClipboardList } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useThemeColors } from "@/hooks/useThemeColors";
@@ -216,7 +217,7 @@ export default function ProfileViewScreen() {
         </Text>
         {profile.passedAssessmentCount >= 1 ? (
           <View className="flex-row items-center gap-2">
-            <Text className="text-lg">✅</Text>
+            <CheckCircle size={20} strokeWidth={1.5} color={c.highlight} />
             <Text className="font-sans text-sm" style={{ color: c.fg }}>
               Verified — {profile.passedAssessmentCount} assessment
               {profile.passedAssessmentCount > 1 ? "s" : ""} passed
@@ -224,14 +225,14 @@ export default function ProfileViewScreen() {
           </View>
         ) : hasSubmissionsUnderReview ? (
           <View className="flex-row items-center gap-2">
-            <Text className="text-lg">⏳</Text>
+            <Clock size={20} strokeWidth={1.5} color={c.mutedFg} />
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
               Your assessment is being reviewed
             </Text>
           </View>
         ) : (
           <View className="flex-row items-center gap-2">
-            <Text className="text-lg">📋</Text>
+            <ClipboardList size={20} strokeWidth={1.5} color={c.mutedFg} />
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
               Complete an assessment to earn your badge
             </Text>

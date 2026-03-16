@@ -8,12 +8,14 @@ import {
   RefreshControl,
   Linking,
 } from "react-native";
+import { Settings } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { VerifiedBadge } from "@/components/profile/VerifiedBadge";
 import { ScoreBreakdown } from "@/components/profile/ScoreBreakdown";
 
@@ -121,10 +123,12 @@ export default function ProfileTabScreen() {
   const bestReview = passedWithReview?.[0]?.review;
 
   return (
+    <View className="flex-1" style={{ backgroundColor: c.surface }}>
+    <ScreenHeader />
     <ScrollView
       className="flex-1"
-      style={{ backgroundColor: c.surface }}
-      contentContainerClassName="p-4 pb-8"
+      contentContainerClassName="p-4"
+      contentContainerStyle={{ paddingBottom: 100 }}
       refreshControl={
         <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
       }
@@ -282,7 +286,7 @@ export default function ProfileTabScreen() {
 
       {/* Settings Divider */}
       <View className="mb-3 mt-4 flex-row items-center gap-2 px-1">
-        <Text style={{ color: c.mutedFg, fontSize: 16 }}>⚙️</Text>
+        <Settings size={18} strokeWidth={1.5} color={c.mutedFg} />
         <Text className="font-bold text-base" style={{ color: c.fg }}>Settings</Text>
       </View>
 
@@ -356,6 +360,7 @@ export default function ProfileTabScreen() {
         </Pressable>
       </View>
     </ScrollView>
+    </View>
   );
 }
 

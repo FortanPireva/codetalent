@@ -164,7 +164,7 @@ export default function CandidateJobsPage() {
       ) : (
         <div className="space-y-4">
           {jobs?.map((job) => (
-            <Card key={job.id} className="hover:shadow-md transition-shadow">
+            <Card key={job.id} className="border-b border-border/60">
               <CardContent className="pt-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -176,7 +176,7 @@ export default function CandidateJobsPage() {
                         {job.title}
                       </Link>
                       {appliedJobIds.has(job.id) && (
-                        <Badge className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 shrink-0">
+                        <Badge className="bg-highlight-muted text-highlight shrink-0">
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Applied
                         </Badge>
@@ -211,20 +211,20 @@ export default function CandidateJobsPage() {
 
                     <div className="flex flex-wrap gap-2 mb-3">
                       {job.roleType && (
-                        <Badge variant="secondary">{job.roleType}</Badge>
+                        <Badge variant="chip">{job.roleType}</Badge>
                       )}
                       {job.experienceLevel && (
-                        <Badge variant="outline">
+                        <Badge variant="chip">
                           {experienceLevelLabels[job.experienceLevel]}
                         </Badge>
                       )}
                       {job.workArrangement && (
-                        <Badge variant="outline">
+                        <Badge variant="chip">
                           {workArrangementLabels[job.workArrangement]}
                         </Badge>
                       )}
                       {job.employmentType && (
-                        <Badge variant="outline">
+                        <Badge variant="chip">
                           {employmentTypeLabels[job.employmentType]}
                         </Badge>
                       )}
@@ -235,14 +235,14 @@ export default function CandidateJobsPage() {
                         {job.requiredSkills.slice(0, 6).map((skill) => (
                           <Badge
                             key={skill}
-                            variant="secondary"
+                            variant="chip"
                             className="text-xs"
                           >
                             {skill}
                           </Badge>
                         ))}
                         {job.requiredSkills.length > 6 && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="chip" className="text-xs">
                             +{job.requiredSkills.length - 6}
                           </Badge>
                         )}
@@ -252,8 +252,8 @@ export default function CandidateJobsPage() {
 
                   <div className="flex flex-col items-end gap-2 shrink-0">
                     {job.showSalary && job.salaryMin != null && job.salaryMax != null && (
-                      <div className="flex items-center gap-1 text-sm font-medium">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center gap-1 text-sm font-medium text-highlight">
+                        <DollarSign className="h-4 w-4" />
                         {job.salaryMin.toLocaleString()} – {job.salaryMax.toLocaleString()}{" "}
                         <span className="text-muted-foreground text-xs">
                           {job.salaryCurrency}/{job.salaryPeriod === "YEARLY" ? "yr" : job.salaryPeriod === "MONTHLY" ? "mo" : "hr"}

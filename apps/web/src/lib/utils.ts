@@ -25,12 +25,12 @@ export function formatDateTime(date: Date | string): string {
 }
 
 export const statusColors: Record<SubmissionStatus, string> = {
-  ASSIGNED: "bg-gray-100 text-gray-800",
-  IN_PROGRESS: "bg-blue-100 text-blue-800",
-  SUBMITTED: "bg-yellow-100 text-yellow-800",
-  UNDER_REVIEW: "bg-purple-100 text-purple-800",
-  PASSED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
+  ASSIGNED: "bg-chip text-chip-foreground",
+  IN_PROGRESS: "bg-chip text-chip-foreground",
+  SUBMITTED: "bg-chip text-chip-foreground",
+  UNDER_REVIEW: "bg-chip text-chip-foreground",
+  PASSED: "bg-highlight-muted text-highlight",
+  REJECTED: "bg-chip text-chip-foreground",
 };
 
 export const statusLabels: Record<SubmissionStatus, string> = {
@@ -43,9 +43,9 @@ export const statusLabels: Record<SubmissionStatus, string> = {
 };
 
 export const difficultyColors: Record<Difficulty, string> = {
-  INTERN: "bg-green-100 text-green-800",
-  JUNIOR: "bg-blue-100 text-blue-800",
-  MID: "bg-purple-100 text-purple-800",
+  INTERN: "bg-chip text-chip-foreground",
+  JUNIOR: "bg-chip text-chip-foreground",
+  MID: "bg-chip text-chip-foreground",
 };
 
 export const difficultyLabels: Record<Difficulty, string> = {
@@ -55,10 +55,10 @@ export const difficultyLabels: Record<Difficulty, string> = {
 };
 
 export const availabilityColors: Record<Availability, string> = {
-  ACTIVELY_LOOKING: "bg-green-100 text-green-800",
-  OPEN_TO_OFFERS: "bg-blue-100 text-blue-800",
-  NOT_LOOKING: "bg-gray-100 text-gray-800",
-  HIRED: "bg-purple-100 text-purple-800",
+  ACTIVELY_LOOKING: "bg-highlight-muted text-highlight",
+  OPEN_TO_OFFERS: "bg-chip text-chip-foreground",
+  NOT_LOOKING: "bg-chip text-chip-foreground",
+  HIRED: "bg-highlight-muted text-highlight",
 };
 
 export const availabilityLabels: Record<Availability, string> = {
@@ -69,10 +69,10 @@ export const availabilityLabels: Record<Availability, string> = {
 };
 
 export const candidateStatusColors: Record<CandidateStatus, string> = {
-  ONBOARDING: "bg-blue-100 text-blue-800",
-  PENDING_REVIEW: "bg-yellow-100 text-yellow-800",
-  APPROVED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
+  ONBOARDING: "bg-chip text-chip-foreground",
+  PENDING_REVIEW: "bg-chip text-chip-foreground",
+  APPROVED: "bg-highlight-muted text-highlight",
+  REJECTED: "bg-chip text-chip-foreground",
 };
 
 export const candidateStatusLabels: Record<CandidateStatus, string> = {
@@ -83,9 +83,9 @@ export const candidateStatusLabels: Record<CandidateStatus, string> = {
 };
 
 export const companySizeColors: Record<CompanySize, string> = {
-  STARTUP: "bg-purple-100 text-purple-800",
-  SMB: "bg-blue-100 text-blue-800",
-  ENTERPRISE: "bg-orange-100 text-orange-800",
+  STARTUP: "bg-chip text-chip-foreground",
+  SMB: "bg-chip text-chip-foreground",
+  ENTERPRISE: "bg-chip text-chip-foreground",
 };
 
 export const companySizeLabels: Record<CompanySize, string> = {
@@ -95,9 +95,9 @@ export const companySizeLabels: Record<CompanySize, string> = {
 };
 
 export const clientStatusColors: Record<ClientStatus, string> = {
-  LEAD: "bg-yellow-100 text-yellow-800",
-  ACTIVE: "bg-green-100 text-green-800",
-  CHURNED: "bg-red-100 text-red-800",
+  LEAD: "bg-chip text-chip-foreground",
+  ACTIVE: "bg-highlight-muted text-highlight",
+  CHURNED: "bg-chip text-chip-foreground",
 };
 
 export const clientStatusLabels: Record<ClientStatus, string> = {
@@ -107,10 +107,10 @@ export const clientStatusLabels: Record<ClientStatus, string> = {
 };
 
 export const clientOnboardingStatusColors: Record<ClientOnboardingStatus, string> = {
-  ONBOARDING: "bg-blue-100 text-blue-800",
-  PENDING_REVIEW: "bg-yellow-100 text-yellow-800",
-  APPROVED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
+  ONBOARDING: "bg-chip text-chip-foreground",
+  PENDING_REVIEW: "bg-chip text-chip-foreground",
+  APPROVED: "bg-highlight-muted text-highlight",
+  REJECTED: "bg-chip text-chip-foreground",
 };
 
 export const clientOnboardingStatusLabels: Record<ClientOnboardingStatus, string> = {
@@ -132,12 +132,12 @@ export const jobStatusLabels: Record<JobStatus, string> = {
 };
 
 export const jobStatusColors: Record<JobStatus, string> = {
-  DRAFT: "bg-gray-100 text-gray-800",
-  OPEN: "bg-green-100 text-green-800",
-  PAUSED: "bg-yellow-100 text-yellow-800",
-  FILLED: "bg-blue-100 text-blue-800",
-  CLOSED: "bg-red-100 text-red-800",
-  EXPIRED: "bg-orange-100 text-orange-800",
+  DRAFT: "bg-chip text-chip-foreground",
+  OPEN: "bg-highlight-muted text-highlight",
+  PAUSED: "bg-chip text-chip-foreground",
+  FILLED: "bg-highlight-muted text-highlight",
+  CLOSED: "bg-chip text-chip-foreground",
+  EXPIRED: "bg-chip text-chip-foreground",
 };
 
 export const experienceLevelLabels: Record<ExperienceLevel, string> = {
@@ -182,11 +182,11 @@ export const applicationStatusLabels: Record<ApplicationStatus, string> = {
 };
 
 export const applicationStatusColors: Record<ApplicationStatus, string> = {
-  APPLIED: "bg-blue-100 text-blue-800",
-  INVITED: "bg-purple-100 text-purple-800",
-  INTERVIEW: "bg-yellow-100 text-yellow-800",
-  HIRED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
+  APPLIED: "bg-chip text-chip-foreground",
+  INVITED: "bg-chip text-chip-foreground",
+  INTERVIEW: "bg-chip text-chip-foreground",
+  HIRED: "bg-highlight-muted text-highlight",
+  REJECTED: "bg-chip text-chip-foreground",
 };
 
 export const roleTypeOptions = [

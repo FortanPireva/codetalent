@@ -7,10 +7,8 @@ import {
   RefreshControl,
   ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import type BottomSheet from "@gorhom/bottom-sheet";
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { api } from "@/lib/trpc";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useBookmarks } from "@/hooks/useBookmarks";
@@ -20,6 +18,8 @@ import {
   employmentTypeLabels,
   workArrangementLabels,
 } from "@/lib/constants";
+import { Search } from "lucide-react-native";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { SearchBar } from "@/components/jobs/SearchBar";
 import { FilterSheet, type JobFilters } from "@/components/jobs/FilterSheet";
 import { JobCard } from "@/components/jobs/JobCard";
@@ -30,7 +30,7 @@ export default function JobsScreen() {
   const [filters, setFilters] = useState<JobFilters>({});
   const debouncedSearch = useDebounce(search, 300);
   const { isBookmarked, toggleBookmark } = useBookmarks();
-  const filterSheetRef = useRef<BottomSheet>(null);
+  const filterSheetRef = useRef<BottomSheetModal>(null);
   const c = useThemeColors();
 
   const { data, isLoading, refetch, isRefetching } = api.job.candidateList.useQuery({
@@ -120,7 +120,9 @@ export default function JobsScreen() {
 
   const renderEmpty = () => (
     <View className="flex-1 items-center justify-center py-20">
-      <Text className="mb-2 text-4xl">🔍</Text>
+      <View className="mb-2">
+        <Search size={36} strokeWidth={1.5} color={c.mutedFg} />
+      </View>
       <Text className="mb-1 font-bold text-base" style={{ color: c.fg }}>No jobs match your filters</Text>
       <Text className="mb-4 font-sans text-sm" style={{ color: c.mutedFg }}>
         Try adjusting your search or filters
@@ -136,15 +138,14 @@ export default function JobsScreen() {
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1" style={{ backgroundColor: c.surface }} edges={["top"]}>
+    <View style={{ flex: 1, backgroundColor: c.surface }}>
         {/* Header */}
-        <View className="pb-1 pt-2">
-          <Text className="mb-3 px-4 font-bold text-2xl" style={{ color: c.fg }}>Jobs</Text>
+        <View className="pb-1">
+          <ScreenHeader />
           <SearchBar
             value={search}
             onChangeText={setSearch}
-            onFilterPress={() => filterSheetRef.current?.snapToIndex(0)}
+            onFilterPress={() => filterSheetRef.current?.present()}
             hasActiveFilters={hasActiveFilters}
           />
         </View>
@@ -159,7 +160,7 @@ export default function JobsScreen() {
         ) : (
           <FlatList
             className="flex-1"
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
             data={jobs}
             keyExtractor={(item) => item.id}
             refreshControl={
@@ -185,7 +186,6 @@ export default function JobsScreen() {
           filters={filters}
           onApply={setFilters}
         />
-      </SafeAreaView>
-    </GestureHandlerRootView>
+    </View>
   );
 }

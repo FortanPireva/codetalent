@@ -11,38 +11,40 @@ import { useRouter } from "expo-router";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { TalentflowLogo } from "@/components/TalentflowLogo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Search, Monitor, Bot, Rocket } from "lucide-react-native";
+import type { LucideIcon } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
 
 const WELCOME_SEEN_KEY = "talentflow_welcome_seen";
 
 interface Slide {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
 }
 
 const slides: Slide[] = [
   {
-    icon: "🔍",
+    icon: Search,
     title: "Find Top Tech Jobs",
     description:
       "Browse curated opportunities from companies that value real coding skills over resumes.",
   },
   {
-    icon: "💻",
+    icon: Monitor,
     title: "Prove Your Skills with Code",
     description:
       "Complete GitHub-based coding challenges that let your work speak for itself.",
   },
   {
-    icon: "🤖",
+    icon: Bot,
     title: "AI-Powered Code Review",
     description:
       "Get instant, objective feedback on code quality, architecture, and best practices — scored across 8 categories.",
   },
   {
-    icon: "🚀",
+    icon: Rocket,
     title: "Get Discovered",
     description:
       "Join a searchable talent pool where companies find you based on verified skills, not keywords.",
@@ -117,9 +119,9 @@ export default function WelcomeScreen() {
                 <TalentflowLogo size={64} />
               </View>
             )}
-            <Text className="mb-4 text-center" style={{ fontSize: 56 }}>
-              {item.icon}
-            </Text>
+            <View className="mb-4 items-center justify-center rounded-2xl p-4" style={{ backgroundColor: c.highlightBg }}>
+              <item.icon size={40} strokeWidth={1.5} color={c.highlight} />
+            </View>
             <Text
               className="mb-3 text-center font-bold text-2xl"
               style={{ color: c.fg }}

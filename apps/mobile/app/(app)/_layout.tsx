@@ -1,14 +1,50 @@
-import { Redirect, Stack } from "expo-router";
+import { Redirect, Stack, useRouter } from "expo-router";
+import { Pressable, View } from "react-native";
+import { Bell } from "lucide-react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { api } from "@/lib/trpc";
 import { BackButton } from "@/components/ui/BackButton";
 
 export default function AppLayout() {
   const { isAuthenticated, user } = useAuth();
   const { isDark } = useTheme();
+  const router = useRouter();
   const bgColor = isDark ? "#141414" : "#FFFFFF";
   const surfaceColor = isDark ? "#1E1E1E" : "#F5F5F5";
   const tintColor = isDark ? "#FAFAFA" : "#141414";
+
+  const { data: unreadCount } = api.notification.unreadCount.useQuery(undefined, {
+    refetchInterval: 30_000,
+  });
+
+  const notificationBell = () => (
+    <Pressable
+      onPress={() => router.push("/(app)/notifications")}
+      hitSlop={12}
+      style={{ marginRight: 16 }}
+    >
+      <View>
+        <Bell size={22} strokeWidth={1.5} color={tintColor} />
+        {(unreadCount ?? 0) > 0 && (
+          <View
+            style={{
+              position: "absolute",
+              top: -4,
+              right: -6,
+              backgroundColor: "#EF4444",
+              borderRadius: 8,
+              minWidth: 16,
+              height: 16,
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 4,
+            }}
+          />
+        )}
+      </View>
+    </Pressable>
+  );
 
   if (!isAuthenticated) {
     return <Redirect href="/(auth)/login" />;
@@ -41,8 +77,10 @@ export default function AppLayout() {
           headerStyle: { backgroundColor: bgColor },
           headerTintColor: tintColor,
           headerTitleStyle: { fontFamily: "Satoshi-Bold" },
+          headerTitleAlign: "left",
           headerBackVisible: false,
           headerLeft: () => <BackButton color={tintColor} />,
+          headerRight: notificationBell,
           contentStyle: { backgroundColor: surfaceColor },
         }}
       />
@@ -54,8 +92,10 @@ export default function AppLayout() {
           headerStyle: { backgroundColor: bgColor },
           headerTintColor: tintColor,
           headerTitleStyle: { fontFamily: "Satoshi-Bold" },
+          headerTitleAlign: "left",
           headerBackVisible: false,
           headerLeft: () => <BackButton color={tintColor} />,
+          headerRight: notificationBell,
           contentStyle: { backgroundColor: surfaceColor },
         }}
       />
@@ -67,8 +107,10 @@ export default function AppLayout() {
           headerStyle: { backgroundColor: bgColor },
           headerTintColor: tintColor,
           headerTitleStyle: { fontFamily: "Satoshi-Bold" },
+          headerTitleAlign: "left",
           headerBackVisible: false,
           headerLeft: () => <BackButton color={tintColor} />,
+          headerRight: notificationBell,
           contentStyle: { backgroundColor: surfaceColor },
         }}
       />

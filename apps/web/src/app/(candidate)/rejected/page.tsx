@@ -18,7 +18,7 @@ export default function RejectedPage() {
       <Card className="max-w-md w-full text-center">
         <CardHeader>
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-chip flex items-center justify-center">
               <XCircle className="h-8 w-8 text-red-600" />
             </div>
           </div>
@@ -29,9 +29,9 @@ export default function RejectedPage() {
         </CardHeader>
         <CardContent>
           {status?.rejectionReason && (
-            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 text-left">
-              <p className="text-sm font-medium text-red-800 dark:text-red-300">Reason:</p>
-              <p className="text-sm text-red-700 dark:text-red-300 mt-1">{status.rejectionReason}</p>
+            <div className="bg-chip border border-border rounded-lg p-4 text-left">
+              <p className="text-sm font-medium text-chip-foreground">Reason:</p>
+              <p className="text-sm text-muted-foreground mt-1">{status.rejectionReason}</p>
             </div>
           )}
         </CardContent>

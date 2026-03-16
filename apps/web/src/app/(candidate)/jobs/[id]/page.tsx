@@ -152,20 +152,20 @@ export default function CandidateJobDetailPage() {
 
               <div className="flex flex-wrap gap-2 mb-4">
                 {job.roleType && (
-                  <Badge variant="secondary">{job.roleType}</Badge>
+                  <Badge variant="chip">{job.roleType}</Badge>
                 )}
                 {job.experienceLevel && (
-                  <Badge variant="outline">
+                  <Badge variant="chip">
                     {experienceLevelLabels[job.experienceLevel]}
                   </Badge>
                 )}
                 {job.employmentType && (
-                  <Badge variant="outline">
+                  <Badge variant="chip">
                     {employmentTypeLabels[job.employmentType]}
                   </Badge>
                 )}
                 {job.workArrangement && (
-                  <Badge variant="outline">
+                  <Badge variant="chip">
                     {workArrangementLabels[job.workArrangement]}
                   </Badge>
                 )}
@@ -295,9 +295,9 @@ export default function CandidateJobDetailPage() {
               <CardContent className="space-y-4">
                 {hasSalary && (
                   <div className="flex items-center gap-3">
-                    <DollarSign className="h-5 w-5 text-muted-foreground" />
+                    <DollarSign className="h-5 w-5 text-highlight" />
                     <div>
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium text-highlight">
                         {job.salaryCurrency}{" "}
                         {job.salaryMin!.toLocaleString()} – {job.salaryMax!.toLocaleString()}
                         <span className="text-muted-foreground font-normal">
@@ -323,7 +323,7 @@ export default function CandidateJobDetailPage() {
                     <p className="text-sm font-medium mb-2">Benefits</p>
                     <div className="flex flex-wrap gap-2">
                       {job.benefits.map((benefit) => (
-                        <Badge key={benefit} variant="secondary">
+                        <Badge key={benefit} variant="chip">
                           {benefit}
                         </Badge>
                       ))}
@@ -443,7 +443,7 @@ export default function CandidateJobDetailPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {job.client.size && (
-                  <Badge variant="outline">
+                  <Badge variant="chip">
                     {companySizeLabels[job.client.size]}
                   </Badge>
                 )}
@@ -482,7 +482,7 @@ export default function CandidateJobDetailPage() {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {job.client.techStack.map((tech) => (
-                        <Badge key={tech} variant="secondary" className="text-xs">
+                        <Badge key={tech} variant="chip" className="text-xs">
                           {tech}
                         </Badge>
                       ))}
@@ -508,7 +508,7 @@ export default function CandidateJobDetailPage() {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {job.requiredSkills.map((skill) => (
-                        <Badge key={skill} variant="secondary">
+                        <Badge key={skill} variant="chip">
                           {skill}
                         </Badge>
                       ))}
@@ -522,7 +522,7 @@ export default function CandidateJobDetailPage() {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {job.preferredSkills.map((skill) => (
-                        <Badge key={skill} variant="outline">
+                        <Badge key={skill} variant="chip">
                           {skill}
                         </Badge>
                       ))}
@@ -550,7 +550,7 @@ export default function CandidateJobDetailPage() {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {job.frameworks.map((f) => (
-                        <Badge key={f} variant="secondary">
+                        <Badge key={f} variant="chip">
                           {f}
                         </Badge>
                       ))}
@@ -564,7 +564,7 @@ export default function CandidateJobDetailPage() {
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {job.databases.map((d) => (
-                        <Badge key={d} variant="secondary">
+                        <Badge key={d} variant="chip">
                           {d}
                         </Badge>
                       ))}
@@ -576,7 +576,7 @@ export default function CandidateJobDetailPage() {
                     <p className="text-xs text-muted-foreground mb-2">Cloud</p>
                     <div className="flex flex-wrap gap-1">
                       {job.cloud.map((c) => (
-                        <Badge key={c} variant="secondary">
+                        <Badge key={c} variant="chip">
                           {c}
                         </Badge>
                       ))}
@@ -588,7 +588,7 @@ export default function CandidateJobDetailPage() {
                     <p className="text-xs text-muted-foreground mb-2">Tools</p>
                     <div className="flex flex-wrap gap-1">
                       {job.tools.map((t) => (
-                        <Badge key={t} variant="secondary">
+                        <Badge key={t} variant="chip">
                           {t}
                         </Badge>
                       ))}

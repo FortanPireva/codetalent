@@ -44,11 +44,11 @@ const COLUMNS: ApplicationStatus[] = [
 ];
 
 const COLUMN_DOT_COLORS: Record<ApplicationStatus, string> = {
-  APPLIED: "bg-blue-500",
-  INVITED: "bg-purple-500",
-  INTERVIEW: "bg-yellow-500",
-  HIRED: "bg-green-500",
-  REJECTED: "bg-red-500",
+  APPLIED: "bg-chip-foreground",
+  INVITED: "bg-chip-foreground",
+  INTERVIEW: "bg-chip-foreground",
+  HIRED: "bg-highlight",
+  REJECTED: "bg-chip-foreground",
 };
 
 export default function ApplicationsPage() {
@@ -179,7 +179,7 @@ export default function ApplicationsPage() {
                       job.salaryMax != null;
 
                     return (
-                      <Card key={app.id} className="shadow-sm">
+                      <Card key={app.id} className="border-b border-border/60">
                         <CardContent className="p-4 space-y-2">
                           <Link
                             href={`/jobs/${job.id}`}

@@ -9,6 +9,7 @@ import {
 import { router } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 const statusColors: Record<string, string> = {
   APPLIED: "#3b82f6",
@@ -34,13 +35,14 @@ export default function ApplicationsScreen() {
   const applications = data ?? [];
 
   return (
+    <View className="flex-1" style={{ backgroundColor: c.surface }}>
+    <ScreenHeader />
     <FlatList
       className="flex-1"
-      style={{ backgroundColor: c.surface }}
       contentContainerStyle={
         applications.length === 0
           ? { flex: 1, justifyContent: "center", alignItems: "center" }
-          : { padding: 16 }
+          : { padding: 16, paddingBottom: 100 }
       }
       data={applications}
       keyExtractor={(item) => item.id}
@@ -83,5 +85,6 @@ export default function ApplicationsScreen() {
         </Pressable>
       )}
     />
+    </View>
   );
 }

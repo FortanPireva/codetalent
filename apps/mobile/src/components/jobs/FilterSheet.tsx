@@ -1,10 +1,6 @@
 import React, { forwardRef, useCallback, useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-  type BottomSheetBackdropProps,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView, type BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import {
   experienceLevelLabels,
@@ -50,7 +46,7 @@ function Chip({
   );
 }
 
-export const FilterSheet = forwardRef<BottomSheet, FilterSheetProps>(
+export const FilterSheet = forwardRef<BottomSheetModal, FilterSheetProps>(
   ({ filters, onApply }, ref) => {
     const snapPoints = useMemo(() => ["60%", "85%"], []);
     const [draft, setDraft] = useState<JobFilters>(filters);
@@ -82,16 +78,15 @@ export const FilterSheet = forwardRef<BottomSheet, FilterSheetProps>(
     const apply = () => {
       onApply(draft);
       if (ref && "current" in ref && ref.current) {
-        ref.current.close();
+        ref.current.dismiss();
       }
     };
 
     const hasFilters = draft.experienceLevel || draft.employmentType || draft.workArrangement;
 
     return (
-      <BottomSheet
+      <BottomSheetModal
         ref={ref}
-        index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose
         backdropComponent={renderBackdrop}
@@ -161,7 +156,7 @@ export const FilterSheet = forwardRef<BottomSheet, FilterSheetProps>(
             <Text className="font-bold text-base" style={{ color: c.primaryFg }}>Apply Filters</Text>
           </Pressable>
         </BottomSheetView>
-      </BottomSheet>
+      </BottomSheetModal>
     );
   },
 );

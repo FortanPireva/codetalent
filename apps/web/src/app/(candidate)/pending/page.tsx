@@ -35,8 +35,8 @@ export default function PendingPage() {
       <Card className="max-w-md w-full text-center">
         <CardHeader>
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
-              <Clock className="h-8 w-8 text-yellow-600" />
+            <div className="w-16 h-16 rounded-full bg-highlight-muted flex items-center justify-center">
+              <Clock className="h-8 w-8 text-highlight" />
             </div>
           </div>
           <CardTitle className="text-2xl">Profile Under Review</CardTitle>

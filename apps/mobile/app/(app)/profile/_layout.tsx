@@ -13,6 +13,7 @@ export default function ProfileLayout() {
         headerStyle: { backgroundColor: isDark ? "#141414" : "#FFFFFF" },
         headerTintColor: tintColor,
         headerTitleStyle: { fontFamily: "Satoshi-Bold" },
+        headerTitleAlign: "left",
         headerBackVisible: false,
         headerLeft: () => <BackButton color={tintColor} />,
         contentStyle: { backgroundColor: surfaceColor },

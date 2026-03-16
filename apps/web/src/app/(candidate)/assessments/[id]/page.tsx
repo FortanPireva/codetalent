@@ -166,16 +166,16 @@ export default function AssessmentDetailPage() {
             </a>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Instructions</h4>
-            <ol className="text-sm text-blue-800 dark:text-blue-300 list-decimal list-inside space-y-1">
+          <div className="bg-highlight-muted border border-highlight/20 rounded-lg p-4">
+            <h4 className="font-semibold text-highlight mb-2">Instructions</h4>
+            <ol className="text-sm text-highlight list-decimal list-inside space-y-1">
               <li>Fork the repository above to your GitHub account</li>
               <li>Complete the challenge as described</li>
               <li>Push your changes to your fork</li>
               <li>Submit your fork URL below</li>
               <li>Wait for AI-powered code review</li>
             </ol>
-            <p className="mt-2 text-sm text-blue-800 dark:text-blue-300">
+            <p className="mt-2 text-sm text-highlight">
               <strong>Pass threshold:</strong>{" "}
               {getPassThreshold(assessment.difficulty).toFixed(1)}/5.0 average
               score

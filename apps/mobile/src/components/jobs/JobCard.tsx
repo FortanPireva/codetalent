@@ -13,6 +13,7 @@ import {
   workArrangementLabels,
   formatSalary,
 } from "@/lib/constants";
+import { Bookmark, MapPin } from "lucide-react-native";
 
 interface JobCardProps {
   job: {
@@ -38,22 +39,6 @@ interface JobCardProps {
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-// Tag color variants
-const tagVariants = {
-  purple: {
-    light: { bg: "#EDE9FE", text: "#7C3AED" },
-    dark: { bg: "#2E1065", text: "#A78BFA" },
-  },
-  blue: {
-    light: { bg: "#DBEAFE", text: "#1D4ED8" },
-    dark: { bg: "#1E3A5F", text: "#60A5FA" },
-  },
-  amber: {
-    light: { bg: "#FEF3C7", text: "#B45309" },
-    dark: { bg: "#451A03", text: "#FBBF24" },
-  },
-};
 
 function CompanyAvatar({ name, logo, size = 44, colors }: { name: string; logo?: string | null; size?: number; colors: ReturnType<typeof useThemeColors> }) {
   const [imgError, setImgError] = useState(false);
@@ -91,7 +76,6 @@ export { CompanyAvatar };
 
 export function JobCard({ job, index, isBookmarked, onToggleBookmark, onPress }: JobCardProps) {
   const c = useThemeColors();
-  const isDark = c.bg === "#141414";
   const scale = useSharedValue(1);
   const bookmarkScale = useSharedValue(1);
 
@@ -126,9 +110,6 @@ export function JobCard({ job, index, isBookmarked, onToggleBookmark, onPress }:
   const visibleSkills = job.requiredSkills.slice(0, MAX_SKILLS);
   const overflowCount = job.requiredSkills.length - MAX_SKILLS;
 
-  const getTagColors = (variant: keyof typeof tagVariants) =>
-    isDark ? tagVariants[variant].dark : tagVariants[variant].light;
-
   return (
     <AnimatedPressable
       entering={FadeInDown.delay(index * 50).springify()}
@@ -157,9 +138,14 @@ export function JobCard({ job, index, isBookmarked, onToggleBookmark, onPress }:
           <Text className="mt-0.5 font-sans text-sm" style={{ color: c.mutedFg }}>{job.client.name}</Text>
         </View>
         <Pressable onPress={handleBookmark} hitSlop={12} className="ml-2">
-          <Animated.Text style={bookmarkAnimStyle} className="text-xl">
-            {isBookmarked ? "🔖" : "🏷️"}
-          </Animated.Text>
+          <Animated.View style={bookmarkAnimStyle}>
+            <Bookmark
+              size={20}
+              strokeWidth={1.5}
+              color={isBookmarked ? c.highlight : c.mutedFg}
+              fill={isBookmarked ? c.highlight : "none"}
+            />
+          </Animated.View>
         </Pressable>
       </View>
 
@@ -174,50 +160,52 @@ export function JobCard({ job, index, isBookmarked, onToggleBookmark, onPress }:
       {(salary || job.location) && (
         <View className="mb-3 flex-row items-center">
           {salary ? (
-            <View className="mr-2 flex-row items-center rounded-lg px-2.5 py-1" style={{ backgroundColor: isDark ? "#052e16" : "#f0fdf4" }}>
-              <Text className="font-semibold text-xs" style={{ color: "#22c55e" }}>{salary}</Text>
+            <View className="mr-2 flex-row items-center rounded-lg px-2.5 py-1" style={{ backgroundColor: c.highlightBg }}>
+              <Text className="font-semibold text-xs" style={{ color: c.highlight }}>{salary}</Text>
             </View>
           ) : null}
           {job.location && (
             <View className="flex-row items-center">
-              <Text className="mr-1 text-xs">📍</Text>
+              <View className="mr-1">
+                <MapPin size={12} strokeWidth={1.5} color={c.placeholder} />
+              </View>
               <Text className="font-sans text-xs" style={{ color: c.placeholder }}>{job.location}</Text>
             </View>
           )}
         </View>
       )}
 
-      {/* Tags */}
+      {/* Tags — all monochrome */}
       <View className="mb-3 flex-row flex-wrap gap-1.5">
         {job.experienceLevel && (
-          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: getTagColors("purple").bg }}>
-            <Text className="font-medium text-xs" style={{ color: getTagColors("purple").text }}>
+          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: c.tag }}>
+            <Text className="font-medium text-xs" style={{ color: c.tagText }}>
               {experienceLevelLabels[job.experienceLevel] ?? job.experienceLevel}
             </Text>
           </View>
         )}
         {job.workArrangement && (
-          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: getTagColors("blue").bg }}>
-            <Text className="font-medium text-xs" style={{ color: getTagColors("blue").text }}>
+          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: c.tag }}>
+            <Text className="font-medium text-xs" style={{ color: c.tagText }}>
               {workArrangementLabels[job.workArrangement] ?? job.workArrangement}
             </Text>
           </View>
         )}
         {job.employmentType && (
-          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: getTagColors("amber").bg }}>
-            <Text className="font-medium text-xs" style={{ color: getTagColors("amber").text }}>
+          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: c.tag }}>
+            <Text className="font-medium text-xs" style={{ color: c.tagText }}>
               {employmentTypeLabels[job.employmentType] ?? job.employmentType}
             </Text>
           </View>
         )}
       </View>
 
-      {/* Skills */}
+      {/* Skills — monochrome */}
       {visibleSkills.length > 0 && (
         <View className="flex-row flex-wrap gap-1.5">
           {visibleSkills.map((skill) => (
-            <View key={skill} className="rounded-lg px-2.5 py-1" style={{ backgroundColor: c.skillTag }}>
-              <Text className="font-medium text-xs" style={{ color: c.skillTagText }}>{skill}</Text>
+            <View key={skill} className="rounded-lg px-2.5 py-1" style={{ backgroundColor: c.tag }}>
+              <Text className="font-medium text-xs" style={{ color: c.tagText }}>{skill}</Text>
             </View>
           ))}
           {overflowCount > 0 && (

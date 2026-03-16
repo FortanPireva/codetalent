@@ -1,4 +1,5 @@
 import { View, Text, Pressable } from "react-native";
+import { XCircle } from "lucide-react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
 
@@ -8,7 +9,9 @@ export default function RejectedScreen() {
 
   return (
     <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: c.bg }}>
-      <Text className="mb-4 text-5xl">❌</Text>
+      <View className="mb-4 items-center justify-center rounded-2xl p-4" style={{ backgroundColor: c.destructive + "1A" }}>
+        <XCircle size={40} strokeWidth={1.5} color={c.destructive} />
+      </View>
       <Text className="mb-2 text-center font-bold text-2xl" style={{ color: c.fg }}>
         Application Rejected
       </Text>

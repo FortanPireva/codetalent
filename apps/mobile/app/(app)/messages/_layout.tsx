@@ -11,6 +11,7 @@ export default function MessagesLayout() {
         headerStyle: { backgroundColor: c.bg },
         headerTintColor: c.fg,
         headerTitleStyle: { fontFamily: "Satoshi-Bold" },
+        headerTitleAlign: "left",
         contentStyle: { backgroundColor: c.surface },
       }}
     >

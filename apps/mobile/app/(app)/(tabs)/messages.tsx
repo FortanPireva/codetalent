@@ -6,9 +6,11 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { MessageCircle } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { timeAgo } from "@/lib/timeAgo";
 
 export default function MessagesScreen() {
@@ -33,13 +35,14 @@ export default function MessagesScreen() {
   }
 
   return (
+    <View className="flex-1" style={{ backgroundColor: c.surface }}>
+    <ScreenHeader />
     <FlatList
       className="flex-1"
-      style={{ backgroundColor: c.surface }}
       contentContainerStyle={
         (threads ?? []).length === 0
           ? { flex: 1, justifyContent: "center", alignItems: "center" }
-          : { padding: 16 }
+          : { padding: 16, paddingBottom: 100 }
       }
       data={threads ?? []}
       keyExtractor={(item) => item.threadId}
@@ -48,7 +51,9 @@ export default function MessagesScreen() {
       }
       ListEmptyComponent={
         <View className="items-center p-8">
-          <Text style={{ fontSize: 40, marginBottom: 12 }}>💬</Text>
+          <View style={{ marginBottom: 12 }}>
+            <MessageCircle size={40} strokeWidth={1.5} color={c.placeholder} />
+          </View>
           <Text className="font-sans text-base" style={{ color: c.placeholder }}>
             No conversations yet
           </Text>
@@ -114,5 +119,6 @@ export default function MessagesScreen() {
         );
       }}
     />
+    </View>
   );
 }

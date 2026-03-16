@@ -23,10 +23,14 @@
   --input-bg: #F9F9F9;
   --ring: #141414;
   --surface: #F5F5F5;
-  --tag: #F0F0F0;
-  --skill-tag: #E0E7FF;
-  --skill-tag-text: #4338CA;
+  --tag: #F4F4F5;
+  --tag-text: #3F3F46;
+  --skill-tag: #F4F4F5;
+  --skill-tag-text: #3F3F46;
   --placeholder: #999999;
+  --highlight: #141414;
+  --highlight-bg: #1414140F;
+  --highlight-text: #141414;
 }
 
 .dark {
@@ -50,8 +54,12 @@
   --input-bg: #1E1E1E;
   --ring: #FAFAFA;
   --surface: #1E1E1E;
-  --tag: #2A2A2A;
-  --skill-tag: #2D2B5E;
-  --skill-tag-text: #A5B4FC;
+  --tag: #27272A;
+  --tag-text: #D4D4D8;
+  --skill-tag: #27272A;
+  --skill-tag-text: #D4D4D8;
   --placeholder: #707070;
+  --highlight: #FAFAFA;
+  --highlight-bg: #FAFAFA15;
+  --highlight-text: #FAFAFA;
 }

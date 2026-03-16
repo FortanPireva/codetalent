@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router, Stack } from "expo-router";
+import { useLocalSearchParams, router, Stack, useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,11 +21,38 @@ import { InfoPill } from "@/components/jobs/InfoPill";
 import { InterviewTimeline } from "@/components/jobs/InterviewTimeline";
 import { JobDetailSkeleton } from "@/components/jobs/JobDetailSkeleton";
 import { CompanyAvatar } from "@/components/jobs/JobCard";
+import {
+  Bell,
+  Bookmark,
+  FileText,
+  CheckSquare,
+  ClipboardList,
+  Star,
+  Wrench,
+  DollarSign,
+  TrendingUp,
+  Target,
+  Mic,
+  Building2,
+  Factory,
+  Users,
+  Info,
+  Briefcase,
+  Home,
+  Stamp,
+  Plane,
+  Clock,
+  Search,
+} from "lucide-react-native";
 
-function SectionHeader({ icon, title, color }: { icon?: string; title: string; color: string }) {
+function SectionHeader({ icon: Icon, title, color }: { icon?: React.ComponentType<{ size: number; strokeWidth: number; color: string }>; title: string; color: string }) {
   return (
     <View className="mb-3 flex-row items-center">
-      {icon && <Text className="mr-2 text-base">{icon}</Text>}
+      {Icon && (
+        <View className="mr-2">
+          <Icon size={18} strokeWidth={1.5} color={color} />
+        </View>
+      )}
       <Text className="font-bold text-lg" style={{ color }}>{title}</Text>
     </View>
   );
@@ -53,7 +80,6 @@ function BulletList({ items, color }: { items: string; color: string }) {
 function SkillPills({
   label,
   skills,
-  variant = "default",
   colors: c,
 }: {
   label: string;
@@ -63,17 +89,6 @@ function SkillPills({
 }) {
   if (skills.length === 0) return null;
 
-  const getBgColor = () => {
-    if (variant === "required") return c.skillTag;
-    if (variant === "preferred") return c.skillTag;
-    return c.tag;
-  };
-  const getTextColor = () => {
-    if (variant === "required") return c.skillTagText;
-    if (variant === "preferred") return c.skillTagText;
-    return c.mutedFg;
-  };
-
   return (
     <View className="mb-3">
       <Text className="mb-1.5 font-medium text-xs uppercase tracking-wide" style={{ color: c.placeholder }}>
@@ -81,8 +96,8 @@ function SkillPills({
       </Text>
       <View className="flex-row flex-wrap gap-1.5">
         {skills.map((s) => (
-          <View key={s} className="rounded-md px-2.5 py-1" style={{ backgroundColor: getBgColor() }}>
-            <Text className="font-medium text-xs" style={{ color: getTextColor() }}>{s}</Text>
+          <View key={s} className="rounded-md px-2.5 py-1" style={{ backgroundColor: c.tag }}>
+            <Text className="font-medium text-xs" style={{ color: c.tagText }}>{s}</Text>
           </View>
         ))}
       </View>
@@ -92,6 +107,7 @@ function SkillPills({
 
 export default function JobDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const nav = useRouter();
   const c = useThemeColors();
   const { data: job, isLoading } = api.job.candidateGetById.useQuery({ id: id! });
   const { data: applicationData } = api.application.hasApplied.useQuery(
@@ -135,7 +151,9 @@ export default function JobDetailScreen() {
   if (!job) {
     return (
       <View className="flex-1 items-center justify-center" style={{ backgroundColor: c.bg }}>
-        <Text className="mb-1 text-3xl">🔍</Text>
+        <View className="mb-2">
+          <Search size={28} strokeWidth={1.5} color={c.mutedFg} />
+        </View>
         <Text className="font-sans" style={{ color: c.fg }}>Job not found</Text>
       </View>
     );
@@ -161,11 +179,21 @@ export default function JobDetailScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={handleBookmark} hitSlop={12}>
-              <Animated.Text style={bookmarkAnimStyle} className="text-xl">
-                {isBookmarked(id!) ? "🔖" : "🏷️"}
-              </Animated.Text>
-            </Pressable>
+            <View className="flex-row items-center gap-4 mr-4">
+              <Pressable onPress={handleBookmark} hitSlop={12}>
+                <Animated.View style={bookmarkAnimStyle}>
+                  <Bookmark
+                    size={20}
+                    strokeWidth={1.5}
+                    color={isBookmarked(id!) ? c.highlight : c.mutedFg}
+                    fill={isBookmarked(id!) ? c.highlight : "none"}
+                  />
+                </Animated.View>
+              </Pressable>
+              <Pressable onPress={() => nav.push("/(app)/notifications")} hitSlop={12}>
+                <Bell size={22} strokeWidth={1.5} color={c.fg} />
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -206,33 +234,30 @@ export default function JobDetailScreen() {
         >
           {job.experienceLevel && (
             <InfoPill
-              icon="📊"
+              icon={Briefcase}
               label={experienceLevelLabels[job.experienceLevel] ?? job.experienceLevel}
-              variant="purple"
             />
           )}
           {job.employmentType && (
             <InfoPill
-              icon="💼"
+              icon={ClipboardList}
               label={employmentTypeLabels[job.employmentType] ?? job.employmentType}
-              variant="amber"
             />
           )}
           {job.workArrangement && (
             <InfoPill
-              icon="🏠"
+              icon={Home}
               label={workArrangementLabels[job.workArrangement] ?? job.workArrangement}
-              variant="blue"
             />
           )}
-          {salary && <InfoPill icon="💰" label={salary} variant="green" />}
+          {salary && <InfoPill icon={DollarSign} label={salary} accent />}
         </ScrollView>
 
         <View className="px-4">
           {/* About This Role */}
           {(job.summary || job.description) && (
-            <View className="mb-5">
-              <SectionHeader icon="📋" title="About This Role" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={FileText} title="About This Role" color={c.fg} />
               {job.summary && (
                 <Text className="mb-3 font-sans text-sm leading-6" style={{ color: c.fg }}>
                   {job.summary}
@@ -248,32 +273,32 @@ export default function JobDetailScreen() {
 
           {/* Responsibilities */}
           {job.responsibilities && (
-            <View className="mb-5">
-              <SectionHeader icon="✅" title="Responsibilities" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={CheckSquare} title="Responsibilities" color={c.fg} />
               <BulletList items={job.responsibilities} color={c.mutedFg} />
             </View>
           )}
 
           {/* Requirements */}
           {job.requirements && (
-            <View className="mb-5">
-              <SectionHeader icon="📌" title="Requirements" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={ClipboardList} title="Requirements" color={c.fg} />
               <BulletList items={job.requirements} color={c.mutedFg} />
             </View>
           )}
 
           {/* Nice to Have */}
           {job.niceToHave && (
-            <View className="mb-5">
-              <SectionHeader icon="⭐" title="Nice to Have" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={Star} title="Nice to Have" color={c.fg} />
               <BulletList items={job.niceToHave} color={c.mutedFg} />
             </View>
           )}
 
           {/* Tech Stack */}
           {techGroups.length > 0 && (
-            <View className="mb-5">
-              <SectionHeader icon="🛠" title="Tech Stack" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={Wrench} title="Tech Stack" color={c.fg} />
               {techGroups.map((group) => (
                 <SkillPills
                   key={group.label}
@@ -288,14 +313,16 @@ export default function JobDetailScreen() {
 
           {/* Compensation & Benefits */}
           {(salary || job.equity || job.bonus || job.benefits.length > 0) && (
-            <View className="mb-5">
-              <SectionHeader icon="💰" title="Compensation & Benefits" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={DollarSign} title="Compensation & Benefits" color={c.fg} />
               {salary && (
-                <Text className="mb-2 font-bold text-lg" style={{ color: "#22c55e" }}>{salary}</Text>
+                <Text className="mb-2 font-bold text-lg" style={{ color: c.highlight }}>{salary}</Text>
               )}
               {job.equity && (
                 <View className="mb-1.5 flex-row items-center">
-                  <Text className="mr-2 text-sm">📈</Text>
+                  <View className="mr-2">
+                    <TrendingUp size={14} strokeWidth={1.5} color={c.mutedFg} />
+                  </View>
                   <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
                     Equity: {job.equityRange ?? "Yes"}
                   </Text>
@@ -303,7 +330,9 @@ export default function JobDetailScreen() {
               )}
               {job.bonus && (
                 <View className="mb-1.5 flex-row items-center">
-                  <Text className="mr-2 text-sm">🎯</Text>
+                  <View className="mr-2">
+                    <Target size={14} strokeWidth={1.5} color={c.mutedFg} />
+                  </View>
                   <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
                     Bonus: {job.bonus}
                   </Text>
@@ -313,7 +342,7 @@ export default function JobDetailScreen() {
                 <View className="mt-2">
                   {job.benefits.map((b) => (
                     <View key={b} className="mb-1 flex-row items-center">
-                      <Text className="mr-2 text-sm" style={{ color: "#22c55e" }}>✓</Text>
+                      <Text className="mr-2 text-sm" style={{ color: c.highlight }}>✓</Text>
                       <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>{b}</Text>
                     </View>
                   ))}
@@ -324,8 +353,8 @@ export default function JobDetailScreen() {
 
           {/* Interview Process */}
           {job.interviewStages.length > 0 && (
-            <View className="mb-5">
-              <SectionHeader icon="🎤" title="Interview Process" color={c.fg} />
+            <View className="mb-5" style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight, paddingBottom: 20 }}>
+              <SectionHeader icon={Mic} title="Interview Process" color={c.fg} />
               {job.interviewLength && (
                 <Text className="mb-3 font-sans text-xs" style={{ color: c.placeholder }}>
                   Typical duration: {job.interviewLength}
@@ -337,18 +366,28 @@ export default function JobDetailScreen() {
 
           {/* About the Company */}
           {(job.client.description || job.client.industry) && (
-            <View className="mb-5 rounded-xl p-4" style={{ backgroundColor: c.card }}>
-              <SectionHeader icon="🏢" title={`About ${job.client.name}`} color={c.fg} />
+            <View className="mb-5 rounded-xl p-4" style={{ backgroundColor: c.card, borderBottomWidth: 1, borderBottomColor: c.borderLight }}>
+              <SectionHeader icon={Building2} title={`About ${job.client.name}`} color={c.fg} />
               <View className="flex-row flex-wrap gap-3 mb-2">
                 {job.client.industry && (
-                  <Text className="font-sans text-xs" style={{ color: c.placeholder }}>
-                    🏭 {job.client.industry}
-                  </Text>
+                  <View className="flex-row items-center">
+                    <View className="mr-1">
+                      <Factory size={12} strokeWidth={1.5} color={c.placeholder} />
+                    </View>
+                    <Text className="font-sans text-xs" style={{ color: c.placeholder }}>
+                      {job.client.industry}
+                    </Text>
+                  </View>
                 )}
                 {job.client.size && (
-                  <Text className="font-sans text-xs" style={{ color: c.placeholder }}>
-                    👥 {job.client.size}
-                  </Text>
+                  <View className="flex-row items-center">
+                    <View className="mr-1">
+                      <Users size={12} strokeWidth={1.5} color={c.placeholder} />
+                    </View>
+                    <Text className="font-sans text-xs" style={{ color: c.placeholder }}>
+                      {job.client.size}
+                    </Text>
+                  </View>
                 )}
               </View>
               {job.client.description && (
@@ -362,16 +401,16 @@ export default function JobDetailScreen() {
           {/* Additional Info */}
           {(job.visaSponsorship || job.relocation || job.timezone) && (
             <View className="mb-5">
-              <SectionHeader icon="ℹ️" title="Additional Info" color={c.fg} />
+              <SectionHeader icon={Info} title="Additional Info" color={c.fg} />
               <View className="flex-row flex-wrap gap-3">
                 {job.visaSponsorship && (
-                  <InfoPill icon="🛂" label="Visa Sponsorship" variant="green" />
+                  <InfoPill icon={Stamp} label="Visa Sponsorship" />
                 )}
                 {job.relocation && (
-                  <InfoPill icon="✈️" label="Relocation Support" variant="blue" />
+                  <InfoPill icon={Plane} label="Relocation Support" />
                 )}
                 {job.timezone && (
-                  <InfoPill icon="🕐" label={job.timezone} variant="default" />
+                  <InfoPill icon={Clock} label={job.timezone} />
                 )}
               </View>
             </View>
@@ -390,17 +429,17 @@ export default function JobDetailScreen() {
         }}
       >
         {hasApplied || justApplied ? (
-          <View className="items-center rounded-xl py-4" style={{ backgroundColor: "#22c55e33" }}>
-            <Text className="font-bold text-base" style={{ color: "#22c55e" }}>Applied ✓</Text>
+          <View className="items-center rounded-none py-4" style={{ backgroundColor: c.highlightBg }}>
+            <Text className="font-bold text-base" style={{ color: c.highlight }}>Applied ✓</Text>
           </View>
         ) : (
           <Pressable
-            className={`items-center rounded-xl py-4 ${isApplying ? "opacity-60" : ""}`}
+            className={`items-center rounded-none py-4 ${isApplying ? "opacity-60" : ""}`}
             style={{ backgroundColor: c.primary }}
             onPress={() => applyMutation.mutate({ jobId: id! })}
             disabled={isApplying}
           >
-            <Text className="font-bold text-base" style={{ color: c.primaryFg }}>
+            <Text className="font-bold text-base" style={{ color: "#FFFFFF" }}>
               {isApplying ? "Applying..." : "Apply Now"}
             </Text>
           </Pressable>

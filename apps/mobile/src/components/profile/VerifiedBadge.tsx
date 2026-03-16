@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { CheckCircle, Clock } from "lucide-react-native";
 import { useThemeColors } from "@/hooks/useThemeColors";
 
 interface VerifiedBadgeProps {
@@ -19,7 +20,7 @@ export function VerifiedBadge({
         className="flex-row items-center gap-1.5 rounded-full px-3 py-1"
         style={{ backgroundColor: isDark ? "#052E16" : "#DCFCE7" }}
       >
-        <Text className="text-sm">✓</Text>
+        <CheckCircle size={14} strokeWidth={1.5} color={isDark ? "#4ADE80" : "#15803D"} />
         <Text className="font-medium text-xs" style={{ color: isDark ? "#4ADE80" : "#15803D" }}>
           Verified
         </Text>
@@ -33,7 +34,7 @@ export function VerifiedBadge({
         className="flex-row items-center gap-1.5 rounded-full px-3 py-1"
         style={{ backgroundColor: isDark ? "#451A03" : "#FEF3C7" }}
       >
-        <Text className="text-sm">⏳</Text>
+        <Clock size={14} strokeWidth={1.5} color={isDark ? "#FBBF24" : "#B45309"} />
         <Text className="font-medium text-xs" style={{ color: isDark ? "#FBBF24" : "#B45309" }}>
           Pending
         </Text>
