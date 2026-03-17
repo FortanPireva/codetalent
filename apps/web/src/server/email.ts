@@ -4,6 +4,31 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "noreply@talentflow.codeks.net";
 
+export async function sendReportNotificationEmail(
+  reporterName: string,
+  reportedUserName: string,
+  reason: string,
+  description?: string | null,
+) {
+  const adminEmail = process.env.ADMIN_EMAIL ?? FROM_EMAIL;
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: adminEmail,
+    subject: "User Report — Talentflow",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>New User Report</h2>
+        <p><strong>Reporter:</strong> ${reporterName}</p>
+        <p><strong>Reported User:</strong> ${reportedUserName}</p>
+        <p><strong>Reason:</strong> ${reason}</p>
+        ${description ? `<p><strong>Description:</strong> ${description}</p>` : ""}
+        <p style="color: #6b7280; font-size: 14px;">Please review this report in the admin dashboard.</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(to: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 

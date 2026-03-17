@@ -11,6 +11,8 @@ import {
 import { Availability } from "@codetalent/db";
 import { sendPasswordResetEmail } from "@/server/email";
 import { verifyGoogleToken, verifyAppleToken } from "@/server/auth-providers";
+import { connectMongo } from "@/server/mongodb";
+import { Thread, Message } from "@/server/mongodb/models";
 
 export const authRouter = createTRPCRouter({
   // Mobile login - returns JWT for Bearer auth
@@ -430,5 +432,42 @@ export const authRouter = createTRPCRouter({
 
   getSession: protectedProcedure.query(({ ctx }) => {
     return ctx.session;
+  }),
+
+  deleteAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // 1. Clean up MongoDB messages and threads
+    await connectMongo();
+    const clientRecord = await ctx.db.client.findFirst({
+      where: { userId },
+      select: { id: true },
+    });
+
+    const threads = await Thread.find({
+      $or: [
+        { candidateId: userId },
+        ...(clientRecord ? [{ clientId: clientRecord.id }] : []),
+      ],
+    });
+
+    const threadIds = threads.map((t) => t._id);
+    if (threadIds.length > 0) {
+      await Message.deleteMany({ threadId: { $in: threadIds } });
+      await Thread.deleteMany({ _id: { $in: threadIds } });
+    }
+
+    // 2. Delete Report and BlockedUser records
+    await ctx.db.report.deleteMany({
+      where: { OR: [{ reporterId: userId }, { reportedUserId: userId }] },
+    });
+    await ctx.db.blockedUser.deleteMany({
+      where: { OR: [{ userId }, { blockedUserId: userId }] },
+    });
+
+    // 3. Delete user (cascades handle Submissions, JobApplications, PushTokens, Notifications, NotificationPreference)
+    await ctx.db.user.delete({ where: { id: userId } });
+
+    return { success: true };
   }),
 });

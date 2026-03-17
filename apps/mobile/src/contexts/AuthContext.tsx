@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithToken: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   loginWithToken: async () => {},
   logout: async () => {},
+  updateUser: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -58,6 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const result = await loginMutation.mutateAsync({ email, password });
+
+    if (result.user.role === "CLIENT" || result.user.role === "ADMIN") {
+      throw new Error("This app is for developers only. Please use the web platform.");
+    }
+
     await SecureStore.setItemAsync("auth_token", result.token);
     await SecureStore.setItemAsync("auth_user", JSON.stringify(result.user));
     setUser(result.user);
@@ -67,6 +74,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await SecureStore.setItemAsync("auth_token", token);
     await SecureStore.setItemAsync("auth_user", JSON.stringify(userData));
     setUser(userData);
+  }, []);
+
+  const updateUser = useCallback(async (updates: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...updates };
+      SecureStore.setItemAsync("auth_user", JSON.stringify(updated));
+      return updated;
+    });
   }, []);
 
   const logout = useCallback(async () => {
@@ -86,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         loginWithToken,
         logout,
+        updateUser,
       }}
     >
       {children}

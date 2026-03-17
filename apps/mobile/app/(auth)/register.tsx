@@ -6,6 +6,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from "react-native";
 import { Link } from "expo-router";
 import { api } from "@/lib/trpc";
@@ -21,11 +22,16 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const registerMutation = api.auth.register.useMutation();
   const { loginWithToken } = useAuth();
   const c = useThemeColors();
 
   async function handleRegister() {
+    if (!agreedToTerms) {
+      setError("You must agree to the Terms of Service and Privacy Policy");
+      return;
+    }
     if (!name || !email || !password) {
       setError("Please fill in all fields");
       return;
@@ -131,6 +137,39 @@ export default function RegisterScreen() {
               autoComplete="new-password"
             />
 
+            <Pressable
+              className="mb-4 flex-row items-start gap-3"
+              onPress={() => setAgreedToTerms(!agreedToTerms)}
+            >
+              <View
+                className="mt-0.5 h-5 w-5 items-center justify-center rounded border"
+                style={{
+                  borderColor: agreedToTerms ? c.primary : c.border,
+                  backgroundColor: agreedToTerms ? c.primary : "transparent",
+                }}
+              >
+                {agreedToTerms && (
+                  <Text style={{ color: c.primaryFg, fontSize: 12, fontWeight: "700" }}>✓</Text>
+                )}
+              </View>
+              <Text className="flex-1 font-sans text-sm leading-5" style={{ color: c.mutedFg }}>
+                I agree to the{" "}
+                <Text
+                  style={{ color: c.primary }}
+                  onPress={() => Linking.openURL("https://talentflow.codeks.net/terms")}
+                >
+                  Terms of Service
+                </Text>
+                {" "}and{" "}
+                <Text
+                  style={{ color: c.primary }}
+                  onPress={() => Linking.openURL("https://talentflow.codeks.net/privacy")}
+                >
+                  Privacy Policy
+                </Text>
+              </Text>
+            </Pressable>
+
             {error ? (
               <Text className="mb-2 text-center font-sans text-sm" style={{ color: c.destructive }}>
                 {error}
@@ -138,10 +177,10 @@ export default function RegisterScreen() {
             ) : null}
 
             <Pressable
-              className={`items-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
+              className={`items-center rounded-xl py-4 ${loading || !agreedToTerms ? "opacity-60" : ""}`}
               style={{ backgroundColor: c.primary }}
               onPress={handleRegister}
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
             >
               <Text className="font-medium text-base" style={{ color: c.primaryFg }}>
                 {loading ? "Creating account..." : "Sign Up"}
@@ -162,7 +201,40 @@ export default function RegisterScreen() {
           </>
         ) : (
           <>
-            <SocialLoginButtons />
+            <Pressable
+              className="mb-4 flex-row items-start gap-3"
+              onPress={() => setAgreedToTerms(!agreedToTerms)}
+            >
+              <View
+                className="mt-0.5 h-5 w-5 items-center justify-center rounded border"
+                style={{
+                  borderColor: agreedToTerms ? c.primary : c.border,
+                  backgroundColor: agreedToTerms ? c.primary : "transparent",
+                }}
+              >
+                {agreedToTerms && (
+                  <Text style={{ color: c.primaryFg, fontSize: 12, fontWeight: "700" }}>✓</Text>
+                )}
+              </View>
+              <Text className="flex-1 font-sans text-sm leading-5" style={{ color: c.mutedFg }}>
+                I agree to the{" "}
+                <Text
+                  style={{ color: c.primary }}
+                  onPress={() => Linking.openURL("https://talentflow.codeks.net/terms")}
+                >
+                  Terms of Service
+                </Text>
+                {" "}and{" "}
+                <Text
+                  style={{ color: c.primary }}
+                  onPress={() => Linking.openURL("https://talentflow.codeks.net/privacy")}
+                >
+                  Privacy Policy
+                </Text>
+              </Text>
+            </Pressable>
+
+            <SocialLoginButtons disabled={!agreedToTerms} />
 
             <View className="my-5 flex-row items-center">
               <View className="flex-1 border-b" style={{ borderColor: c.border }} />

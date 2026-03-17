@@ -29,6 +29,15 @@ export function useSocialAuth() {
           idToken,
           name,
         });
+
+        if (result.user.role === "CLIENT" || result.user.role === "ADMIN") {
+          Alert.alert(
+            "Access Restricted",
+            "This app is for developers only. Please use the web platform.",
+          );
+          return;
+        }
+
         await loginWithToken(result.token, result.user);
       } catch (err: unknown) {
         const message =

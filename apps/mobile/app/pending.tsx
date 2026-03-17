@@ -1,11 +1,33 @@
-import { View, Text, Pressable } from "react-native";
-import { Clock } from "lucide-react-native";
+import { View, Text, Pressable, ActivityIndicator } from "react-native";
+import { Clock, RefreshCw } from "lucide-react-native";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { api } from "@/lib/trpc";
+import { useEffect, useState } from "react";
 
 export default function PendingScreen() {
-  const { logout } = useAuth();
+  const { logout, updateUser } = useAuth();
   const c = useThemeColors();
+  const [checking, setChecking] = useState(false);
+
+  const { data, refetch } = api.onboarding.getStatus.useQuery(undefined, {
+    refetchInterval: 15_000,
+  });
+
+  useEffect(() => {
+    if (data?.candidateStatus && data.candidateStatus !== "PENDING_REVIEW") {
+      updateUser({ candidateStatus: data.candidateStatus });
+    }
+  }, [data?.candidateStatus, updateUser]);
+
+  const handleCheckStatus = async () => {
+    setChecking(true);
+    try {
+      await refetch();
+    } finally {
+      setChecking(false);
+    }
+  };
 
   return (
     <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: c.bg }}>
@@ -20,7 +42,22 @@ export default function PendingScreen() {
         it's approved.
       </Text>
       <Pressable
-        className="mt-6"
+        className="mt-8 flex-row items-center rounded-xl px-6 py-3"
+        style={{ backgroundColor: c.highlight }}
+        onPress={handleCheckStatus}
+        disabled={checking}
+      >
+        {checking ? (
+          <ActivityIndicator size="small" color="#FFFFFF" />
+        ) : (
+          <RefreshCw size={18} strokeWidth={2} color="#FFFFFF" />
+        )}
+        <Text className="ml-2 font-bold text-sm" style={{ color: "#FFFFFF" }}>
+          {checking ? "Checking..." : "Check Status"}
+        </Text>
+      </Pressable>
+      <Pressable
+        className="mt-4"
         onPress={() => { logout().catch(() => {}); }}
         hitSlop={{ top: 16, bottom: 16, left: 24, right: 24 }}
       >

@@ -39,17 +39,19 @@ function AppleLogo({ size = 20, color }: { size?: number; color: string }) {
 
 interface SocialLoginButtonsProps {
   loading?: boolean;
+  disabled?: boolean;
 }
 
-export function SocialLoginButtons({ loading: externalLoading }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ loading: externalLoading, disabled }: SocialLoginButtonsProps) {
   const c = useThemeColors();
   const { signInWithGoogle, signInWithApple, loading: socialLoading } = useSocialAuth();
   const loading = externalLoading || socialLoading;
+  const isDisabled = loading || disabled;
 
   return (
     <View>
       <Pressable
-        className={`mb-3 flex-row items-center justify-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
+        className={`mb-3 flex-row items-center justify-center rounded-xl py-4 ${isDisabled ? "opacity-60" : ""}`}
         style={{
           backgroundColor: c.inputBg,
           borderColor: c.border,
@@ -57,7 +59,7 @@ export function SocialLoginButtons({ loading: externalLoading }: SocialLoginButt
           gap: 12,
         }}
         onPress={signInWithGoogle}
-        disabled={loading}
+        disabled={isDisabled}
       >
         {socialLoading ? (
           <ActivityIndicator size="small" color={c.fg} />
@@ -73,13 +75,13 @@ export function SocialLoginButtons({ loading: externalLoading }: SocialLoginButt
 
       {Platform.OS === "ios" && (
         <Pressable
-          className={`flex-row items-center justify-center rounded-xl py-4 ${loading ? "opacity-60" : ""}`}
+          className={`flex-row items-center justify-center rounded-xl py-4 ${isDisabled ? "opacity-60" : ""}`}
           style={{
             backgroundColor: c.fg,
             gap: 12,
           }}
           onPress={signInWithApple}
-          disabled={loading}
+          disabled={isDisabled}
         >
           {socialLoading ? (
             <ActivityIndicator size="small" color={c.bg} />

@@ -114,6 +114,35 @@ export const messagesRouter = createTRPCRouter({
       }
 
       const senderRole = await assertThreadAccess(thread, ctx.session, ctx.db);
+
+      // Check if either party has blocked the other
+      const otherUserId = senderRole === "CANDIDATE"
+        ? await (async () => {
+            const client = await ctx.db.client.findFirst({
+              where: { id: thread.clientId },
+              select: { userId: true },
+            });
+            return client?.userId;
+          })()
+        : thread.candidateId;
+
+      if (otherUserId) {
+        const block = await ctx.db.blockedUser.findFirst({
+          where: {
+            OR: [
+              { userId: ctx.session.user.id, blockedUserId: otherUserId },
+              { userId: otherUserId, blockedUserId: ctx.session.user.id },
+            ],
+          },
+        });
+        if (block) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Cannot send messages to this user",
+          });
+        }
+      }
+
       const now = new Date();
 
       const message = await Message.create({
@@ -266,10 +295,23 @@ export const messagesRouter = createTRPCRouter({
           })
         : null;
 
+      // Resolve other party's userId for report/block
+      let otherPartyUserId: string | null = null;
+      if (ctx.session.user.role === "CANDIDATE") {
+        const client = await ctx.db.client.findFirst({
+          where: { id: thread.clientId },
+          select: { userId: true },
+        });
+        otherPartyUserId = client?.userId ?? null;
+      } else {
+        otherPartyUserId = thread.candidateId;
+      }
+
       return {
         threadId: (thread._id as Types.ObjectId).toString(),
         candidate,
         application,
+        otherPartyUserId,
       };
     }),
 
@@ -292,7 +334,32 @@ export const messagesRouter = createTRPCRouter({
       throw new TRPCError({ code: "FORBIDDEN" });
     }
 
-    const threads = await Thread.find(filter).sort({ updatedAt: -1 }).lean();
+    const allThreads = await Thread.find(filter).sort({ updatedAt: -1 }).lean();
+
+    // Filter out threads where the other participant is blocked
+    const blockedRecords = await ctx.db.blockedUser.findMany({
+      where: { userId },
+      select: { blockedUserId: true },
+    });
+    const blockedSet = new Set(blockedRecords.map((b) => b.blockedUserId));
+
+    // Also need to resolve client userIds for blocking check
+    const clientIdsForBlock = [...new Set(allThreads.map((t) => t.clientId))];
+    const clientsForBlock = await ctx.db.client.findMany({
+      where: { id: { in: clientIdsForBlock } },
+      select: { id: true, userId: true },
+    });
+    const clientUserIdMap = new Map(
+      clientsForBlock.filter((c) => c.userId).map((c) => [c.id, c.userId!]),
+    );
+
+    const threads = allThreads.filter((t) => {
+      const otherUserId =
+        role === "CANDIDATE"
+          ? clientUserIdMap.get(t.clientId)
+          : t.candidateId;
+      return !otherUserId || !blockedSet.has(otherUserId);
+    });
 
     // Enrich with participant names from PostgreSQL
     const candidateIds = [...new Set(threads.map((t) => t.candidateId))];

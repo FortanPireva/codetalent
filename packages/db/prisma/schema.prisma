@@ -139,6 +139,25 @@ enum NotificationType {
   MILESTONE_APPROVAL
 }
 
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE
+  OTHER
+}
+
+enum ReportContentType {
+  MESSAGE
+  PROFILE
+  JOB
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
 // Models
 model User {
   id           String       @id @default(cuid())
@@ -176,6 +195,10 @@ model User {
   pushTokens             PushToken[]
   notificationPreference NotificationPreference?
   notifications          Notification[]
+  reportsFiled           Report[]       @relation("ReportsFiled")
+  reportsReceived        Report[]       @relation("ReportsReceived")
+  blockedUsers           BlockedUser[]  @relation("BlockerUser")
+  blockedByUsers         BlockedUser[]  @relation("BlockedByUser")
 
   @@index([role])
   @@index([availability])
@@ -455,4 +478,35 @@ model JobMatchLog {
 
   @@unique([userId, jobId])
   @@index([userId])
+}
+
+model Report {
+  id             String            @id @default(cuid())
+  reporterId     String
+  reporter       User              @relation("ReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId String
+  reportedUser   User              @relation("ReportsReceived", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reason         ReportReason
+  description    String?
+  contentType    ReportContentType
+  contentId      String?
+  status         ReportStatus      @default(PENDING)
+  createdAt      DateTime          @default(now())
+
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([status])
+}
+
+model BlockedUser {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation("BlockerUser", fields: [userId], references: [id], onDelete: Cascade)
+  blockedUserId String
+  blockedUser   User     @relation("BlockedByUser", fields: [blockedUserId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, blockedUserId])
+  @@index([userId])
+  @@index([blockedUserId])
 }

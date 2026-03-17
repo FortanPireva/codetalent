@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { Flag } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api } from "@/lib/trpc";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,9 +23,111 @@ export default function ConversationScreen() {
   const { user } = useAuth();
   const c = useThemeColors();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const router = useRouter();
   const [text, setText] = useState("");
   const utils = api.useUtils();
   const flatListRef = useRef<FlatList>(null);
+
+  const { data: threadDetail } = api.messages.getThreadDetail.useQuery(
+    { threadId: threadId! },
+    { enabled: !!threadId },
+  );
+  const reportMutation = api.moderation.reportUser.useMutation();
+  const blockMutation = api.moderation.blockUser.useMutation();
+
+  useLayoutEffect(() => {
+    if (!threadDetail?.otherPartyUserId) return;
+    const otherUserId = threadDetail.otherPartyUserId;
+
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          className="mr-2 p-2"
+          onPress={() => {
+            Alert.alert("Moderation", "Choose an action", [
+              {
+                text: "Report User",
+                onPress: () => {
+                  Alert.alert("Report Reason", "Why are you reporting this user?", [
+                    {
+                      text: "Spam",
+                      onPress: () => {
+                        reportMutation.mutate(
+                          { reportedUserId: otherUserId, reason: "SPAM", contentType: "MESSAGE" },
+                          { onSuccess: () => Alert.alert("Reported", "Thank you for your report. We will review it.") },
+                        );
+                      },
+                    },
+                    {
+                      text: "Harassment",
+                      onPress: () => {
+                        reportMutation.mutate(
+                          { reportedUserId: otherUserId, reason: "HARASSMENT", contentType: "MESSAGE" },
+                          { onSuccess: () => Alert.alert("Reported", "Thank you for your report. We will review it.") },
+                        );
+                      },
+                    },
+                    {
+                      text: "Inappropriate",
+                      onPress: () => {
+                        reportMutation.mutate(
+                          { reportedUserId: otherUserId, reason: "INAPPROPRIATE", contentType: "MESSAGE" },
+                          { onSuccess: () => Alert.alert("Reported", "Thank you for your report. We will review it.") },
+                        );
+                      },
+                    },
+                    {
+                      text: "Other",
+                      onPress: () => {
+                        reportMutation.mutate(
+                          { reportedUserId: otherUserId, reason: "OTHER", contentType: "MESSAGE" },
+                          { onSuccess: () => Alert.alert("Reported", "Thank you for your report. We will review it.") },
+                        );
+                      },
+                    },
+                    { text: "Cancel", style: "cancel" },
+                  ]);
+                },
+              },
+              {
+                text: "Block User",
+                style: "destructive",
+                onPress: () => {
+                  Alert.alert(
+                    "Block User",
+                    "You will no longer see messages from this user. Are you sure?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Block",
+                        style: "destructive",
+                        onPress: () => {
+                          blockMutation.mutate(
+                            { blockedUserId: otherUserId },
+                            {
+                              onSuccess: () => {
+                                utils.messages.listThreads.invalidate();
+                                Alert.alert("Blocked", "User has been blocked.");
+                                router.back();
+                              },
+                            },
+                          );
+                        },
+                      },
+                    ],
+                  );
+                },
+              },
+              { text: "Cancel", style: "cancel" },
+            ]);
+          }}
+        >
+          <Flag size={20} color={c.mutedFg} />
+        </Pressable>
+      ),
+    });
+  }, [threadDetail?.otherPartyUserId, navigation, c.mutedFg]);
 
   const {
     data,

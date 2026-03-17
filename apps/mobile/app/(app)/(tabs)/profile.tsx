@@ -7,8 +7,9 @@ import {
   ActivityIndicator,
   RefreshControl,
   Linking,
+  Alert,
 } from "react-native";
-import { Settings } from "lucide-react-native";
+import { Settings, ChevronRight } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "@/lib/trpc";
@@ -57,6 +58,12 @@ export default function ProfileTabScreen() {
     assessmentResults: true,
     newJobMatches: true,
     applicationUpdates: true,
+  });
+
+  const deleteAccountMutation = api.auth.deleteAccount.useMutation();
+  const { data: blockedUsers, refetch: refetchBlocked } = api.moderation.getBlockedUsers.useQuery();
+  const unblockMutation = api.moderation.unblockUser.useMutation({
+    onSuccess: () => refetchBlocked(),
   });
 
   const { data: serverPrefs } = api.notification.getPreferences.useQuery(undefined, {
@@ -344,18 +351,122 @@ export default function ProfileTabScreen() {
         </View>
       </View>
 
+      {/* Legal */}
+      <View className="mb-3 rounded-xl p-4" style={{ backgroundColor: c.card }}>
+        <Text className="mb-3 font-bold text-base" style={{ color: c.fg }}>
+          Legal
+        </Text>
+        <Pressable
+          className="flex-row items-center justify-between py-3"
+          style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight }}
+          onPress={() => Linking.openURL("https://talentflow.codeks.net/terms")}
+        >
+          <Text className="font-sans text-sm" style={{ color: c.fg }}>Terms of Service</Text>
+          <ChevronRight size={16} color={c.mutedFg} />
+        </Pressable>
+        <Pressable
+          className="flex-row items-center justify-between py-3"
+          onPress={() => Linking.openURL("https://talentflow.codeks.net/privacy")}
+        >
+          <Text className="font-sans text-sm" style={{ color: c.fg }}>Privacy Policy</Text>
+          <ChevronRight size={16} color={c.mutedFg} />
+        </Pressable>
+      </View>
+
+      {/* Blocked Users */}
+      <View className="mb-3 rounded-xl p-4" style={{ backgroundColor: c.card }}>
+        <Text className="mb-3 font-bold text-base" style={{ color: c.fg }}>
+          Blocked Users
+        </Text>
+        {blockedUsers && blockedUsers.length > 0 ? (
+          blockedUsers.map((blocked) => (
+            <View
+              key={blocked.id}
+              className="flex-row items-center justify-between py-2.5"
+              style={{ borderBottomWidth: 1, borderBottomColor: c.borderLight }}
+            >
+              <View className="flex-row items-center gap-2">
+                <View
+                  className="h-8 w-8 items-center justify-center rounded-full"
+                  style={{ backgroundColor: c.primary }}
+                >
+                  <Text className="font-bold text-xs" style={{ color: c.primaryFg }}>
+                    {blocked.name?.charAt(0)?.toUpperCase() ?? "?"}
+                  </Text>
+                </View>
+                <Text className="font-sans text-sm" style={{ color: c.fg }}>
+                  {blocked.name ?? "Unknown"}
+                </Text>
+              </View>
+              <Pressable
+                className="rounded-lg px-3 py-1.5"
+                style={{ backgroundColor: c.surface }}
+                onPress={() => {
+                  Alert.alert(
+                    "Unblock User",
+                    `Are you sure you want to unblock ${blocked.name ?? "this user"}?`,
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Unblock",
+                        onPress: () => unblockMutation.mutate({ blockedUserId: blocked.id }),
+                      },
+                    ],
+                  );
+                }}
+              >
+                <Text className="font-medium text-xs" style={{ color: c.destructive }}>Unblock</Text>
+              </Pressable>
+            </View>
+          ))
+        ) : (
+          <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
+            No blocked users
+          </Text>
+        )}
+      </View>
+
       {/* Account */}
       <View className="mb-4 rounded-xl p-4" style={{ backgroundColor: c.card }}>
         <Text className="mb-3 font-bold text-base" style={{ color: c.fg }}>
           Account
         </Text>
         <Pressable
-          className="items-center rounded-xl py-3.5"
+          className="mb-3 items-center rounded-xl py-3.5"
           style={{ backgroundColor: `${c.destructive}1A` }}
           onPress={logout}
         >
           <Text className="font-medium text-base" style={{ color: c.destructive }}>
             Sign Out
+          </Text>
+        </Pressable>
+        <Pressable
+          className="items-center rounded-xl py-3.5"
+          style={{ backgroundColor: c.destructive }}
+          onPress={() => {
+            Alert.alert(
+              "Delete Account",
+              "This will permanently delete your account and all data. This cannot be undone.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Delete",
+                  style: "destructive",
+                  onPress: async () => {
+                    try {
+                      await deleteAccountMutation.mutateAsync();
+                      await logout();
+                    } catch {
+                      Alert.alert("Error", "Failed to delete account. Please try again.");
+                    }
+                  },
+                },
+              ],
+            );
+          }}
+        >
+          <Text className="font-medium text-base" style={{ color: "#FFFFFF" }}>
+            Delete Account
           </Text>
         </Pressable>
       </View>

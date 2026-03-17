@@ -11,6 +11,7 @@ import { applicationRouter } from "@/server/api/routers/application";
 import { subscriptionRouter } from "@/server/api/routers/subscription";
 import { notificationRouter } from "@/server/api/routers/notification";
 import { messagesRouter } from "@/server/api/routers/messages";
+import { moderationRouter } from "@/server/api/routers/moderation";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -25,6 +26,7 @@ export const appRouter = createTRPCRouter({
   subscription: subscriptionRouter,
   notification: notificationRouter,
   messages: messagesRouter,
+  moderation: moderationRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -85,7 +85,7 @@ export function FloatingTabBar({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.wrapper, { bottom: Math.max(insets.bottom, Platform.OS === "android" ? 48 : 12) + 12 }]}>
+    <View style={[styles.wrapper, { bottom: Platform.OS === "android" ? Math.max(insets.bottom, 48) + 12 : insets.bottom }]}>
       <View
         style={[
           styles.container,
