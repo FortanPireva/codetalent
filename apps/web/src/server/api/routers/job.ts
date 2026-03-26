@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, clientProcedure, adminProcedure, approvedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure, clientProcedure, adminProcedure, approvedProcedure } from "@/server/api/trpc";
 import { ExperienceLevel, EmploymentType, WorkArrangement, JobUrgency, JobStatus } from "@codetalent/db";
 import { db } from "@/server/db";
 
@@ -504,6 +504,67 @@ export const jobRouter = createTRPCRouter({
       closedJobs: counts.CLOSED ?? 0,
     };
   }),
+
+  // ── Public procedures (no auth required) ──────────────────────────
+
+  publicList: publicProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        roleType: z.string().optional(),
+        experienceLevel: z.nativeEnum(ExperienceLevel).optional(),
+        workArrangement: z.nativeEnum(WorkArrangement).optional(),
+        employmentType: z.nativeEnum(EmploymentType).optional(),
+        limit: z.number().min(1).max(100).default(50),
+      }).optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const { search, roleType, experienceLevel, workArrangement, employmentType, limit } = input ?? {};
+
+      const where = {
+        status: "OPEN" as const,
+        ...(roleType ? { roleType } : {}),
+        ...(experienceLevel ? { experienceLevel } : {}),
+        ...(workArrangement ? { workArrangement } : {}),
+        ...(employmentType ? { employmentType } : {}),
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" as const } },
+                { summary: { contains: search, mode: "insensitive" as const } },
+                { requiredSkills: { hasSome: [search] } },
+              ],
+            }
+          : {}),
+      };
+
+      return ctx.db.job.findMany({
+        where,
+        orderBy: { publishedAt: "desc" },
+        take: limit,
+        include: { client: { select: { name: true, slug: true, logo: true, location: true } } },
+      });
+    }),
+
+  publicGetById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const job = await ctx.db.job.findUnique({
+        where: { id: input.id, status: "OPEN" },
+        include: { client: { select: { name: true, slug: true, logo: true, location: true, industry: true, size: true, description: true, website: true, techStack: true } } },
+      });
+
+      if (!job) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      }
+
+      await ctx.db.job.update({
+        where: { id: input.id },
+        data: { viewCount: { increment: 1 } },
+      });
+
+      return job;
+    }),
 
   // ── Candidate procedures (approved candidates only) ───────────────
 

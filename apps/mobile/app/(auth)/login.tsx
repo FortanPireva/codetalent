@@ -170,10 +170,10 @@ export default function LoginScreen() {
           </Pressable>
         </Link>
 
-        <Link href="/(auth)/welcome" asChild>
+        <Link href="/(guest)/jobs" asChild>
           <Pressable className="mt-4 items-center">
             <Text className="font-sans text-sm" style={{ color: c.mutedFg }}>
-              Learn more about Talentflow
+              Browse jobs without signing in
             </Text>
           </Pressable>
         </Link>

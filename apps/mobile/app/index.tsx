@@ -28,5 +28,6 @@ export default function Index() {
     return <Redirect href="/(auth)/welcome" />;
   }
 
-  return <Redirect href="/(auth)/login" />;
+  // Unauthenticated users go to guest job browsing
+  return <Redirect href="/(guest)/jobs" />;
 }

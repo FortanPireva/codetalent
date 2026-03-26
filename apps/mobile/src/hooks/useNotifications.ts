@@ -37,11 +37,21 @@ export function useNotifications(enabled: boolean = true) {
     registerForPushNotifications().then((token) => {
       if (token) {
         registered.current = true;
-        registerMutation.mutate({
-          token,
-          platform: Platform.OS as "ios" | "android",
-        });
+        registerMutation.mutate(
+          {
+            token,
+            platform: Platform.OS as "ios" | "android",
+          },
+          {
+            onError: (err) => {
+              console.warn("Failed to register push token:", err);
+              registered.current = false;
+            },
+          }
+        );
       }
+    }).catch((err) => {
+      console.warn("Push notification registration error:", err);
     });
 
     // Listen for notifications received while app is in foreground

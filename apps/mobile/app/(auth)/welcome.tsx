@@ -80,7 +80,7 @@ export default function WelcomeScreen() {
 
   async function markSeenAndNavigate() {
     await AsyncStorage.setItem(WELCOME_SEEN_KEY, "true");
-    router.replace("/(auth)/login");
+    router.replace("/(guest)/jobs");
   }
 
   function handleSkip() {
