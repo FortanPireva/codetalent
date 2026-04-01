@@ -94,11 +94,9 @@ export function useSocialAuth() {
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
         ],
       });
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code;
-      if (code !== "ERR_REQUEST_CANCELED") {
-        Alert.alert("Error", "Apple sign-in failed");
-      }
+    } catch {
+      // Any Apple dialog error (cancel, double-tap, in-progress) — silently return.
+      // The server call in handleSocialLogin has its own error handling.
       return;
     }
 

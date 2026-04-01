@@ -86,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    queryClient.cancelQueries();
     await SecureStore.deleteItemAsync("auth_token");
     await SecureStore.deleteItemAsync("auth_user");
     setUser(null);
