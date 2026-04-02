@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import * as SecureStore from "expo-secure-store";
 import { StepContainer } from "./StepContainer";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { uploadFile } from "@/lib/upload";
 import type { OnboardingFormData } from "@/lib/onboarding";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
 interface Step1PersonalInfoProps {
   data: OnboardingFormData;
@@ -36,29 +34,15 @@ export function Step1PersonalInfo({ data, onUpdate, onNext, onBack }: Step1Perso
 
       setUploadingAvatar(true);
 
-      const token = await SecureStore.getItemAsync("auth_token");
-      const formData = new FormData();
-      formData.append("file", {
-        uri: file.uri,
-        type: file.mimeType || "image/jpeg",
-        name: file.name,
-      } as unknown as Blob);
-      formData.append("type", "avatar");
-
-      const response = await fetch(`${API_URL}/api/upload-image`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const { url } = await uploadFile<{ url: string }>({
+        endpoint: "/api/upload-image",
+        file: {
+          uri: file.uri,
+          type: file.mimeType || "image/jpeg",
+          name: file.name,
         },
-        body: formData,
+        extraFields: { type: "avatar" },
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Upload failed");
-      }
-
-      const { url } = await response.json();
       onUpdate({ profilePicture: url });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to upload image";

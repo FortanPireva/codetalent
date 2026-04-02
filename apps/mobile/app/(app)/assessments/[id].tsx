@@ -7,15 +7,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { api } from "@/lib/trpc";
 import { useThemeColors } from "@/hooks/useThemeColors";
-
-const statusColors: Record<string, string> = {
-  ASSIGNED: "#3b82f6",
-  IN_PROGRESS: "#f59e0b",
-  SUBMITTED: "#8b5cf6",
-  UNDER_REVIEW: "#6366f1",
-  PASSED: "#22c55e",
-  REJECTED: "#ef4444",
-};
+import { submissionStatusColors } from "@/lib/statusColors";
 
 export default function AssessmentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,7 +45,7 @@ export default function AssessmentDetailScreen() {
         <View
           className="mb-5 self-start rounded-lg px-3 py-1.5"
           style={{
-            backgroundColor: statusColors[submission.status] ?? "#999",
+            backgroundColor: submissionStatusColors[submission.status] ?? "#999",
           }}
         >
           <Text className="font-bold text-xs text-white">

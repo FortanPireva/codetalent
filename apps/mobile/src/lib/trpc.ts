@@ -1,5 +1,5 @@
 import { createTRPCReact } from "@trpc/react-query";
-import { httpBatchLink, retryLink } from "@trpc/client";
+import { httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import * as SecureStore from "expo-secure-store";
 import type { AppRouter } from "@codetalent/web/server/api/root";
@@ -12,15 +12,6 @@ export function createMobileTRPCClient() {
   return api.createClient({
     transformer: superjson,
     links: [
-      retryLink({
-        retry(opts) {
-          // Only retry on network/timeout errors, not on 4xx errors
-          if (opts.error?.data?.code === "UNAUTHORIZED") return false;
-          if (opts.error?.data?.code === "BAD_REQUEST") return false;
-          // Retry up to 2 times for mutations (covers cold starts)
-          return opts.attempts < 2;
-        },
-      }),
       httpBatchLink({
         url: `${API_URL}/api/trpc`,
         async headers() {

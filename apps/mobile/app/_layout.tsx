@@ -21,6 +21,7 @@ import { api, createMobileTRPCClient } from "@/lib/trpc";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const lightIcon = require("../assets/icon.png");
 const darkIcon = require("../assets/icon-dark.png");
@@ -30,19 +31,37 @@ SplashScreen.preventAutoHideAsync();
 const MIN_SPLASH_MS = 1400;
 
 export default function RootLayout() {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            gcTime: 5 * 60_000,
+            retry: 2,
+            refetchOnWindowFocus: false,
+            refetchIntervalInBackground: false,
+          },
+          mutations: {
+            retry: false,
+          },
+        },
+      }),
+  );
   const [trpcClient] = useState(() => createMobileTRPCClient());
 
   return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemeProvider>
-            <RootLayoutInner />
-          </ThemeProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </api.Provider>
+    <ErrorBoundary>
+      <api.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ThemeProvider>
+              <RootLayoutInner />
+            </ThemeProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </api.Provider>
+    </ErrorBoundary>
   );
 }
 

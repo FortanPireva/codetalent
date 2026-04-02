@@ -18,7 +18,7 @@ import {
   employmentTypeLabels,
   workArrangementLabels,
 } from "@/lib/constants";
-import { Search } from "lucide-react-native";
+import { Search, Bookmark } from "lucide-react-native";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { SearchBar } from "@/components/jobs/SearchBar";
 import { FilterSheet, type JobFilters } from "@/components/jobs/FilterSheet";
@@ -28,19 +28,31 @@ import { JobCardSkeleton } from "@/components/jobs/JobCardSkeleton";
 export default function JobsScreen() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<JobFilters>({});
+  const [showSaved, setShowSaved] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
-  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const { bookmarkedIds, isBookmarked, toggleBookmark } = useBookmarks();
   const filterSheetRef = useRef<BottomSheetModal>(null);
   const c = useThemeColors();
 
   const { data, isLoading, refetch, isRefetching } = api.job.candidateList.useQuery({
     search: debouncedSearch || undefined,
-    experienceLevel: filters.experienceLevel as any,
-    employmentType: filters.employmentType as any,
-    workArrangement: filters.workArrangement as any,
+    experienceLevel: filters.experienceLevel as
+      | "INTERN" | "JUNIOR" | "MID" | "SENIOR" | "STAFF" | "PRINCIPAL" | "LEAD" | "MANAGER"
+      | undefined,
+    employmentType: filters.employmentType as
+      | "FULL_TIME" | "PART_TIME" | "CONTRACT" | "FREELANCE" | "INTERNSHIP"
+      | undefined,
+    workArrangement: filters.workArrangement as
+      | "ONSITE" | "HYBRID" | "REMOTE_LOCAL" | "REMOTE_GLOBAL"
+      | undefined,
+  }, {
+    staleTime: 60_000,
   });
 
-  const jobs = data ?? [];
+  const allJobs = data ?? [];
+  const jobs = showSaved
+    ? allJobs.filter((j) => bookmarkedIds.has(j.id))
+    : allJobs;
 
   const hasActiveFilters = !!(
     filters.experienceLevel ||
@@ -112,7 +124,9 @@ export default function JobsScreen() {
       {/* Results count */}
       {!isLoading && (
         <Text className="mb-2 px-4 font-sans text-sm" style={{ color: c.mutedFg }}>
-          {jobs.length} open position{jobs.length !== 1 ? "s" : ""}
+          {showSaved
+            ? `${jobs.length} saved job${jobs.length !== 1 ? "s" : ""}`
+            : `${jobs.length} open position${jobs.length !== 1 ? "s" : ""}`}
         </Text>
       )}
     </>
@@ -121,19 +135,29 @@ export default function JobsScreen() {
   const renderEmpty = () => (
     <View className="flex-1 items-center justify-center py-20">
       <View className="mb-2">
-        <Search size={36} strokeWidth={1.5} color={c.mutedFg} />
+        {showSaved ? (
+          <Bookmark size={36} strokeWidth={1.5} color={c.mutedFg} />
+        ) : (
+          <Search size={36} strokeWidth={1.5} color={c.mutedFg} />
+        )}
       </View>
-      <Text className="mb-1 font-bold text-base" style={{ color: c.fg }}>No jobs match your filters</Text>
-      <Text className="mb-4 font-sans text-sm" style={{ color: c.mutedFg }}>
-        Try adjusting your search or filters
+      <Text className="mb-1 font-bold text-base" style={{ color: c.fg }}>
+        {showSaved ? "No saved jobs yet" : "No jobs match your filters"}
       </Text>
-      <Pressable
-        onPress={clearAllFilters}
-        className="rounded-lg px-5 py-2.5"
-        style={{ backgroundColor: c.primary }}
-      >
-        <Text className="font-medium text-sm" style={{ color: c.primaryFg }}>Clear Filters</Text>
-      </Pressable>
+      <Text className="mb-4 text-center font-sans text-sm" style={{ color: c.mutedFg }}>
+        {showSaved
+          ? "Tap the bookmark icon on any job to save it here"
+          : "Try adjusting your search or filters"}
+      </Text>
+      {!showSaved && (
+        <Pressable
+          onPress={clearAllFilters}
+          className="rounded-lg px-5 py-2.5"
+          style={{ backgroundColor: c.primary }}
+        >
+          <Text className="font-medium text-sm" style={{ color: c.primaryFg }}>Clear Filters</Text>
+        </Pressable>
+      )}
     </View>
   );
 
@@ -148,6 +172,44 @@ export default function JobsScreen() {
             onFilterPress={() => filterSheetRef.current?.present()}
             hasActiveFilters={hasActiveFilters}
           />
+
+          {/* All / Saved toggle */}
+          <View className="flex-row gap-2 px-4 pb-2">
+            <Pressable
+              className="flex-row items-center rounded-lg px-4 py-2"
+              style={{
+                backgroundColor: !showSaved ? c.primary : c.tag,
+              }}
+              onPress={() => setShowSaved(false)}
+            >
+              <Text
+                className="font-medium text-sm"
+                style={{ color: !showSaved ? c.primaryFg : c.mutedFg }}
+              >
+                All
+              </Text>
+            </Pressable>
+            <Pressable
+              className="flex-row items-center gap-1.5 rounded-lg px-4 py-2"
+              style={{
+                backgroundColor: showSaved ? c.primary : c.tag,
+              }}
+              onPress={() => setShowSaved(true)}
+            >
+              <Bookmark
+                size={14}
+                strokeWidth={1.5}
+                color={showSaved ? c.primaryFg : c.mutedFg}
+                fill={showSaved ? c.primaryFg : "none"}
+              />
+              <Text
+                className="font-medium text-sm"
+                style={{ color: showSaved ? c.primaryFg : c.mutedFg }}
+              >
+                Saved{bookmarkedIds.size > 0 ? ` (${bookmarkedIds.size})` : ""}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Content */}

@@ -11,7 +11,9 @@ export function useBookmarks() {
       if (raw) {
         try {
           setBookmarkedIds(new Set(JSON.parse(raw)));
-        } catch {}
+        } catch {
+          AsyncStorage.removeItem(STORAGE_KEY);
+        }
       }
     });
   }, []);

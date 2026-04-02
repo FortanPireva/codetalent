@@ -22,17 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { VerifiedBadge } from "@/components/profile/VerifiedBadge";
-
-const statusColors: Record<string, string> = {
-  PENDING: "#f59e0b",
-  REVIEWING: "#6366f1",
-  SHORTLISTED: "#3b82f6",
-  INTERVIEW: "#8b5cf6",
-  OFFERED: "#22c55e",
-  HIRED: "#10b981",
-  REJECTED: "#ef4444",
-  WITHDRAWN: "#6b7280",
-};
+import { applicationStatusColors as statusColors } from "@/lib/statusColors";
 
 export default function HomeScreen() {
   const router = useRouter();

@@ -277,15 +277,15 @@ export default function ProfileTabScreen() {
             Assessment Scores
           </Text>
           <ScoreBreakdown
-            scores={{
-              codeQuality: (bestReview as any).codeQuality,
-              architecture: (bestReview as any).architecture,
-              typeSafety: (bestReview as any).typeSafety,
-              errorHandling: (bestReview as any).errorHandling,
-              testing: (bestReview as any).testing,
-              gitPractices: (bestReview as any).gitPractices,
-              documentation: (bestReview as any).documentation,
-              bestPractices: (bestReview as any).bestPractices,
+            scores={bestReview as {
+              codeQuality: number;
+              architecture: number;
+              typeSafety: number;
+              errorHandling: number;
+              testing: number;
+              gitPractices: number;
+              documentation: number;
+              bestPractices: number;
             }}
           />
         </View>

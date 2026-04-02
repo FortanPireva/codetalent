@@ -24,6 +24,22 @@ export const workArrangementLabels: Record<string, string> = {
   REMOTE_GLOBAL: "Remote (Global)",
 };
 
+export const applicationStatusLabels: Record<string, string> = {
+  APPLIED: "Applied",
+  INVITED: "Invited",
+  INTERVIEW: "Interview",
+  HIRED: "Hired",
+  REJECTED: "Rejected",
+};
+
+export const applicationStatusDescriptions: Record<string, string> = {
+  APPLIED: "Your application is being reviewed",
+  INVITED: "You've been invited to the next step",
+  INTERVIEW: "Interview stage in progress",
+  HIRED: "Congratulations! You got the job",
+  REJECTED: "This application was not selected",
+};
+
 export function formatSalary(
   min?: number | null,
   max?: number | null,

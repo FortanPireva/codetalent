@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { View, Text, Pressable, ActivityIndicator, Alert } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import * as SecureStore from "expo-secure-store";
 import { StepContainer } from "./StepContainer";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { uploadFile } from "@/lib/upload";
 import type { OnboardingFormData } from "@/lib/onboarding";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
 interface Step5ResumeProps {
   data: OnboardingFormData;
@@ -38,28 +36,14 @@ export function Step5Resume({ data, onUpdate, onNext, onBack }: Step5ResumeProps
       setUploading(true);
       setFileName(file.name);
 
-      const token = await SecureStore.getItemAsync("auth_token");
-      const formData = new FormData();
-      formData.append("file", {
-        uri: file.uri,
-        type: "application/pdf",
-        name: file.name,
-      } as unknown as Blob);
-
-      const response = await fetch(`${API_URL}/api/upload-resume`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const { resumeUrl } = await uploadFile<{ resumeUrl: string }>({
+        endpoint: "/api/upload-resume",
+        file: {
+          uri: file.uri,
+          type: "application/pdf",
+          name: file.name,
         },
-        body: formData,
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Upload failed");
-      }
-
-      const { resumeUrl } = await response.json();
       onUpdate({ resumeUrl });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to upload resume";
